@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UC Navvy – Hazard Reporting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div>UC Navvy</div>
+        <div>
+            <a href="route.html">Routing</a> | 
+            <a href="hazard.html">Hazard Reporting</a> | 
+            <a href="#">Help</a>
+            <i class="material-icons">help</i>
+        </div>
+    </div>
+
+    <!-- Enter hazard -->
+    <div class="container">
+        <h1>Report a Hazard</h1>
+
+        <!-- Placeholder for Map -->
+        <label for="map">Drop a pin on the map</label>
+        <div id="map" style="width:100%; height:300px; background-color:#eee; border:1px solid #ccc; margin-bottom:1.5rem;">
+            <!-- Map will go here -->
+            <p style="text-align:center; padding-top:130px; color:#777;">[Map placeholder]</p>
+        </div>
+
+        <!-- Hazard Type -->
+        <label for="hazard-type">Select Hazard Type</label>
+        <select id="hazard-type" name="hazard-type" style="width:100%; padding:0.75rem; margin-bottom:1.5rem; border:1px solid #ccc; border-radius:8px;">
+            <option value="">-- Please choose an option --</option>
+            <option value="construction">Construction</option>
+            <option value="elevator">Broken Elevator</option>
+            <option value="obstruction">Path Obstructed</option>
+        </select>
+
+        <!-- Submit Button -->
+        <button type="submit">Submit Hazard Report</button>
+    </div>
+
+</body>
+</html>
