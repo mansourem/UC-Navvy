@@ -1,0 +1,12 @@
+{
+    "paths": [
+        {
+           "node": "node ID which all listed points connect to",
+           "connections": {"node_id connection":"boolean true accesible",
+                           "next node_id connection":"boolean true accesible"}
+        },
+        {
+            
+        }
+    ]
+}

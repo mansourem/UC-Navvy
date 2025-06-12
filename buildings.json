@@ -1,0 +1,16 @@
+{
+    "buildings": [
+        {
+            "name": "example",
+            "latitude": "center of building latitude",
+            "longitude": "center of building longitude",
+            "floors": ["list","of","floors","in","the","building"]
+        },
+        {
+            "name": "Braunstein",
+            "latitude": 123.123,
+            "longitude": 123.123,
+            "floors": ["1","2","3","4","5"]
+        }
+    ]
+}
