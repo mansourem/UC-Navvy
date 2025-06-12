@@ -9,7 +9,7 @@ class GraphNode:
     def __init__(self, latitude:float, longitude:float, inside:bool, elevation:list[int], elevator:bool, entrance:bool):
         self.node_lat = latitude
         self.node_long = longitude
-        self.node_in_out = inside
+        self.node_location = inside
         self.elevation = elevation
         self.elevator = elevator
         self.entrance = entrance
