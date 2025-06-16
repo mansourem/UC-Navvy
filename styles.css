@@ -45,6 +45,15 @@
         box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
     }
 
+    .containerlg {
+        max-width: 1200px;
+        margin: 80px auto;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+    }
+
     h1 {
         text-align: center;
         color: var(--red);
