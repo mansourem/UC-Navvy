@@ -11,6 +11,448 @@
         },
         {
             
+        },
+        {
+            "node_id": "node_1",
+            "latitude": 39.133778,
+            "longitude": -84.5165,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_2",
+            "latitude": 39.133778,
+            "longitude": -84.516556,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_3",
+            "latitude": 39.133833,
+            "longitude": -84.51625,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_4",
+            "latitude": 39.132556,
+            "longitude": -84.515999,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_5",
+            "latitude": 39.132444,
+            "longitude": -84.516333,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_6",
+            "latitude": 39.1325,
+            "longitude": -84.516361,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_7",
+            "latitude": 39.1325,
+            "longitude": -84.519333,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_8",
+            "latitude": 39.132556,
+            "longitude": -84.51875,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_9",
+            "latitude": 39.1325,
+            "longitude": -84.518333,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_10",
+            "latitude": 39.132417,
+            "longitude": -84.516889,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_11",
+            "latitude": 39.132611,
+            "longitude": -84.517444,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_12",
+            "latitude": 39.132667,
+            "longitude": -84.516944,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_13",
+            "latitude": 39.132639,
+            "longitude": -84.515999,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": true,
+            "elevator": false
+        },
+        {
+            "node_id": "node_14",
+            "latitude": 39.133528,
+            "longitude": -84.517472,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_15",
+            "latitude": 39.1335,
+            "longitude": -84.517333,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_16",
+            "latitude": 39.132861,
+            "longitude": -84.517389,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": true,
+            "elevator": false
+        },
+        {
+            "node_id": "node_17",
+            "latitude": 39.132833,
+            "longitude": -84.517556,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_18",
+            "latitude": 39.132972,
+            "longitude": -84.518056,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": true,
+            "elevator": false
+        },
+        {
+            "node_id": "node_19",
+            "latitude": 39.132722,
+            "longitude": -84.518111,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_20",
+            "latitude": 39.132778,
+            "longitude": -84.518306,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_21",
+            "latitude": 39.132889,
+            "longitude": -84.518722,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": true,
+            "elevator": false
+        },
+        {
+            "node_id": "node_22",
+            "latitude": 39.132999,
+            "longitude": -84.519167,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": true,
+            "elevator": false
+        },
+        {
+            "node_id": "node_23",
+            "latitude": 39.132999,
+            "longitude": -84.519278,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_24",
+            "latitude": 39.132806,
+            "longitude": -84.519306,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_25",
+            "latitude": 39.13275,
+            "longitude": -84.518306,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_26",
+            "latitude": 39.132778,
+            "longitude": -84.518722,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_27",
+            "latitude": 39.132944,
+            "longitude": -84.517333,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_28",
+            "latitude": 39.132917,
+            "longitude": -84.5175,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_29",
+            "latitude": 39.132889,
+            "longitude": -84.517694,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_30",
+            "latitude": 39.132833,
+            "longitude": -84.517917,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_31",
+            "latitude": 39.132722,
+            "longitude": -84.517472,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_32",
+            "latitude": 39.132806,
+            "longitude": -84.517472,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_33",
+            "latitude": 39.132694,
+            "longitude": -84.517889,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_34",
+            "latitude": 39.132583,
+            "longitude": -84.517889,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_35",
+            "latitude": 39.132917,
+            "longitude": -84.517556,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_36",
+            "latitude": 39.132972,
+            "longitude": -84.517583,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_37",
+            "latitude": 39.133306,
+            "longitude": -84.517639,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_38",
+            "latitude": 39.133472,
+            "longitude": -84.516639,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_39",
+            "latitude": 39.133639,
+            "longitude": -84.51725,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_40",
+            "latitude": 39.133444,
+            "longitude": -84.517167,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_41",
+            "latitude": 39.133667,
+            "longitude": -84.5165,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_42",
+            "latitude": 39.133361,
+            "longitude": -84.516611,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": true,
+            "elevator": false
+        },
+        {
+            "node_id": "node_43",
+            "latitude": 39.13375,
+            "longitude": -84.516194,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_44",
+            "latitude": 39.132639,
+            "longitude": -84.515889,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_45",
+            "latitude": 39.133472,
+            "longitude": -84.515833,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_46",
+            "latitude": 39.13375,
+            "longitude": -84.515833,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_47",
+            "latitude": 39.133639,
+            "longitude": -84.516139,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_48",
+            "latitude": 39.133528,
+            "longitude": -84.516306,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_49",
+            "latitude": 39.133361,
+            "longitude": -84.516056,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
         }
+
     ]
 }
