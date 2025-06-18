@@ -10,9 +10,6 @@
             "elevator":"boolean true if it is an elevator"
         },
         {
-            
-        },
-        {
             "node_id": "node_1",
             "latitude": 39.133778,
             "longitude": -84.5165,
