@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css"> 
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- Leaflet stuff-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+    defer></script>
+
 </head>
 <body>
 
@@ -13,7 +24,7 @@
     <div class="navbar">
         <div>UC Navvy</div>
         <div>
-            <a href="route.html">Routing</a> | 
+            <a href="index.html">Routing</a> | 
             <a href="hazard.html">Hazard Reporting</a> | 
             <a href="#">Help</a>
             <i class="material-icons">help</i>
@@ -26,9 +37,9 @@
 
         <!-- Placeholder for Map -->
         <label for="map">Drop a pin on the map</label>
-        <div id="map" style="width:100%; height:300px; background-color:#eee; border:1px solid #ccc; margin-bottom:1.5rem;">
+        <div id="map">
             <!-- Map will go here -->
-            <p style="text-align:center; padding-top:130px; color:#777;">[Map placeholder]</p>
+            <!-- <p style="text-align:center; padding-top:130px; color:#777;">[Map placeholder]</p> -->
         </div>
 
         <!-- Hazard Type -->
@@ -53,5 +64,6 @@
         <button type="submit">Submit Hazard Report</button>
     </div>
 
+    <script src="hazard.js" defer></script>
 </body>
 </html>
