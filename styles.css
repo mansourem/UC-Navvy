@@ -1,6 +1,6 @@
 :root{
-    --red: #7b1e1e;
-    --darker-red: #601919;
+    --Navvy-red: #7b1e1e;
+    --Navvy-darker-red: #601919;
     --dark-gray: #333;
     --light-gray: #ccc;
 }
@@ -19,7 +19,7 @@
 
     /* Navbar */
     .navbar {
-        background-color: var(--red);
+        background-color: var(--Navvy-red);
         padding: 1rem 2rem;
         color: white;
         display: flex;
@@ -35,7 +35,6 @@
         font-size: 15x;
     }
 
-    /* Main content */
     .container {
         max-width: 600px;
         margin: 80px auto;
@@ -45,9 +44,29 @@
         box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
     }
 
+    .building-polygon {
+    stroke: red;
+    stroke-width: 4;
+    stroke-opacity: 0.7;
+    fill: red;
+    fill-opacity: 0.3;
+    }
+
+    .building-polygon:hover {
+    fill-opacity: 0.5;
+    cursor: pointer;
+    }
+
+    #map { 
+        height: 450px; 
+        width:100%; 
+        background-color:#eee; 
+        border:1px solid #ccc; 
+        margin-bottom:1.5rem;}
+
     h1 {
         text-align: center;
-        color: var(--red);
+        color: var(--Navvy-red);
         font-size: 40px;
         margin: 0px 10px 10px 10px;
     }
@@ -72,7 +91,7 @@
     button {
         width: 100%;
         padding: 0.75rem;
-        background-color: var(--red);
+        background-color: var(--Navvy-red);
         color: white;
         border: none;
         border-radius: 8px;
@@ -82,7 +101,7 @@
     }
 
     button:hover {
-        background-color: var(--darker-red);
+        background-color: var(--Navvy-darker-red);
     }
 
     @media (max-width: 600px) {
