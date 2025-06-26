@@ -34,7 +34,7 @@ nx.draw(G,
         pos=positions, 
         with_labels=True, 
         node_size=100, 
-        node_color='skyblue', 
+        node_color='indianred', 
         edge_color='gray', 
         font_size=8
 )
