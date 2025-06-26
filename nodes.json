@@ -1,14 +1,6 @@
 {
     "nodes":[
-        {
-            "node_id":"example",
-            "latitude":123.123,
-            "longitude":123.123,
-            "location":"outside or building name",
-            "floor":"outside or building level",
-            "entrance":"boolean true if it is an entrance",
-            "elevator":"boolean true if it is an elevator"
-        },
+       
         {
             "node_id": "node_1",
             "latitude": 39.133778,
