@@ -1,0 +1,72 @@
+<!-- For viewing run: `python -m http.server 8000`
+  Then go to http://localhost:8000/hazard.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UC Navvy – Hazard Reporting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- Leaflet stuff-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+    defer></script>
+
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div>UC Navvy</div>
+        <div>
+            <a href="index.html">Routing</a> | 
+            <a href="shuttleroutes.html">Live Shuttle Tracking</a> | 
+            <a href="hazard.html">Hazard Reporting</a> | 
+            <a href="help.html">Help</a>
+            <i class="material-icons">help</i>
+        </div>
+    </div>
+
+    <!-- Enter hazard -->
+    <div class="container">
+        <h1>Report a Hazard</h1>
+
+        <!-- Placeholder for Map -->
+        <p>Drop a pin on the map</p>
+        <div id="map">
+            <!-- Map goes here -->
+        </div>
+
+        <!-- Hazard Type -->
+        <label for="hazard-type">Select Hazard Type</label>
+        <select id="hazard-type" name="hazard-type" style="width:100%; padding:0.75rem; margin-bottom:1.5rem; border:1px solid #ccc; border-radius:8px;">
+            <option value="">-- Please choose an option --</option>
+            <option value="construction">Construction</option>
+            <option value="elevator">Broken Elevator</option>
+            <option value="obstruction">Path Obstructed</option>
+        </select>
+
+         <!-- Hazard Severity -->
+        <label for="hazard-severity">Select Hazard Severity</label>
+        <select id="hazard-severity" name="hazard-severity" style="width:100%; padding:0.75rem; margin-bottom:1.5rem; border:1px solid #ccc; border-radius:8px;">
+            <option value="">-- Please choose an option --</option>
+            <option value=0>0 - mostly walkable</option>
+            <option value=1>1</option>
+            <option value=2>2 - not walkable at all</option>
+        </select>
+
+        <!-- Submit Button -->
+        <button type="submit">Submit Hazard Report</button>
+    </div>
+
+    <script src="hazard.js" defer></script>
+</body>
+</html>
