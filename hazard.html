@@ -40,10 +40,9 @@
         <h1>Report a Hazard</h1>
 
         <!-- Placeholder for Map -->
-        <label for="map">Drop a pin on the map</label>
+        <p>Drop a pin on the map</p>
         <div id="map">
-            <!-- Map will go here -->
-            <!-- <p style="text-align:center; padding-top:130px; color:#777;">[Map placeholder]</p> -->
+            <!-- Map goes here -->
         </div>
 
         <!-- Hazard Type -->
@@ -59,9 +58,9 @@
         <label for="hazard-severity">Select Hazard Severity</label>
         <select id="hazard-severity" name="hazard-severity" style="width:100%; padding:0.75rem; margin-bottom:1.5rem; border:1px solid #ccc; border-radius:8px;">
             <option value="">-- Please choose an option --</option>
-            <option value="construction">0 - mostly walkable</option>
-            <option value="elevator">1</option>
-            <option value="obstruction">2 - not walkable at all</option>
+            <option value=0>0 - mostly walkable</option>
+            <option value=1>1</option>
+            <option value=2>2 - not walkable at all</option>
         </select>
 
         <!-- Submit Button -->
