@@ -196,7 +196,8 @@
       "node": "node_5",
       "connections": {
         "node_10": true,
-        "node_4": true
+        "node_4": true,
+        "node_6": true
       }
     },
     {
