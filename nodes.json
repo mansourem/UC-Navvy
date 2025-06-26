@@ -52,7 +52,7 @@
             "longitude": -84.516361,
             "location": "outside",
             "floor": "outside",
-            "entrance": false,
+            "entrance": true,
             "elevator": false
         },
         {
