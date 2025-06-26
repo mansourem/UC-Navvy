@@ -19,7 +19,7 @@
 
     /* Navbar */
     .navbar {
-        background-color: var(--Navvy-red);
+        background-color: var(--red);
         padding: 1rem 2rem;
         color: white;
         display: flex;
@@ -71,11 +71,12 @@
         width:100%; 
         background-color:#eee; 
         border:1px solid #ccc; 
-        margin-bottom:1.5rem;}
+        margin-bottom:1.5rem;
+    }
 
     h1 {
         text-align: center;
-        color: var(--Navvy-red);
+        color: var(--red);
         font-size: 40px;
         margin: 0px 10px 10px 10px;
     }
@@ -100,7 +101,7 @@
     button {
         width: 100%;
         padding: 0.75rem;
-        background-color: var(--Navvy-red);
+        background-color: var(--red);
         color: white;
         border: none;
         border-radius: 8px;
@@ -110,7 +111,7 @@
     }
 
     button:hover {
-        background-color: var(--Navvy-darker-red);
+        background-color: var(--red);
     }
 
     @media (max-width: 600px) {
