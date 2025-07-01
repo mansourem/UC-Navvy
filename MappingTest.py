@@ -52,4 +52,5 @@ nx.draw(G,
 plt.xlabel("Longitude")
 plt.ylabel("Latitude")
 plt.title("Campus Map Graph")
+plt.gca().set_aspect('equal', adjustable='datalim')
 plt.show()

@@ -27,6 +27,58 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     console.log("added buildings")
 
+// Load and display nodes and edges
+Promise.all([
+  fetch('nodes.json').then(r => r.json()),
+  fetch('edges.json').then(r => r.json())
+]).then(([nodesData, edgesData]) => {
+  // Build a lookup for node positions
+  const nodePos = {};
+  nodesData.nodes.forEach(node => {
+    nodePos[node.node_id] = [node.latitude, node.longitude];
+
+    // Draw node marker with constant size
+    const icon = L.divIcon({
+      className: 'custom-node-icon',
+      iconSize: [8, 8],
+      html: `<div style="
+        width:8px;height:8px;
+        border-radius:50%;
+        background:${node.entrance ? 'limegreen' : 'blue'};
+        border:2px solid ${node.entrance ? 'limegreen' : 'blue'};
+        opacity:0.8;"></div>`
+    });
+
+    L.marker([node.latitude, node.longitude], { icon })
+      .addTo(map)
+      .bindPopup(`<b>${node.node_id}</b><br>Lat: ${node.latitude}<br>Lon: ${node.longitude}${node.entrance ? "<br><b>Entrance</b>" : ""}`)
+      .bindTooltip(node.node_id, {permanent: false, direction: "top"});
+    });
+
+  // Draw edges
+  edgesData.paths.forEach(path => {
+    const from = nodePos[path.node];
+    if (!from) return;
+    Object.keys(path.connections).forEach(toId => {
+      const to = nodePos[toId];
+      if (to) {
+        L.polyline([from, to], {color: 'gray', weight: 2, opacity: 0.7}).addTo(map);
+      }
+    });
+  });
+}).catch(error => {
+  console.error('Failed to load node/edge data:', error);
+});
+
+
+
+
+
+
+
+
+
+
     let hazardMarker = null;
     let hazardCircle = null;
 
