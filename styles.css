@@ -89,13 +89,14 @@
     }
 
     .route-group h2 {
-        margin-top: 0;
+        margin-top: 0rem;
+        margin-bottom: 0.5rem;
         color: #333;
     }
 
     .route-group label {
         display: block;
-        margin-top: 1rem;
+        margin-top: 0.25rem;
         font-weight: bold;
     }
 
@@ -121,8 +122,8 @@
         width:100%; 
         background-color:#eee; 
         border:1px solid #ccc; 
-        margin-bottom:1.5rem;
-        margin-top: 1.5rem;
+        margin-bottom:1.0rem;
+        margin-top: 1.0rem;
     }
 
     h1 {
@@ -134,7 +135,7 @@
 
     label {
         display: block;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
         font-weight: bold;
         color: var(--dark-gray);
     }
@@ -142,7 +143,7 @@
     input[type="text"] {
         width: 100%;
         padding: 0.75rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.0rem;
         border: 1px solid var(--light-gray);
         border-radius: 8px;
         font-size: 1rem;
