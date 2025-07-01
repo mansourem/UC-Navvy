@@ -102,8 +102,8 @@
         },
         {
             "node_id": "node_12",
-            "latitude": 39.132667,
-            "longitude": -84.516944,
+            "latitude": 39.132666666666665,
+            "longitude": -84.51694444444445,
             "location": "outside",
             "floor": "outside",
             "entrance": false,
