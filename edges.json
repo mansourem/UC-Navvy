@@ -301,8 +301,8 @@
         "node_41": true,
         "node_53": true,
         "node_15": true,
-        "node_50": true
-
+        "node_50": true,
+        "node_52": true
       }
     },
     {
@@ -368,13 +368,18 @@
     {
       "node": "node_50",
       "connections": {
-        "node_51": true
+        "node_51": true,
+        "node_38": true,
+        "node_15": true
       }
     },
     {
       "node": "node_52",
       "connections": {
-        "node_53": true
+        "node_53": true,
+        "node_38": true,
+        "node_15": true,
+        "node_37": true
       }
     }
   ]
