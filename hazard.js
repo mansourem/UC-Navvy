@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
       console.error('Failed to load building data:', error);
     });
     console.log("added buildings")
-
+/*
 // Load and display nodes and edges
 Promise.all([
   fetch('nodes.json').then(r => r.json()),
@@ -52,7 +52,7 @@ Promise.all([
     L.marker([node.latitude, node.longitude], { icon })
       .addTo(map)
       .bindPopup(`<b>${node.node_id}</b><br>Lat: ${node.latitude}<br>Lon: ${node.longitude}${node.entrance ? "<br><b>Entrance</b>" : ""}`)
-      //.bindTooltip(node.node_id, {permanent: false, direction: "top"}); // for testing node ids, dont need this
+      .bindTooltip(node.node_id, {permanent: false, direction: "top"}); // for testing node ids, dont need this
     });
 
   // Draw edges
@@ -70,7 +70,7 @@ Promise.all([
   console.error('Failed to load node/edge data:', error);
 });
 
-
+*/
 
 
 
