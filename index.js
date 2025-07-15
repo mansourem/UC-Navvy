@@ -65,12 +65,12 @@ Promise.all([
         border:2px solid ${node.entrance ? 'limegreen' : 'blue'};
         opacity:0.8;"></div>`
     });
-///*
+/*
    L.marker([node.latitude, node.longitude], { icon })
       .addTo(map)
       .bindPopup(`<b>${node.node_id}</b><br>Lat: ${node.latitude}<br>Lon: ${node.longitude}${node.entrance ? "<br><b>Entrance</b>" : ""}`)
       .bindTooltip(node.node_id, {permanent: false, direction: "top"}); // for testing node ids, dont need this
-       //*/     //this is for displaying nodes for testing.
+       */     //this is for displaying nodes for testing.
     });
 
   // Draw edges
