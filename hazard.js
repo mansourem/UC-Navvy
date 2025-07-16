@@ -81,6 +81,7 @@ Promise.all([
 
     let hazardMarker = null;
     let hazardCircle = null;
+    let infectedEdges = [];
 
     map.on('click', function (e) 
     {
@@ -120,4 +121,65 @@ Promise.all([
             hazardCircle.setRadius(radius); // In case severity changed
         }
     });
+
+    // Handle hazard submission
+    document.querySelector('button[type="submit"]').addEventListener('click', function () {
+    if (!hazardMarker || !hazardCircle) {
+      alert("Please drop a hazard pin before submitting.");
+      return;
+    }
+
+    const hazardLatLng = hazardMarker.getLatLng();
+    const hazardRadius = hazardCircle.getRadius();
+
+    Promise.all([
+      fetch('nodes.json').then(r => r.json()),
+      fetch('edges.json').then(r => r.json())
+    ]).then(([nodesData, edgesData]) => {
+      const nodeLookup = {};
+      nodesData.nodes.forEach(node => {
+        nodeLookup[node.node_id] = L.latLng(node.latitude, node.longitude);
+      });
+
+      // const infectedEdges = [];
+
+      // Remove old infected edges from map
+      infectedEdges.forEach(polyline => {
+        map.removeLayer(polyline);
+      });
+      infectedEdges = []; // Clear the reference
+
+
+      edgesData.paths.forEach(edge => {
+        const fromNode = nodeLookup[edge.node];
+        if (!fromNode) return;
+
+        Object.keys(edge.connections).forEach(toNodeId => {
+          const toNode = nodeLookup[toNodeId];
+          if (!toNode) return;
+
+          // Check if midpoint is inside the hazard circle
+          const midpoint = L.latLng(
+            (fromNode.lat + toNode.lat) / 2,
+            (fromNode.lng + toNode.lng) / 2
+          );
+
+          if (midpoint.distanceTo(hazardLatLng) <= hazardRadius) {
+            infectedEdges.push({ from: edge.node, to: toNodeId });
+
+            // Optional: draw infected edge
+            L.polyline([fromNode, toNode], {
+              color: 'orange',
+              weight: 4,
+              dashArray: '5, 5'
+            }).addTo(map);
+          }
+        });
+      });
+
+      console.log("Infected edges:", infectedEdges);
+      // TODO: submit this data to backend or store in shared state
+    });
+  });
+
 });
