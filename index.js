@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
 window.map = L.map('map').setView([39.1317, -84.5158], 16);
-  let endMarker = null;
+let startMarker = null;
+let endMarker = null;
   const buildingMap = {};
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
