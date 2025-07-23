@@ -38,7 +38,7 @@
         },
         {
             "node_id": "node_5",
-            "latitude": 39.132444444444445,
+            "latitude": 39.132484444444445,
             "longitude": -84.51633333333334,
             "location": "outside",
             "floor": "outside",
@@ -47,8 +47,8 @@
         },
         {
             "node_id": "node_6",
-            "latitude": 39.1325,
-            "longitude": -84.51636111111111,
+            "latitude": 39.13255,
+            "longitude": -84.51628111111111,
             "location": "outside",
             "floor": "outside",
             "entrance": true,
@@ -299,8 +299,8 @@
         },
         {
             "node_id": "node_34",
-            "latitude": 39.132583333333336,
-            "longitude": -84.51788888888889,
+            "latitude": 39.132563333333336,
+            "longitude": -84.51784888888889,
             "location": "outside",
             "floor": "outside",
             "entrance": false,
@@ -475,6 +475,69 @@
             "location": "outside",
             "floor": "outside",
             "entrance": false,
+            "elevator": false
+        },
+         {
+            "node_id": "node_54",
+            "latitude": 39.13332888888889,
+            "longitude": -84.51602555555555,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": true,
+            "elevator": false
+        },
+        {
+            "node_id": "node_55",
+            "latitude": 39.13254111111111,
+            "longitude": -84.51743444444445,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": true,
+            "elevator": false
+        },
+        {
+            "node_id": "node_56",
+            "latitude": 39.132403333333336,
+            "longitude": -84.51784888888889,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_57",
+            "latitude": 39.132403333333336,
+            "longitude": -84.51777888888889,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": true,
+            "elevator": false
+        },
+        {
+            "node_id": "node_58",
+            "latitude": 39.132395666666664,
+            "longitude": -84.5172288888889,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": true,
+            "elevator": false
+        },
+         {
+            "node_id": "node_59",
+            "latitude": 39.132290333333336,
+            "longitude": -84.51780888888889,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": false,
+            "elevator": false
+        },
+        {
+            "node_id": "node_60",
+            "latitude": 39.132363333333336,
+            "longitude": -84.51745888888889,
+            "location": "outside",
+            "floor": "outside",
+            "entrance": true,
             "elevator": false
         }
     ]
