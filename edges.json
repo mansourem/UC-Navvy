@@ -4,459 +4,459 @@
     {
       "node": "node_7",
       "connections": {
-        "node_24": true,
-        "node_8": true
+        "node_24": 0,
+        "node_8": 0
       }
     },
     {
       "node": "node_24",
       "connections": {
-        "node_7": true,
-        "node_23": true,
-        "node_26": true
+        "node_7": 0,
+        "node_23": 0,
+        "node_26": 0
       }
     },
     {
       "node": "node_23",
       "connections": {
-        "node_24": true,
-        "node_22": true
+        "node_24": 0,
+        "node_22": 0
       }
     },
     {
       "node": "node_22",
       "connections": {
-        "node_23": true
+        "node_23": 0
       }
     },
     {
       "node": "node_8",
       "connections": {
-        "node_26": true,
-        "node_7": true,
-        "node_9": true
+        "node_26": 0,
+        "node_7": 0,
+        "node_9": 0
       }
     },
     {
       "node": "node_26",
       "connections": {
-        "node_8": true,
-        "node_21": true,
-        "node_24": true,
-        "node_25": true
+        "node_8": 0,
+        "node_21": 0,
+        "node_24": 0,
+        "node_25": 0
       }
     },
     {
       "node": "node_21",
       "connections": {
-        "node_26": true
+        "node_26": 0
       }
     },
     {
       "node": "node_25",
       "connections": {
-        "node_26": true,
-        "node_19": true,
-        "node_9": true,
-        "node_20": true
+        "node_26": 0,
+        "node_19": 0,
+        "node_9": 0,
+        "node_20": 0
       }
     },
     {
       "node": "node_19",
       "connections": {
-        "node_25": true,
-        "node_33": true,
-        "node_18": true
+        "node_25": 0,
+        "node_33": 0,
+        "node_18": 0
       }
     },
     {
       "node": "node_33",
       "connections": {
-        "node_19": true,
-        "node_9": true,
-        "node_32": true,
-        "node_34": true
+        "node_19": 0,
+        "node_9": 0,
+        "node_32": 999,
+        "node_34": 0
       }
     },
     {
       "node": "node_9",
       "connections": {
-        "node_33": true,
-        "node_25": true,
-        "node_8": true
+        "node_33": 0,
+        "node_25": 0,
+        "node_8": 0
       }
     },
     {
       "node": "node_20",
       "connections": {
-        "node_25": true
+        "node_25": 0
       }
     },
     {
       "node": "node_34",
       "connections": {
-        "node_33": true,
-        "node_31": true,
-        "node_11": true,
-        "node_56": true
+        "node_33": 0,
+        "node_31": 0,
+        "node_11": 0,
+        "node_56": 0
       }
     },
     {
       "node": "node_31",
       "connections": {
-        "node_34": true,
-        "node_32": true,
-        "node_35": true,
-        "node_11": true
+        "node_34": 0,
+        "node_32": 999,
+        "node_35": 0,
+        "node_11": 0
       }
     },
     {
       "node": "node_32",
       "connections": {
-        "node_31": true,
-        "node_28": true,
-        "node_35": true,
-        "node_33": true
+        "node_31": 999,
+        "node_28": 999,
+        "node_35": 999,
+        "node_33": 999
       }
     },
     {
       "node": "node_28",
       "connections": {
-        "node_32": true,
-        "node_29": true,
-        "node_27": true
+        "node_32": 999,
+        "node_29": 0,
+        "node_27": 0
       }
     },
     {
       "node": "node_29",
       "connections": {
-        "node_28": true,
-        "node_30": true
+        "node_28": 0,
+        "node_30": 0
       }
     },
     {
       "node": "node_30",
       "connections": {
-        "node_29": true,
-        "node_33": true
+        "node_29": 0,
+        "node_33": 0
       }
     },
     {
       "node": "node_18",
       "connections": {
-        "node_19": true
+        "node_19": 0
       }
     },
     {
       "node": "node_11",
       "connections": {
-        "node_31": true,
-        "node_12": true,
-        "node_34": true,
-        "node_55": true
+        "node_31": 0,
+        "node_12": 0,
+        "node_34": 0,
+        "node_55": 0
       }
     },
     {
       "node": "node_12",
       "connections": {
-        "node_11": true,
-        "node_17": true,
-        "node_10": true
+        "node_11": 0,
+        "node_17": 0,
+        "node_10": 0
       }
     },
     {
       "node": "node_17",
       "connections": {
-        "node_12": true,
-        "node_35": true,
-        "node_16": true
+        "node_12": 0,
+        "node_35": 0,
+        "node_16": 0
       }
     },
     {
       "node": "node_35",
       "connections": {
-        "node_17": true,
-        "node_36": true,
-        "node_32": true,
-        "node_31": true
+        "node_17": 0,
+        "node_36": 0,
+        "node_32": 999,
+        "node_31": 0
       }
     },
     {
       "node": "node_36",
       "connections": {
-        "node_35": true,
-        "node_27": true,
-        "node_37": true
+        "node_35": 0,
+        "node_27": 0,
+        "node_37": 0
       }
     },
     {
       "node": "node_27",
       "connections": {
-        "node_36": true,
-        "node_28": true
+        "node_36": 0,
+        "node_28": 0
       }
     },
     {
       "node": "node_10",
       "connections": {
-        "node_12": true,
-        "node_5": true,
-        "node_58": true
+        "node_12": 0,
+        "node_5": 0,
+        "node_58": 0
       }
     },
     {
       "node": "node_5",
       "connections": {
-        "node_10": true,
-        "node_4": true,
-        "node_6": true
+        "node_10": 0,
+        "node_4": 0,
+        "node_6": 0
       }
     },
     {
       "node": "node_6",
       "connections": {
-        "node_5": true
+        "node_5": 0
       }
     },
     {
       "node": "node_4",
       "connections": {
-        "node_5": true,
-        "node_44": true,
-        "node_13": true
+        "node_5": 0,
+        "node_44": 0,
+        "node_13": 0
       }
     },
     {
       "node": "node_4",
       "connections": {
-        "node_5": true,
-        "node_44": true,
-        "node_13": true
+        "node_5": 0,
+        "node_44": 0,
+        "node_13": 0
       }
     },
     {
       "node": "node_44",
       "connections": {
-        "node_4": true,
-        "node_45": true
+        "node_4": 0,
+        "node_45": 0
       }
     },
     {
       "node": "node_45",
       "connections": {
-        "node_44": true,
-        "node_46": true,
-        "node_49": true
+        "node_44": 0,
+        "node_46": 0,
+        "node_49": 0
       }
     },
     {
       "node": "node_46",
       "connections": {
-        "node_45": true,
-        "node_49": true,
-        "node_47": true,
-        "node_3": true
+        "node_45": 0,
+        "node_49": 0,
+        "node_47": 0,
+        "node_3": 0
       }
     },
     {
       "node": "node_49",
       "connections": {
-        "node_46": true,
-        "node_48": true,
-        "node_45": true,
-        "node_54": true
+        "node_46": 0,
+        "node_48": 0,
+        "node_45": 0,
+        "node_54": 0
       }
     },
     {
       "node": "node_48",
       "connections": {
-        "node_49": true,
-        "node_47": true
+        "node_49": 0,
+        "node_47": 0
       }
     },
     {
       "node": "node_47",
       "connections": {
-        "node_48": true,
-        "node_43": true,
-        "node_46": true
+        "node_48": 0,
+        "node_43": 0,
+        "node_46": 0
       }
     },
     {
       "node": "node_43",
       "connections": {
-        "node_47": true,
-        "node_3": true,
-        "node_41": true
+        "node_47": 0,
+        "node_3": 0,
+        "node_41": 0
       }
     },
     {
       "node": "node_3",
       "connections": {
-        "node_43": true,
-        "node_1": true,
-        "node_46": true
+        "node_43": 0,
+        "node_1": 0,
+        "node_46": 0
       }
     },
     {
       "node": "node_1",
       "connections": {
-        "node_2": true,
-        "node_3": true
+        "node_2": 0,
+        "node_3": 0
       }
     },
     {
       "node": "node_2",
       "connections": {
-        "node_1": true,
-        "node_41": true
+        "node_1": 0,
+        "node_41": 0
       }
     },
     {
       "node": "node_41",
       "connections": {
-        "node_2": true,
-        "node_38": true,
-        "node_51": true,
-        "node_43": true
+        "node_2": 0,
+        "node_38": 0,
+        "node_51": 0,
+        "node_43": 0
       }
     },
     {
       "node": "node_38",
       "connections": {
-        "node_41": true,
-        "node_53": true,
-        "node_15": true,
-        "node_50": true,
-        "node_52": true
+        "node_41": 0,
+        "node_53": 0,
+        "node_15": 0,
+        "node_50": 0,
+        "node_52": 0
       }
     },
     {
       "node": "node_42",
       "connections": {
-        "node_53": true
+        "node_53": 0
       }
     },
     {
       "node": "node_15",
       "connections": {
-        "node_38": true,
-        "node_14": true,
-        "node_52": true,
-        "node_50": true
+        "node_38": 0,
+        "node_14": 0,
+        "node_52": 0,
+        "node_50": 0
       }
     },
     {
       "node": "node_14",
       "connections": {
-        "node_15": true,
-        "node_39": true,
-        "node_40": true,
-        "node_51": true
+        "node_15": 0,
+        "node_39": 0,
+        "node_40": 0,
+        "node_51": 0
 
       }
     },
     {
       "node": "node_39",
       "connections": {
-        "node_14": true,
-        "node_40": true
+        "node_14": 0,
+        "node_40": 0
       }
     },
     {
       "node": "node_40",
       "connections": {
-        "node_39": true,
-        "node_37": true,
-        "node_14": true
+        "node_39": 0,
+        "node_37": 0,
+        "node_14": 0
       }
     },
     {
       "node": "node_37",
       "connections": {
-        "node_40": true,
-        "node_36": true,
-        "node_52": true
+        "node_40": 0,
+        "node_36": 0,
+        "node_52": 0
       }
     },
     {
       "node": "node_16",
       "connections": {
-        "node_17": true
+        "node_17": 0
       }
     },
     {
       "node": "node_13",
       "connections": {
-        "node_4": true
+        "node_4": 0
       }
     },
     {
       "node": "node_50",
       "connections": {
-        "node_51": true,
-        "node_38": true,
-        "node_15": true
+        "node_51": 0,
+        "node_38": 0,
+        "node_15": 0
       }
     },
     {
       "node": "node_52",
       "connections": {
-        "node_53": true,
-        "node_38": true,
-        "node_15": true,
-        "node_37": true
+        "node_53": 0,
+        "node_38": 0,
+        "node_15": 0,
+        "node_37": 0
       }
     },
     {
       "node": "node_53",
       "connections": {
-        "node_42": true
+        "node_42": 0
       }
     },
     {
       "node": "node_54",
       "connections": {
-        "node_49": true
+        "node_49": 0
       }
     },
     {
       "node": "node_56",
       "connections": {
-        "node_34": true,
-        "node_57": true,
-        "node_59": true
+        "node_34": 0,
+        "node_57": 0,
+        "node_59": 0
       }
     },
     {
       "node": "node_57",
       "connections": {
-        "node_56": true
+        "node_56": 0
       }
     },
     {
       "node": "node_59",
       "connections": {
-        "node_56": true,
-        "node_60": true
+        "node_56": 0,
+        "node_60": 0
       }
     },
     {
       "node": "node_60",
       "connections": {
-        "node_59": true
+        "node_59": 0
       }
     },
      {
       "node": "node_58",
       "connections": {
-        "node_10": true
+        "node_10": 0
       }
     },
     {
       "node": "node_55",
       "connections": {
-        "node_11": true
+        "node_11": 0
       }
     }
   ]

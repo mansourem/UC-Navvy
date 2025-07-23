@@ -1,3 +1,8 @@
+function clearInfectedEdges() {
+  infectedEdges.forEach(line => map.removeLayer(line));
+  infectedEdges = [];
+}
+
 console.log("hazard.js loaded");
 document.addEventListener('DOMContentLoaded', function () {
   const map = L.map('map').setView([39.1317, -84.5158], 16); // Center on UC
@@ -85,6 +90,7 @@ Promise.all([
 
     map.on('click', function (e) 
     {
+        // clearInfectedEdges();
         const severityInput = document.getElementById('hazard-severity');
         const severity = parseInt(severityInput.value);
 
@@ -147,8 +153,6 @@ Promise.all([
       infectedEdges.forEach(polyline => {
         map.removeLayer(polyline);
       });
-      infectedEdges = []; // Clear the reference
-
 
       edgesData.paths.forEach(edge => {
         const fromNode = nodeLookup[edge.node];
@@ -165,14 +169,17 @@ Promise.all([
           );
 
           if (midpoint.distanceTo(hazardLatLng) <= hazardRadius) {
-            infectedEdges.push({ from: edge.node, to: toNodeId });
+            // infectedEdges.push({ from: edge.node, to: toNodeId });
 
             // Optional: draw infected edge
-            L.polyline([fromNode, toNode], {
+            const infectedLine = L.polyline([fromNode, toNode], {
               color: 'orange',
               weight: 4,
               dashArray: '5, 5'
             }).addTo(map);
+
+            infectedEdges.push(infectedLine);
+
           }
         });
       });

@@ -33,6 +33,14 @@ function dijkstra(startId, endId, nodes, edges) {
  
     //console.log(`Calculating path: ${path}`); // Print the path as it's being calculated
 
+    function getHazardLevel(fromId, toId, edgesData) {
+      const path = edgesData.paths.find(p => p.node === fromId);
+      console.log('Looking for fromId:', fromId);
+      console.log('Looking for toId:', toId);
+      console.log('Available paths:', edgesData.paths.map(p => p.node));
+      return path?.connections[toId] ?? 1; // default to 1 if missing
+      
+    }
 
     (adj[nodeId] || []).forEach(neighbor => {
       if (!visited.has(neighbor)) {
@@ -40,7 +48,13 @@ function dijkstra(startId, endId, nodes, edges) {
         const node1 = nodes.nodes.find(n => n.node_id === nodeId);
         const node2 = nodes.nodes.find(n => n.node_id === neighbor);
         const distance = cosineDistanceBetweenPoints(node1, node2);
-        queue.push([cost + distance, neighbor, [...path, neighbor]]);
+        const hazardLevel = getHazardLevel(node1, neighbor, edgesData);
+        console.log("node1: ", node1);
+        console.log("neighbor: ", neighbor);
+        console.log("hazardLevel: ", hazardLevel);
+        console.log("edgesData: ", edgesData);
+        const weightedDistance = distance + (distance * hazardLevel);
+        queue.push([cost + weightedDistance, neighbor, [...path, neighbor]]);
       }
     });
   }
@@ -116,8 +130,8 @@ window.findAndDrawBestPath = function() {
       if (path) {
          const pathString = path.join(" -> "); // Convert path to string
             if (!outputtedPaths.has(pathString)) {
-              // Output path if it hasn't been outputted before
-              outputtedPaths.add(pathString);
+              outputtedPaths.add(pathString); // Output path if it hasn't been outputted before
+              
         // Calculate the total distance of the path
         const totalDistance = path.reduce((acc, nodeId, index) => {
           if (index === 0) return 0;
