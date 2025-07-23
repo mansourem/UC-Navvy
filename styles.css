@@ -124,13 +124,8 @@
         width:100%; 
         background-color:#eee; 
         border:1px solid #ccc; 
-<<<<<<< HEAD
-        margin-bottom:1.0rem;
-        margin-top: 1.0rem;
-=======
         margin-bottom:1.5rem;
         border-radius: 8px;
->>>>>>> 9477967 (Added Mobile resizing)
     }
 
     h1 {
