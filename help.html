@@ -11,17 +11,14 @@
 <body>
 
     <!-- Navbar -->
-    <div class="navbar">
-        <div>UC Navvy</div>
-        <div>
-            <a href="index.html">Routing</a> | 
-            <a href="shuttleroutes.html">Live Shuttle Tracking</a> | 
-            <a href="hazard.html">Hazard Reporting</a> | 
-            <a href="help.html">Help</a>
-            <i class="material-icons">help</i>
-        </div>
-        
-    </div>
+    <div id="navbar"></div>
+    <script>
+        fetch('navbar.html')
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('navbar').innerHTML = html;
+        });
+    </script>
 
     <!-- Enter points -->
     <div class="container">
