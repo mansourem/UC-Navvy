@@ -24,14 +24,19 @@
 <body>
 
     <!-- Navbar -->
-    <div id="navbar"></div>
-    <script>
-        fetch('navbar.html')
-        .then(res => res.text())
-        .then(html => {
-            document.getElementById('navbar').innerHTML = html;
-        });
-    </script>
+    <button class="hamburger" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">UC Navvy</div>
+        <a href="index.html">Home</a>
+        <a href="routing.html">Routing</a>
+        <a href="shuttleroutes.html">Live Shuttle Tracking</a>
+        <a href="hazard.html">Hazard Reporting</a>
+    </div>
 
     <!-- Enter hazard -->
     <div class="container">
@@ -65,6 +70,10 @@
         <button type="submit">Submit Hazard Report</button>
     </div>
 
-    <script src="hazard.js" defer></script>
+    <script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+}
+</script>
 </body>
 </html>

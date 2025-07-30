@@ -6,74 +6,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-
-    <!-- Leaflet stuff-->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin="" />
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin="" defer></script>
-
 </head>
 <body>
 
-    <!-- Navbar -->
-    <div id="navbar"></div>
-    <script>
-        fetch('navbar.html')
-        .then(res => res.text())
-        .then(html => {
-            document.getElementById('navbar').innerHTML = html;
-        });
-    </script>
+    <!-- Hamburger Sidebar Button -->
+    <button class="hamburger" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
 
-    <!-- Enter points -->
-    <div class="container">
-        <h1>Plan Your Route</h1>
-
-        <div class="route-wrapper">
-            <!-- Start -->
-            <div class="route-group">
-                <h2>Start Location</h2>
-                <label for="start-building">Starting Building</label>
-                <select id="start-building" name="start-building">
-                    <option value="">-- Choose a Building --</option>
-                </select>
-                <!-- <label for="start-floor">Start Floor</label> -->
-                <!-- <select id="start-floor" name="start-floor">
-                    <option value="">-- Choose Floor --</option>
-                    <option value="400">400</option>
-                    <option value="500">500</option>
-                    <option value="600">600</option>
-                </select> -->
-            </div>
-
-            <!-- End -->
-            <div class="route-group">
-                <h2>End Location</h2>
-                <label for="end-building">Destination Building</label>
-                <select id="end-building" name="end-building">
-                    <option value="">-- Choose a Building --</option>
-                </select>
-                <!-- <label for="end-floor">End Floor</label>
-                <select id="end-floor" name="end-floor">
-                    <option value="">-- Choose Floor --</option>
-                    <option value="400">400</option>
-                    <option value="500">500</option>
-                    <option value="600">600</option>
-                </select> -->
-            </div>
-        </div>
-
-      <button onclick="findAndDrawBestPath()">Find Route</button>
-        <div id="map"></div>
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">UC Navvy</div>
+        <a href="index.html">Home</a>
+        <a href="routing.html">Routing</a>
+        <a href="shuttleroutes.html">Live Shuttle Tracking</a>
+        <a href="hazard.html">Hazard Reporting</a>
     </div>
 
-    
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Welcome to <span style="color:var(--red)">UC Navvy</span></h1>
+            <p>
+                Your all-in-one campus navigation tool for the University of Cincinnati.<br>
+                Find the best walking routes, track campus shuttles in real time, and report hazards to keep campus safe.
+            </p>
+            <a href="routing.html" class="hero-btn">
+                <span class="material-icons" style="vertical-align: middle;">directions_walk</span>
+                Start Routing
+            </a>
+        </div>
+    </div>
 
-    <script src="index.js" defer></script>
-    <script src="routing.js" defer></script>
+    <!-- Features Section -->
+    <div class="features">
+        <div class="feature-card">
+            <span class="material-icons feature-icon">directions_walk</span>
+            <h2>Routing</h2>
+            <p>Find the best path between buildings and get walking directions across campus.</p>
+            <a href="routing.html" class="feature-link">Go to Routing</a>
+        </div>
+        <div class="feature-card">
+            <span class="material-icons feature-icon">directions_bus</span>
+            <h2>Live Shuttle Tracking</h2>
+            <p>See real-time shuttle locations and plan your ride efficiently.</p>
+            <a href="shuttleroutes.html" class="feature-link">Track Shuttles</a>
+        </div>
+        <div class="feature-card">
+            <span class="material-icons feature-icon">report_problem</span>
+            <h2>Hazard Reporting</h2>
+            <p>Help keep campus safe by reporting hazards and obstacles you encounter.</p>
+            <a href="hazard.html" class="feature-link">Report a Hazard</a>
+        </div>
+    </div>
+
+    <!-- Footer Link Container (styled like a banner) -->
+    <div class="footer-link-banner">
+        For more information, visit the
+        <a href="https://www.uc.edu" target="_blank">University of Cincinnati website</a>.
+    </div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+}
+</script>
 </body>
 </html>
