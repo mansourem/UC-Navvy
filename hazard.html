@@ -61,9 +61,9 @@
         <label for="hazard-severity">Select Hazard Severity</label>
         <select id="hazard-severity" name="hazard-severity" style="width:100%; padding:0.75rem; margin-bottom:1.5rem; border:1px solid #ccc; border-radius:8px;">
             <option value="">-- Please choose an option --</option>
-            <option value=0>0 - mostly walkable</option>
-            <option value=1>1</option>
-            <option value=2>2 - not walkable at all</option>
+            <option value=0>LOW - still walkable</option>
+            <option value=1>MODERATE - moderately walkable</option>
+            <option value=2>HIGH - not walkable at all</option>
         </select>
 
         <!-- Submit Button -->
@@ -71,9 +71,10 @@
     </div>
 
     <script>
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('active');
-}
-</script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+    </script>
+    <script src="hazard.js" defer></script>
 </body>
 </html>
