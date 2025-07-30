@@ -20,17 +20,14 @@
 <body>
 
     <!-- Navbar -->
-    <div class="navbar">
-        <div>UC Navvy</div>
-        <div>
-            <a href="index.html">Routing | </a>
-            <a href="shuttleroutes.html">Live Shuttle Tracking | </a>
-            <a href="hazard.html">Hazard Reporting | </a>
-            <a href="help.html">Help</a>
-            <!-- <i class="material-icons">help</i> -->
-        </div>
-        
-    </div>
+    <div id="navbar"></div>
+    <script>
+        fetch('navbar.html')
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('navbar').innerHTML = html;
+        });
+    </script>
 
     <!-- Enter points -->
     <div class="container">
@@ -44,13 +41,13 @@
                 <select id="start-building" name="start-building">
                     <option value="">-- Choose a Building --</option>
                 </select>
-                <label for="start-floor">Start Floor</label>
-                <select id="start-floor" name="start-floor">
+                <!-- <label for="start-floor">Start Floor</label> -->
+                <!-- <select id="start-floor" name="start-floor">
                     <option value="">-- Choose Floor --</option>
                     <option value="400">400</option>
                     <option value="500">500</option>
                     <option value="600">600</option>
-                </select>
+                </select> -->
             </div>
 
             <!-- End -->
@@ -60,13 +57,13 @@
                 <select id="end-building" name="end-building">
                     <option value="">-- Choose a Building --</option>
                 </select>
-                <label for="end-floor">End Floor</label>
+                <!-- <label for="end-floor">End Floor</label>
                 <select id="end-floor" name="end-floor">
                     <option value="">-- Choose Floor --</option>
                     <option value="400">400</option>
                     <option value="500">500</option>
                     <option value="600">600</option>
-                </select>
+                </select> -->
             </div>
         </div>
 
