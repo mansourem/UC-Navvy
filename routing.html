@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UC Navvy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- Leaflet stuff-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin="" />
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin="" defer></script>
+
+</head>
+<body>
+
+    <!-- Navbar -->
+    <button class="hamburger" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">UC Navvy</div>
+        <a href="index.html">Home</a>
+        <a href="routing.html">Routing</a>
+        <a href="shuttleroutes.html">Live Shuttle Tracking</a>
+        <a href="hazard.html">Hazard Reporting</a>
+    </div>
+
+
+
+    <!-- Enter points -->
+    <div class="container">
+        <h1>Plan Your Route</h1>
+
+        <div class="route-wrapper">
+            <!-- Start -->
+            <div class="route-group">
+                <h2>Start Location</h2>
+                <label for="start-building">Starting Building</label>
+                <select id="start-building" name="start-building">
+                    <option value="">-- Choose a Building --</option>
+                </select>
+                <label for="start-floor">Start Floor</label>
+                <select id="start-floor" name="start-floor">
+                    <option value="">-- Choose Floor --</option>
+                    <option value="400">400</option>
+                    <option value="500">500</option>
+                    <option value="600">600</option>
+                </select>
+            </div>
+
+            <!-- End -->
+            <div class="route-group">
+                <h2>End Location</h2>
+                <label for="end-building">Destination Building</label>
+                <select id="end-building" name="end-building">
+                    <option value="">-- Choose a Building --</option>
+                </select>
+                <label for="end-floor">End Floor</label>
+                <select id="end-floor" name="end-floor">
+                    <option value="">-- Choose Floor --</option>
+                    <option value="400">400</option>
+                    <option value="500">500</option>
+                    <option value="600">600</option>
+                </select>
+            </div>
+        </div>
+
+      <button onclick="findAndDrawBestPath()">Find Route</button>
+        <div id="map"></div>
+    </div>
+
+    
+    <script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
+    </script>
+    <script src="index.js" defer></script>
+    <script src="routing.js" defer></script>
+</body>
+</html>
