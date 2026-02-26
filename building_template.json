@@ -1,0 +1,152 @@
+{
+  "type": "FeatureCollection",
+  "description": "Building Configuration Template - Copy and customize for your buildings",
+  "buildings": [
+    {
+      "building_id": "TEMPLATE_BUILDING_1",
+      "name": "YOUR BUILDING NAME",
+      "coordinates": [
+        [39.0000, -84.0000],
+        [39.0000, -84.0001],
+        [39.0001, -84.0001],
+        [39.0001, -84.0000]
+      ],
+      "floors": [
+        {
+          "floor_id": "TEMPLATE_BUILDING_1_GROUND",
+          "floor_name": "Ground Floor",
+          "floor_number": 0,
+          "elevation_m": 0,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "YOUR BUILDING NAME - Ground Floor",
+              "floor_id": "TEMPLATE_BUILDING_1_GROUND"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [39.0000, -84.0000],
+                  [39.0000, -84.0001],
+                  [39.0001, -84.0001],
+                  [39.0001, -84.0000],
+                  [39.0000, -84.0000]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "TEMPLATE_BUILDING_1_1",
+          "floor_name": "Floor 1",
+          "floor_number": 1,
+          "elevation_m": 3.5,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "YOUR BUILDING NAME - Floor 1",
+              "floor_id": "TEMPLATE_BUILDING_1_1"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [39.0000, -84.0000],
+                  [39.0000, -84.0001],
+                  [39.0001, -84.0001],
+                  [39.0001, -84.0000],
+                  [39.0000, -84.0000]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "TEMPLATE_BUILDING_1_2",
+          "floor_name": "Floor 2",
+          "floor_number": 2,
+          "elevation_m": 7.0,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "YOUR BUILDING NAME - Floor 2",
+              "floor_id": "TEMPLATE_BUILDING_1_2"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [39.0000, -84.0000],
+                  [39.0000, -84.0001],
+                  [39.0001, -84.0001],
+                  [39.0001, -84.0000],
+                  [39.0000, -84.0000]
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "entrances": [
+        {
+          "node_id": "node_TEMPLATE1_entrance_north",
+          "floor_id": "TEMPLATE_BUILDING_1_GROUND",
+          "name": "North Entrance",
+          "accessible": true,
+          "wheelchair_accessible": true
+        },
+        {
+          "node_id": "node_TEMPLATE1_entrance_south",
+          "floor_id": "TEMPLATE_BUILDING_1_GROUND",
+          "name": "South Entrance",
+          "accessible": true,
+          "wheelchair_accessible": false
+        }
+      ],
+      "elevator_nodes": [
+        {
+          "node_id": "node_elevator_TEMPLATE1_1",
+          "floors": [
+            "TEMPLATE_BUILDING_1_GROUND",
+            "TEMPLATE_BUILDING_1_1",
+            "TEMPLATE_BUILDING_1_2"
+          ],
+          "accessible": true,
+          "accessible_restroom": "TEMPLATE_BUILDING_1_1",
+          "notes": "Main elevator, wheelchair accessible"
+        }
+      ],
+      "stairs": [
+        {
+          "node_id": "node_stairs_TEMPLATE1_1",
+          "floors": [
+            "TEMPLATE_BUILDING_1_GROUND",
+            "TEMPLATE_BUILDING_1_1",
+            "TEMPLATE_BUILDING_1_2"
+          ],
+          "accessible": true,
+          "notes": "Central stairwell with landings"
+        },
+        {
+          "node_id": "node_stairs_TEMPLATE1_2",
+          "floors": [
+            "TEMPLATE_BUILDING_1_GROUND",
+            "TEMPLATE_BUILDING_1_1"
+          ],
+          "accessible": false,
+          "notes": "Emergency stairwell, north side"
+        }
+      ]
+    }
+  ],
+  "connector_nodes": [
+    {
+      "node_id": "node_connector_example",
+      "from_building": "TEMPLATE_BUILDING_1",
+      "to_building": "ANOTHER_BUILDING",
+      "description": "Outdoor path or bridge between buildings",
+      "notes": "Update this when connecting multiple buildings"
+    }
+  ]
+}

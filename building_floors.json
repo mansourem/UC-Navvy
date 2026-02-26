@@ -1,0 +1,642 @@
+{
+  "type": "FeatureCollection",
+  "buildings": [
+    {
+      "building_id": "rhodes_hall",
+      "name": "Rhodes Hall",
+      "coordinates": [
+        [
+          39.13322223353045,
+          -84.51652977455443
+        ],
+        [
+          39.132526742905156,
+          -84.51641274643175
+        ],
+        [
+          39.132582605859554,
+          -84.51604005686552
+        ],
+        [
+          39.13263567562518,
+          -84.51602925426941
+        ],
+        [
+          39.132628692763554,
+          -84.51590862527938
+        ],
+        [
+          39.1332208369682,
+          -84.51585281186607
+        ],
+        [
+          39.13322502665001,
+          -84.51592662960624
+        ],
+        [
+          39.13329625120284,
+          -84.51592302874087
+        ],
+        [
+          39.13330183743924,
+          -84.51605085946166
+        ]
+      ],
+      "floors": [
+        {
+          "floor_id": "rhodes_ground",
+          "floor_name": "Ground Floor",
+          "floor_number": 0,
+          "elevation_m": 0,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Rhodes Hall - Ground Floor",
+              "floor_id": "rhodes_ground"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    39.13322223353045,
+                    -84.51652977455443
+                  ],
+                  [
+                    39.132526742905156,
+                    -84.51641274643175
+                  ],
+                  [
+                    39.132582605859554,
+                    -84.51604005686552
+                  ],
+                  [
+                    39.13263567562518,
+                    -84.51602925426941
+                  ],
+                  [
+                    39.132628692763554,
+                    -84.51590862527938
+                  ],
+                  [
+                    39.1332208369682,
+                    -84.51585281186607
+                  ],
+                  [
+                    39.13322502665001,
+                    -84.51592662960624
+                  ],
+                  [
+                    39.13329625120284,
+                    -84.51592302874087
+                  ],
+                  [
+                    39.13330183743924,
+                    -84.51605085946166
+                  ],
+                  [
+                    39.13322223353045,
+                    -84.51652977455443
+                  ]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "rhodes_1",
+          "floor_name": "Floor 1",
+          "floor_number": 1,
+          "elevation_m": 3.5,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Rhodes Hall - Floor 1",
+              "floor_id": "rhodes_1"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    39.13322223353045,
+                    -84.51652977455443
+                  ],
+                  [
+                    39.132526742905156,
+                    -84.51641274643175
+                  ],
+                  [
+                    39.132582605859554,
+                    -84.51604005686552
+                  ],
+                  [
+                    39.13263567562518,
+                    -84.51602925426941
+                  ],
+                  [
+                    39.132628692763554,
+                    -84.51590862527938
+                  ],
+                  [
+                    39.1332208369682,
+                    -84.51585281186607
+                  ],
+                  [
+                    39.13322502665001,
+                    -84.51592662960624
+                  ],
+                  [
+                    39.13329625120284,
+                    -84.51592302874087
+                  ],
+                  [
+                    39.13330183743924,
+                    -84.51605085946166
+                  ],
+                  [
+                    39.13322223353045,
+                    -84.51652977455443
+                  ]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "rhodes_2",
+          "floor_name": "Floor 2",
+          "floor_number": 2,
+          "elevation_m": 7.0,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Rhodes Hall - Floor 2",
+              "floor_id": "rhodes_2"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    39.13322223353045,
+                    -84.51652977455443
+                  ],
+                  [
+                    39.132526742905156,
+                    -84.51641274643175
+                  ],
+                  [
+                    39.132582605859554,
+                    -84.51604005686552
+                  ],
+                  [
+                    39.13263567562518,
+                    -84.51602925426941
+                  ],
+                  [
+                    39.132628692763554,
+                    -84.51590862527938
+                  ],
+                  [
+                    39.1332208369682,
+                    -84.51585281186607
+                  ],
+                  [
+                    39.13322502665001,
+                    -84.51592662960624
+                  ],
+                  [
+                    39.13329625120284,
+                    -84.51592302874087
+                  ],
+                  [
+                    39.13330183743924,
+                    -84.51605085946166
+                  ],
+                  [
+                    39.13322223353045,
+                    -84.51652977455443
+                  ]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "rhodes_3",
+          "floor_name": "Floor 3",
+          "floor_number": 3,
+          "elevation_m": 10.5,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Rhodes Hall - Floor 3",
+              "floor_id": "rhodes_3"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    39.13322223353045,
+                    -84.51652977455443
+                  ],
+                  [
+                    39.132526742905156,
+                    -84.51641274643175
+                  ],
+                  [
+                    39.132582605859554,
+                    -84.51604005686552
+                  ],
+                  [
+                    39.13263567562518,
+                    -84.51602925426941
+                  ],
+                  [
+                    39.132628692763554,
+                    -84.51590862527938
+                  ],
+                  [
+                    39.1332208369682,
+                    -84.51585281186607
+                  ],
+                  [
+                    39.13322502665001,
+                    -84.51592662960624
+                  ],
+                  [
+                    39.13329625120284,
+                    -84.51592302874087
+                  ],
+                  [
+                    39.13330183743924,
+                    -84.51605085946166
+                  ],
+                  [
+                    39.13322223353045,
+                    -84.51652977455443
+                  ]
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "entrances": [
+        {
+          "node_id": "node_6",
+          "floor_id": "rhodes_ground",
+          "accessible": true,
+          "wheelchair_accessible": true
+        },
+        {
+          "node_id": "node_13",
+          "floor_id": "rhodes_ground",
+          "accessible": true,
+          "wheelchair_accessible": true
+        },
+        {
+          "node_id": "node_54",
+          "floor_id": "rhodes_ground",
+          "accessible": true,
+          "wheelchair_accessible": false
+        }
+      ],
+      "elevator_nodes": [
+        {
+          "node_id": "node_elevator_rhodes_1",
+          "floors": [
+            "rhodes_ground",
+            "rhodes_1",
+            "rhodes_2",
+            "rhodes_3"
+          ],
+          "accessible": true
+        }
+      ],
+      "stairs": [
+        {
+          "node_id": "node_stairs_rhodes_1",
+          "floors": [
+            "rhodes_ground",
+            "rhodes_1",
+            "rhodes_2",
+            "rhodes_3"
+          ],
+          "accessible": true
+        }
+      ]
+    },
+    {
+      "building_id": "baldwin_hall",
+      "name": "Baldwin Hall",
+      "coordinates": [
+        [
+          39.13327475178307,
+          -84.51699107500663
+        ],
+        [
+          39.13327475178307,
+          -84.51637799211488
+        ],
+        [
+          39.132518088001376,
+          -84.51637799211488
+        ],
+        [
+          39.132518088001376,
+          -84.51699107500663
+        ]
+      ],
+      "floors": [
+        {
+          "floor_id": "baldwin_4",
+          "floor_name": "Level 4",
+          "floor_number": 4,
+          "elevation_m": 0.0,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Baldwin Hall - Level 4",
+              "floor_id": "baldwin_4"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    39.13327114785138,
+                    -84.516985593223
+                  ],
+                  [
+                    39.13327114785138,
+                    -84.51637799211488
+                  ],
+                  [
+                    39.13252666440204,
+                    -84.51637799211488
+                  ],
+                  [
+                    39.13252666440204,
+                    -84.516985593223
+                  ],
+                  [
+                    39.13327114785138,
+                    -84.516985593223
+                  ]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "baldwin_5",
+          "floor_name": "Level 5",
+          "floor_number": 5,
+          "elevation_m": 3.5,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Baldwin Hall - Level 5",
+              "floor_id": "baldwin_5"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    39.13327475178307,
+                    -84.51699107500663
+                  ],
+                  [
+                    39.13327475178307,
+                    -84.51639638427739
+                  ],
+                  [
+                    39.132522868248635,
+                    -84.51639638427739
+                  ],
+                  [
+                    39.132522868248635,
+                    -84.51699107500663
+                  ],
+                  [
+                    39.13327475178307,
+                    -84.51699107500663
+                  ]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "baldwin_6",
+          "floor_name": "Level 6",
+          "floor_number": 6,
+          "elevation_m": 7.0,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Baldwin Hall - Level 6",
+              "floor_id": "baldwin_6"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    39.13326933759131,
+                    -84.51698263991075
+                  ],
+                  [
+                    39.13326933759131,
+                    -84.51638533096046
+                  ],
+                  [
+                    39.13252917532174,
+                    -84.51638533096046
+                  ],
+                  [
+                    39.13252917532174,
+                    -84.51698263991075
+                  ],
+                  [
+                    39.13326933759131,
+                    -84.51698263991075
+                  ]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "baldwin_7",
+          "floor_name": "Level 7",
+          "floor_number": 7,
+          "elevation_m": 10.5,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Baldwin Hall - Level 7",
+              "floor_id": "baldwin_7"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    39.133269365131866,
+                    -84.51698263991075
+                  ],
+                  [
+                    39.133269365131866,
+                    -84.51637977784726
+                  ],
+                  [
+                    39.13252917532174,
+                    -84.51637977784726
+                  ],
+                  [
+                    39.13252917532174,
+                    -84.51698263991075
+                  ],
+                  [
+                    39.133269365131866,
+                    -84.51698263991075
+                  ]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "baldwin_8",
+          "floor_name": "Level 8",
+          "floor_number": 8,
+          "elevation_m": 14.0,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Baldwin Hall - Level 8",
+              "floor_id": "baldwin_8"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    39.133269365131866,
+                    -84.51698263991075
+                  ],
+                  [
+                    39.133269365131866,
+                    -84.5165042787349
+                  ],
+                  [
+                    39.13252917532174,
+                    -84.5165042787349
+                  ],
+                  [
+                    39.13252917532174,
+                    -84.51698263991075
+                  ],
+                  [
+                    39.133269365131866,
+                    -84.51698263991075
+                  ]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "baldwin_9",
+          "floor_name": "Level 9",
+          "floor_number": 9,
+          "elevation_m": 17.5,
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Baldwin Hall - Level 9",
+              "floor_id": "baldwin_9"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    39.13327167859909,
+                    -84.51698263991075
+                  ],
+                  [
+                    39.13327167859909,
+                    -84.51649448907042
+                  ],
+                  [
+                    39.132518088001376,
+                    -84.51649448907042
+                  ],
+                  [
+                    39.132518088001376,
+                    -84.51698263991075
+                  ],
+                  [
+                    39.13327167859909,
+                    -84.51698263991075
+                  ]
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "entrances": [
+        {
+          "node_id": "node_bd_entrance_main",
+          "floor_id": "baldwin_4",
+          "name": "Main Entrance",
+          "accessible": true,
+          "wheelchair_accessible": true
+        }
+      ],
+      "elevator_nodes": [
+        {
+          "node_id": "node_elevator_bd_1",
+          "floors": [
+            "baldwin_4",
+            "baldwin_5",
+            "baldwin_6",
+            "baldwin_7",
+            "baldwin_8",
+            "baldwin_9"
+          ],
+          "accessible": true
+        }
+      ],
+      "stairs": [
+        {
+          "node_id": "node_stairs_bd_1",
+          "floors": [
+            "baldwin_4",
+            "baldwin_5",
+            "baldwin_6",
+            "baldwin_7",
+            "baldwin_8",
+            "baldwin_9"
+          ],
+          "accessible": true
+        }
+      ]
+    }
+  ],
+  "connector_nodes": [
+    {
+      "node_id": "node_outdoor_bridge_1",
+      "from_building": "rhodes_hall",
+      "to_building": "baldwin_hall",
+      "description": "Outdoor bridge between Rhodes and Baldwin"
+    }
+  ]
+}

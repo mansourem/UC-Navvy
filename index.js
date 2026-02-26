@@ -40,7 +40,9 @@ let endMarker = null;
           entrance_nodes: building.entrance_nodes || [] // <-- Add this line
         };
       });
-console.log("buildingMap:", buildingMap);
+      // Expose buildingMap globally for other scripts
+      window.buildingMap = buildingMap;
+      console.log("buildingMap:", buildingMap);
 
 
 
@@ -73,6 +75,13 @@ Promise.all([
       .bindTooltip(node.node_id, {permanent: false, direction: "top"}); // for testing node ids, dont need this
        */     //this is for displaying nodes for testing.
     });
+
+  // Build and expose node/edge lookup structures for other scripts
+  window.allNodes = {};
+  nodesData.nodes.forEach(node => { window.allNodes[node.node_id] = node; });
+
+  window.allEdges = {};
+  edgesData.paths.forEach(p => { window.allEdges[p.node] = p.connections; });
 
   // Draw edges
   edgesData.paths.forEach(path => {

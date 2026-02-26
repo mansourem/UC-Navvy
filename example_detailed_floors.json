@@ -1,0 +1,300 @@
+{
+  "type": "FeatureCollection",
+  "description": "Example detailed floor plan data for UC-Navvy",
+  "buildings": [
+    {
+      "building_id": "engineering_building",
+      "name": "Engineering Building",
+      "coordinates": [
+        [39.1335, -84.5155],
+        [39.1330, -84.5155],
+        [39.1330, -84.5165],
+        [39.1335, -84.5165]
+      ],
+      "floors": [
+        {
+          "floor_id": "eng_ground",
+          "floor_name": "Ground Floor (Lobby)",
+          "floor_number": 0,
+          "elevation_m": 0,
+          "rooms": [
+            {
+              "room_number": "101",
+              "room_name": "Main Lobby",
+              "type": "lobby"
+            },
+            {
+              "room_number": "102",
+              "room_name": "Engineering Office",
+              "type": "office"
+            },
+            {
+              "room_number": "103",
+              "room_name": "Computer Lab",
+              "type": "lab"
+            },
+            {
+              "room_number": "104",
+              "room_name": "Cafe",
+              "type": "food_service"
+            }
+          ],
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Engineering Building - Ground Floor",
+              "floor_id": "eng_ground",
+              "rooms_count": 4
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [39.1335, -84.5155],
+                  [39.1330, -84.5155],
+                  [39.1330, -84.5165],
+                  [39.1335, -84.5165],
+                  [39.1335, -84.5155]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "eng_1",
+          "floor_name": "Floor 1",
+          "floor_number": 1,
+          "elevation_m": 3.5,
+          "rooms": [
+            {
+              "room_number": "201",
+              "room_name": "Lecture Hall A",
+              "type": "classroom",
+              "capacity": 100
+            },
+            {
+              "room_number": "202",
+              "room_name": "Lecture Hall B",
+              "type": "classroom",
+              "capacity": 80
+            },
+            {
+              "room_number": "203",
+              "room_name": "Robotics Lab",
+              "type": "lab"
+            }
+          ],
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Engineering Building - Floor 1",
+              "floor_id": "eng_1"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [39.1335, -84.5155],
+                  [39.1330, -84.5155],
+                  [39.1330, -84.5165],
+                  [39.1335, -84.5165],
+                  [39.1335, -84.5155]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "eng_2",
+          "floor_name": "Floor 2",
+          "floor_number": 2,
+          "elevation_m": 7.0,
+          "rooms": [
+            {
+              "room_number": "301",
+              "room_name": "Research Lab",
+              "type": "lab"
+            },
+            {
+              "room_number": "302",
+              "room_name": "Senior Design Lab",
+              "type": "lab"
+            }
+          ],
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Engineering Building - Floor 2",
+              "floor_id": "eng_2"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [39.1335, -84.5155],
+                  [39.1330, -84.5155],
+                  [39.1330, -84.5165],
+                  [39.1335, -84.5165],
+                  [39.1335, -84.5155]
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "entrances": [
+        {
+          "node_id": "node_eng_entrance_1",
+          "floor_id": "eng_ground",
+          "name": "Main Entrance",
+          "accessible": true,
+          "wheelchair_accessible": true
+        },
+        {
+          "node_id": "node_eng_entrance_2",
+          "floor_id": "eng_ground",
+          "name": "Side Entrance",
+          "accessible": true,
+          "wheelchair_accessible": false
+        }
+      ],
+      "elevator_nodes": [
+        {
+          "node_id": "node_elevator_eng_1",
+          "floors": ["eng_ground", "eng_1", "eng_2"],
+          "accessible": true,
+          "accessible_restroom": "eng_1"
+        }
+      ],
+      "stairs": [
+        {
+          "node_id": "node_stairs_eng_1",
+          "floors": ["eng_ground", "eng_1", "eng_2"],
+          "accessible": true,
+          "accessible_landing": "eng_1"
+        }
+      ]
+    },
+    {
+      "building_id": "student_center",
+      "name": "Student Center",
+      "coordinates": [
+        [39.1320, -84.5155],
+        [39.1315, -84.5155],
+        [39.1315, -84.5165],
+        [39.1320, -84.5165]
+      ],
+      "floors": [
+        {
+          "floor_id": "sc_ground",
+          "floor_name": "Ground Floor",
+          "floor_number": 0,
+          "elevation_m": 0,
+          "rooms": [
+            {
+              "room_number": "G1",
+              "room_name": "Information Desk",
+              "type": "information"
+            },
+            {
+              "room_number": "G2",
+              "room_name": "Food Court",
+              "type": "food_service"
+            },
+            {
+              "room_number": "G3",
+              "room_name": "Bookstore",
+              "type": "retail"
+            }
+          ],
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Student Center - Ground Floor",
+              "floor_id": "sc_ground"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [39.1320, -84.5155],
+                  [39.1315, -84.5155],
+                  [39.1315, -84.5165],
+                  [39.1320, -84.5165],
+                  [39.1320, -84.5155]
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "floor_id": "sc_1",
+          "floor_name": "Floor 1",
+          "floor_number": 1,
+          "elevation_m": 3.5,
+          "rooms": [
+            {
+              "room_number": "101",
+              "room_name": "Student Lounge",
+              "type": "lounge"
+            },
+            {
+              "room_number": "102",
+              "room_name": "Meeting Rooms",
+              "type": "meeting"
+            }
+          ],
+          "geojson": {
+            "type": "Feature",
+            "properties": {
+              "name": "Student Center - Floor 1",
+              "floor_id": "sc_1"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [39.1320, -84.5155],
+                  [39.1315, -84.5155],
+                  [39.1315, -84.5165],
+                  [39.1320, -84.5165],
+                  [39.1320, -84.5155]
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "entrances": [
+        {
+          "node_id": "node_sc_entrance_1",
+          "floor_id": "sc_ground",
+          "accessible": true,
+          "wheelchair_accessible": true
+        }
+      ],
+      "elevator_nodes": [
+        {
+          "node_id": "node_elevator_sc_1",
+          "floors": ["sc_ground", "sc_1"],
+          "accessible": true
+        }
+      ],
+      "stairs": [
+        {
+          "node_id": "node_stairs_sc_1",
+          "floors": ["sc_ground", "sc_1"],
+          "accessible": true
+        }
+      ]
+    }
+  ],
+  "connector_nodes": [
+    {
+      "node_id": "node_outdoor_path_1",
+      "from_building": "engineering_building",
+      "to_building": "student_center",
+      "description": "Main campus pathway between Engineering and Student Center"
+    }
+  ]
+}

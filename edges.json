@@ -1,5 +1,5 @@
 {
-    "paths": [
+  "paths": [
        
     {
       "node": "node_7",
@@ -215,7 +215,8 @@
     {
       "node": "node_6",
       "connections": {
-        "node_5": true
+        "node_5": true,
+        "node_outdoor_bridge_1": true
       }
     },
     {
@@ -447,7 +448,7 @@
         "node_59": true
       }
     },
-     {
+    {
       "node": "node_58",
       "connections": {
         "node_10": true
@@ -457,6 +458,46 @@
       "node": "node_55",
       "connections": {
         "node_11": true
+      }
+    },
+    {
+      "node": "node_outdoor_bridge_1",
+      "connections": {
+        "node_6": true,
+        "node_bd_entrance_main": true
+      }
+    },
+    {
+      "node": "node_bd_entrance_main",
+      "connections": {
+        "node_elevator_bd_1": true,
+        "node_stairs_bd_1": true,
+        "node_bd_interior_4": true,
+        "node_outdoor_bridge_1": true
+      }
+    },
+    {
+      "node": "node_elevator_bd_1",
+      "connections": {
+        "node_bd_entrance_main": true,
+        "node_bd_interior_4": true,
+        "node_stairs_bd_1": true
+      }
+    },
+    {
+      "node": "node_stairs_bd_1",
+      "connections": {
+        "node_bd_entrance_main": true,
+        "node_elevator_bd_1": true,
+        "node_bd_interior_4": true
+      }
+    },
+    {
+      "node": "node_bd_interior_4",
+      "connections": {
+        "node_bd_entrance_main": true,
+        "node_elevator_bd_1": true,
+        "node_stairs_bd_1": true
       }
     }
   ]

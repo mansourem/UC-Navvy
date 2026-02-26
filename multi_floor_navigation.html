@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>UC-Navvy: Multi-Floor Campus Navigation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css"/>
+    <link rel="stylesheet" href="styles.css"/>
+    <style>
+        .navigation-panel {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            padding: 15px;
+            z-index: 1000;
+            width: 320px;
+            max-height: 75vh;
+            overflow-y: auto;
+            font-family: Arial, sans-serif;
+        }
+
+        .navigation-panel h2 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #333;
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 10px;
+        }
+
+        .nav-section {
+            margin-bottom: 15px;
+        }
+
+        .nav-section label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .nav-section select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+
+        .route-header {
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            font-size: 13px;
+            color: #0066cc;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .button-group button {
+            flex: 1;
+            padding: 10px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .button-group button:hover {
+            background: #0052a3;
+        }
+
+        .button-group button.secondary {
+            background: #666;
+        }
+
+        .button-group button.secondary:hover {
+            background: #555;
+        }
+
+        .path-display {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 11px;
+        }
+
+        .path-segment {
+            padding: 8px;
+            margin-bottom: 6px;
+            background: white;
+            border-left: 3px solid #0066cc;
+            font-size: 11px;
+        }
+
+        .path-segment .segment-building {
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 2px;
+        }
+
+        .path-segment .segment-floor {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 2px;
+        }
+
+        .path-segment .segment-coords {
+            color: #999;
+            font-family: monospace;
+            font-size: 10px;
+        }
+
+        .accessibility-options {
+            background: #e8f4f8;
+            border: 1px solid #b3d9e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .accessibility-options h3 {
+            margin: 0 0 8px 0;
+            font-size: 12px;
+            color: #0066cc;
+        }
+
+        .accessibility-options label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-weight: normal;
+            font-size: 11px;
+        }
+
+        .accessibility-options input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .swap-button {
+            width: 100%;
+            padding: 8px;
+            background: #f0f0f0;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .swap-button:hover {
+            background: #e8e8e8;
+        }
+
+        .floor-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+        }
+
+        .floor-selector button {
+            padding: 6px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+
+        .floor-selector button.active {
+            background: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+
+        .floor-selector button:hover {
+            border-color: #0066cc;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 10px;
+            font-size: 11px;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div id="map" style="height: 100vh; width: 100%;"></div>
+    
+    <div class="navigation-panel">
+        <h2>🗺️ Campus Navigation</h2>
+        
+        <!-- START LOCATION -->
+        <div class="nav-section">
+            <label>Starting Location:</label>
+            <select id="start-building">
+                <option value="">Select Building</option>
+            </select>
+            
+            <label>Floor:</label>
+            <div class="floor-selector" id="start-floor-selector"></div>
+        </div>
+
+        <!-- SWAP BUTTON -->
+        <button class="swap-button" id="swap-locations">⇅ Swap Locations</button>
+
+        <!-- TODO: Update navigation selection styles and remove buttons for floor selection -->
+        <!-- END LOCATION -->
+        <div class="nav-section">
+            <label>Destination:</label>
+            <select id="end-building">
+                <option value="">Select Building</option>
+            </select>
+            
+            <label>Floor:</label>
+            <div class="floor-selector" id="end-floor-selector"></div>
+        </div>
+
+        <!-- ACCESSIBILITY OPTIONS -->
+        <div class="accessibility-options">
+            <h3>Accessibility</h3>
+            <label>
+                <input type="checkbox" id="wheelchair-accessible" name="wheelchair">
+                Wheelchair accessible only
+            </label>
+            <label>
+                <input type="checkbox" id="avoid-stairs" name="avoid-stairs">
+                Avoid stairs (use elevators)
+            </label>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="button-group">
+            <button id="find-route-btn">Find Route</button>
+            <button class="secondary" id="clear-route-btn">Clear</button>
+            <button id="demo-route-btn" class="secondary">Plan Demo Route</button>
+        </div>
+
+        <!-- ROUTE INFORMATION -->
+        <div id="route-info-box" class="info-box" style="display: none;"></div>
+
+        <!-- ROUTE DISPLAY -->
+        <div id="path-display" class="path-display" style="display: none;"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"></script>
+    <script src="multi_floor_routing.js"></script>
+    <script src="multi_floor_interface.js"></script>
+        <script>
+            // Diagnostic helper: show data load status for debugging
+            (function() {
+                function setStatus(text, ok) {
+                    let el = document.getElementById('data-status-box');
+                    if (!el) {
+                        el = document.createElement('div');
+                        el.id = 'data-status-box';
+                        el.style.position = 'fixed';
+                        el.style.right = '10px';
+                        el.style.bottom = '10px';
+                        el.style.background = 'rgba(0,0,0,0.7)';
+                        el.style.color = 'white';
+                        el.style.padding = '8px 12px';
+                        el.style.borderRadius = '6px';
+                        el.style.zIndex = 2000;
+                        el.style.fontSize = '12px';
+                        document.body.appendChild(el);
+                    }
+                    el.textContent = text;
+                    el.style.background = ok ? 'rgba(0,128,0,0.85)' : 'rgba(128,0,0,0.85)';
+                }
+
+                async function checkFiles() {
+                    try {
+                        const files = ['building_floors.json','nodes.json','edges.json'];
+                        for (const f of files) {
+                            const res = await fetch(f);
+                            if (!res.ok) {
+                                console.error('Failed to fetch', f, res.status);
+                                setStatus('Data load: ERROR (' + f + ')', false);
+                                return;
+                            }
+                            const json = await res.json();
+                            console.log(f, 'loaded, size:', (typeof json === 'object') ? (Array.isArray(json) ? json.length : Object.keys(json).length) : 'unknown');
+                        }
+                        setStatus('Data load: OK', true);
+                    } catch (err) {
+                        console.error('Data load diagnostic error', err);
+                        setStatus('Data load: ERROR (see console)', false);
+                    }
+                }
+
+                // Run after small delay to let other scripts start
+                window.addEventListener('load', () => setTimeout(checkFiles, 300));
+            })();
+        </script>
+
+    <script>
+      // Demo route planner: Rhodes (node_6, rhodes_ground) -> Baldwin (node_elevator_bd_1, baldwin_6)
+      (function() {
+        const demoBtn = document.getElementById('demo-route-btn');
+        if (!demoBtn) return;
+
+        demoBtn.addEventListener('click', async () => {
+          // Wait briefly for routing to be ready
+          const waitFor = (cond, timeout = 5000) => new Promise((resolve, reject) => {
+            const start = Date.now();
+            (function check(){
+              if (cond()) return resolve(true);
+              if (Date.now() - start > timeout) return reject(new Error('timeout'));
+              setTimeout(check, 100);
+            })();
+          });
+
+          try {
+            await waitFor(() => window.MultiFloorRouter && window.MultiFloorRouter.findCompletePath);
+
+            const startBuildingId = 'rhodes_hall';
+            const startFloor = 'rhodes_ground';
+            const startNode = 'node_6';
+
+            const endBuildingId = 'baldwin_hall';
+            const endFloor = 'baldwin_6';
+            const endNode = 'node_elevator_bd_1';
+
+            const path = window.MultiFloorRouter.findCompletePath(
+              startBuildingId, startFloor, startNode,
+              endBuildingId, endFloor, endNode
+            );
+
+            if (!path) {
+              alert('Demo route: no path found');
+              return;
+            }
+
+            // Draw route using interface helper
+            if (window._mf_drawRoute) {
+              window._mf_drawRoute(path);
+            } else {
+              // Fallback: attempt to draw simple polyline via map and node lookup
+              console.warn('No interface draw helper, attempting fallback');
+              const latlngs = path.map(([nodeId]) => {
+                // try to resolve node coordinates from routing data
+                try { const segs = window.MultiFloorRouter.formatPathForDisplay(path); return [segs[0].latitude, segs[0].longitude]; } catch(e) { return null; }
+              }).filter(x=>x);
+              if (latlngs.length) {
+                const poly = L.polyline(latlngs,{color:'red',weight:4}).addTo(window._mf_map || map);
+                window._mf_map && window._mf_map.fitBounds(poly.getBounds(), {padding:[50,50]});
+              }
+            }
+
+            const formatted = window.MultiFloorRouter.formatPathForDisplay(path);
+            console.log('Demo route segments:', formatted);
+            alert('Demo route planned. Check map and console.');
+          } catch (err) {
+            console.error('Demo route error', err);
+            alert('Demo route failed: ' + err.message);
+          }
+        });
+      })();
+    </script>
+
+</body>
+</html>
