@@ -4,6 +4,43 @@ let startMarker = null;
 let endMarker = null;
   const buildingMap = {};
 
+let activeFloorLayer = null;
+
+function clearFloorLayer() {
+  if (activeFloorLayer) {
+    map.removeLayer(activeFloorLayer);
+    activeFloorLayer = null;
+  }
+}
+
+async function loadFloorLayerManual(buildingId, floorNum) {
+  clearFloorLayer();
+
+  // const url = `http://localhost:3001/api/${buildingId}/${floorNum}`;
+  const url = `./${buildingId}/Layer_0${floorNum}.geojson`; // <-- Adjust this path as needed
+
+
+  const t0 = performance.now();
+  const res = await fetch(url, { cache: "force-cache" });
+  const t1 = performance.now();
+  const geo = await res.json();
+  const t2 = performance.now();
+
+  activeFloorLayer = L.geoJSON(geo, {
+    style: { weight: 2, opacity: 0.9 }
+  }).addTo(map);
+
+  requestAnimationFrame(() => {
+    const t3 = performance.now();
+    console.log(`[Floor Load] ${buildingId} F${floorNum}`, {
+      fetch_ms: (t1 - t0).toFixed(1),
+      parse_ms: (t2 - t1).toFixed(1),
+      render_ms: (t3 - t2).toFixed(1),
+      total_ms: (t3 - t0).toFixed(1)
+    });
+  });
+}
+
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution:
@@ -158,4 +195,5 @@ Promise.all([
     .catch(error => {
       console.error('Failed to load building data:', error);
     });
+    loadFloorLayerManual("Rhodes", 3);
 });
