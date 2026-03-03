@@ -16,19 +16,22 @@ function clearFloorLayer() {
 async function loadFloorLayerManual(buildingId, floorNum) {
   clearFloorLayer();
 
-  // const url = `http://localhost:3001/api/${buildingId}/${floorNum}`;
-  const url = `./${buildingId}/Layer_0${floorNum}.geojson`; // <-- Adjust this path as needed
+  const url = `http://localhost:3001/api/floorplan/${buildingId}/${floorNum}`;
+  // const url = `./${buildingId}/Layer_0${floorNum}.geojson`; // <-- Adjust this path as needed
 
 
   const t0 = performance.now();
   const res = await fetch(url, { cache: "force-cache" });
   const t1 = performance.now();
-  const geo = await res.json();
+  const geo = await (await fetch(url)).json();
+  // const geo = await res.json();
   const t2 = performance.now();
+  
+  L.geoJSON(geo).addTo(map);
 
-  activeFloorLayer = L.geoJSON(geo, {
-    style: { weight: 2, opacity: 0.9 }
-  }).addTo(map);
+  // activeFloorLayer = L.geoJSON(geo, {
+  //   style: { weight: 2, opacity: 0.9 }
+  // }).addTo(map);
 
   requestAnimationFrame(() => {
     const t3 = performance.now();
@@ -196,4 +199,5 @@ Promise.all([
       console.error('Failed to load building data:', error);
     });
     loadFloorLayerManual("Rhodes", 3);
+    loadFloorLayerManual("Rhodes", 4);
 });
