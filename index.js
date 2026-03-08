@@ -139,21 +139,28 @@ Promise.all([
         }
       });
 
-      // --- Example: How to get entrance nodes for selected buildings ---
-      // (You can use this in your route-finding logic)
+      // Returns everything routing.js needs to pick one start node and one end node
       window.getSelectedEntrances = function() {
         const start = startSelect.value;
-        const end = endSelect.value;
-  console.log("Dropdown values:", start, end);
-  console.log("buildingMap keys:", Object.keys(buildingMap));
-  console.log("buildingMap[start]:", buildingMap[start]);
-  console.log("buildingMap[end]:", buildingMap[end]);
+        const end   = endSelect.value;
+        const sb = buildingMap[start];
+        const eb = buildingMap[end];
+
+        // Read floor selectors if they exist (routing.html adds them; index.html may not)
+        const startFloor = document.getElementById('start-floor')?.value || 'outside';
+        const endFloor   = document.getElementById('end-floor')?.value   || 'outside';
+
         return {
-          startEntrances: buildingMap[start]?.entrance_nodes || [],
-          endEntrances: buildingMap[end]?.entrance_nodes || []
+          startEntrances: sb?.entrance_nodes || [],
+          endEntrances:   eb?.entrance_nodes || [],
+          startFloor,
+          endFloor,
+          startName:   start,
+          endName:     end,
+          startCenter: sb ? { lat: sb.center.lat, lng: sb.center.lng } : null,
+          endCenter:   eb ? { lat: eb.center.lat, lng: eb.center.lng } : null,
         };
       };
-      // ---------------------------------------------------------------
     })
     .catch(error => {
       console.error('Failed to load building data:', error);

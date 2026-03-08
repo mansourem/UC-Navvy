@@ -126,7 +126,7 @@
     #inst-list { padding: 0 18px 20px; }
     #inst-list h3 { font-size: 10px; font-weight: 700; letter-spacing: 0.9px; text-transform: uppercase; color: #9ca3af; margin: 10px 0 7px; }
     .inst-item { display: flex; align-items: flex-start; gap: 9px; padding: 7px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; color: #374151; animation: fadeUp 0.25s ease both; }
-    .inst-it style="display:none"em:last-child { border-bottom: none; }
+    .inst-item:last-child { border-bottom: none; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
     .inst-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
     .inst-item.floor_change { background: #fff7ed; padding: 7px 9px; border-radius: 7px; border: 1px solid #fed7aa !important; margin-bottom: 3px; }
@@ -184,15 +184,15 @@
         <div class="loc-icon s">🟢</div>
         <div class="loc-fields">
           <select id="start-building">
-            <option value="choose">— Choose building —</option>
-            <option value="rhodes">Rhodes</option>
-            <option value="baldwin">Baldwin</option>
-            <option value="swift">Swift</option>
-            <option value="braunstein">Braunstein</option>
+            <!-- TODO: Populate with actual building options from API -->
+            <option value="">— Choose building —</option>
           </select>
-          <div class="floor-row" id="start-floor-row">
+          <div class="floor-row" id="start-floor-row" style="display:none">
             <label>Floor:</label>
-            <select id="start-floor"><option value="outside">Ground / Outdoor</option></select>
+            <!-- TODO: Populate with actual floor options based on building selected -->
+            <select id="start-floor">
+              <option value="outside">Ground / Outdoor</option>
+            </select>
           </div>
         </div>
       </div>
@@ -205,21 +205,20 @@
       <div class="loc-row">
         <div class="loc-icon e">🔴</div>
         <div class="loc-fields">
+          <!-- TODO: Populate with actual destination building options -->
           <select id="end-building">
-            <option value="choose">— Choose building —</option>
-            <option value="rhodes">Rhodes</option>
-            <option value="baldwin">Baldwin</option>
-            <option value="swift">Swift</option>
-            <option value="braunstein">Braunstein</option>
+            <option value="">— Choose building —</option>
           </select>
-          <div class="floor-row" id="end-floor-row">
+          <div class="floor-row" id="end-floor-row" style="display:none">
             <label>Floor:</label>
-            <select id="end-floor"><option value="outside">Ground / Outdoor</option></select>
+            <!-- TODO: Populate with actual floor options based on building selected -->
+            <select id="end-floor">
+              <option value="outside">Ground / Outdoor</option>
+            </select>
           </div>
         </div>
       </div>
-    </div>🗺️ Route Planner
-
+    </div>
 
     <div class="psection">
       <h2>Options</h2>
@@ -227,6 +226,7 @@
         <div class="opt-label">♿ Accessible Route <span class="badge">ADA</span></div>
         <label class="toggle"><input type="checkbox" id="accessible-toggle"><span class="tslider"></span></label>
       </div>
+      <!-- TODO: Implement floorplan toggle functionality -->
       <div class="opt-row">
         <div class="opt-label">🏛️ Show Floorplans</div>
         <label class="toggle"><input type="checkbox" id="floorplan-toggle" checked><span class="tslider"></span></label>
@@ -278,23 +278,59 @@ async function checkHealth() {
   try { const r = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(5000) }); return r.ok; }
   catch { return false; }
 }
-async function dbNodes()     { const d = await apiFetch('/api/nodes', 'nodes.json'); return Array.isArray(d) ? d : (d?.nodes || []); }
-async function dbEdges()     { const d = await apiFetch('/api/edges', 'edges.json'); if (Array.isArray(d)) return edgesFromList(d); return d || { paths: [] }; }
+async function dbNodes()     { const d = await apiFetch('/api/nodes', null); return Array.isArray(d) ? d : (d?.nodes || []); }
+async function dbEdges()     { const d = await apiFetch('/api/edges', null); return parseEdges(d); }
 async function dbBuildings() { const d = await apiFetch('/api/buildings', 'buildings.json'); return Array.isArray(d) ? d : []; }
 async function dbFloorplan(bid, floor) { return apiFetch(`/api/floorplans/${bid}/${String(floor).padStart(2,'0')}`); }
 async function dbFloors(bid) { const d = await apiFetch(`/api/buildings/${bid}/floors`); return d || []; }
 
-function edgesFromList(list) {
-  const m = {};
-  list.forEach(e => {
-    if (!m[e.from_node]) m[e.from_node] = { node: e.from_node, connections: {}, accessible: {} };
-    if (!m[e.to_node])   m[e.to_node]   = { node: e.to_node,   connections: {}, accessible: {} };
-    m[e.from_node].connections[e.to_node] = true;
-    m[e.from_node].accessible[e.to_node] = e.accessible !== false;
-    m[e.to_node].connections[e.from_node] = true;
-    m[e.to_node].accessible[e.from_node] = e.accessible !== false;
-  });
-  return { paths: Object.values(m) };
+/**
+ * Parse edges into a plain adjacency map: { "node_N": ["node_M", ...] }
+ * Handles three formats:
+ *   1. New local:  { edges: [{ edge_id, node_id: 24, connections: [7, 23] }] }
+ *   2. DB flat:    [{ from_node: "node_24", to_node: "node_7" }]
+ *   3. Old local:  { paths: [{ node: "node_24", connections: { "node_7": true } }] }
+ */
+function parseEdges(data) {
+  const adj = {};
+  const ensure = id => { if (!adj[id]) adj[id] = []; };
+
+  if (data?.edges) {
+    data.edges.forEach(e => {
+      const from = `node_${e.node_id}`;
+      ensure(from);
+      e.connections.forEach(c => {
+        const to = `node_${c}`;
+        ensure(to);
+        if (!adj[from].includes(to)) adj[from].push(to);
+        if (!adj[to].includes(from)) adj[to].push(from);
+      });
+    });
+    return adj;
+  }
+
+  if (Array.isArray(data)) {
+    data.forEach(e => {
+      ensure(e.from_node); ensure(e.to_node);
+      if (!adj[e.from_node].includes(e.to_node)) adj[e.from_node].push(e.to_node);
+      if (!adj[e.to_node].includes(e.from_node)) adj[e.to_node].push(e.from_node);
+    });
+    return adj;
+  }
+
+  if (data?.paths) {
+    data.paths.forEach(p => {
+      ensure(p.node);
+      Object.keys(p.connections || {}).forEach(nb => {
+        ensure(nb);
+        if (!adj[p.node].includes(nb)) adj[p.node].push(nb);
+        if (!adj[nb].includes(p.node)) adj[nb].push(p.node);
+      });
+    });
+    return adj;
+  }
+
+  return adj;
 }
 
 // ── Routing Engine ─────────────────────────────────────────────────────────
@@ -305,14 +341,7 @@ function haversine(n1, n2) {
   return 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a))*R;
 }
 
-function buildAdj(edges) {
-  const adj = {};
-  edges.paths.forEach(p => {
-    adj[p.node] = { neighbors: Object.keys(p.connections), accessible: p.accessible || {} };
-  });
-  return adj;
-}
-
+// adj is a plain map: { "node_N": ["node_M", ...] } — produced by parseEdges()
 function dijkstra(startId, endId, nodeMap, adj, accessibleOnly) {
   const queue = [[0, startId, [startId]]], visited = new Set(), dist = { [startId]: 0 };
   while (queue.length) {
@@ -321,11 +350,10 @@ function dijkstra(startId, endId, nodeMap, adj, accessibleOnly) {
     if (nid === endId) return { path, cost };
     if (visited.has(nid)) continue;
     visited.add(nid);
-    for (const nb of (adj[nid]?.neighbors || [])) {
+    for (const nb of (adj[nid] || [])) {
       if (visited.has(nb)) continue;
       const n1 = nodeMap[nid], n2 = nodeMap[nb];
       if (!n1 || !n2) continue;
-      if (accessibleOnly && adj[nid].accessible[nb] === false) continue;
       let c = haversine(n1, n2);
       if (n1.floor !== n2.floor) {
         if (accessibleOnly) { if (!n2.elevator && !n1.elevator) continue; c += 20; }
@@ -372,17 +400,95 @@ function makeInstructions(path, nm) {
   return inst;
 }
 
-function findRoute(startIds, endIds, nodesArr, edgesData, accessibleOnly) {
-  const nm = {}; nodesArr.forEach(n => nm[n.node_id] = n);
-  const adj = buildAdj(edgesData);
-  let best = null, bestCost = Infinity;
-  for (const s of startIds) for (const e of endIds) {
-    if (s === e) continue;
-    const r = dijkstra(s, e, nm, adj, accessibleOnly);
-    if (r && r.cost < bestCost) { bestCost = r.cost; best = r; }
+/**
+ * Pick one start node and one end node, each on the correct floor, then run Dijkstra.
+ *
+ * For each endpoint:
+ *   1. Search ALL nodes (not just entrance_nodes) for nodes belonging to that
+ *      building whose floor matches the selected floor value exactly.
+ *   2. If no nodes exist on that exact floor (e.g. floor data not yet added),
+ *      fall back to the building's entrance_nodes.
+ *   3. Among the candidate pool, pick the single node closest to the other
+ *      building's center. That one node becomes the Dijkstra start or end.
+ *
+ * "outside" / "Ground" floor → use entrance_nodes (they sit at ground level).
+ *
+ * @param {string[]} startEntrances  - entrance_nodes from buildings.json for start
+ * @param {string[]} endEntrances    - entrance_nodes from buildings.json for end
+ * @param {Object[]} nodesArr        - full nodes array
+ * @param {Object}   adj             - adjacency map { "node_N": ["node_M",...] }
+ * @param {boolean}  accessibleOnly
+ * @param {string}   startFloor      - selected floor for start building ("outside","1","2",…)
+ * @param {string}   endFloor        - selected floor for end building
+ * @param {string}   startBuildingName - building name (matches node.location)
+ * @param {string}   endBuildingName
+ * @param {{lat,lng}} startCenter    - geographic center of start building polygon
+ * @param {{lat,lng}} endCenter      - geographic center of end building polygon
+ */
+function findRoute(startEntrances, endEntrances, nodesArr, adj, accessibleOnly,
+                   startFloor, endFloor, startBuildingName, endBuildingName,
+                   startCenter, endCenter) {
+  const nm = {};
+  nodesArr.forEach(n => { nm[n.node_id] = n; });
+
+  /**
+   * Pick one node for a given building + floor.
+   * @param {string[]} entranceIds   - entrance_nodes fallback
+   * @param {string}   floor         - selected floor value
+   * @param {string}   buildingName  - building name matching node.location
+   * @param {{lat,lng}} targetCenter - center of the OTHER building (to pick closest)
+   */
+  function pickNode(entranceIds, floor, buildingName, targetCenter) {
+    let pool;
+
+    if (!floor || floor === 'outside') {
+      // Ground / outdoor floor → use entrance nodes only
+      pool = entranceIds.filter(id => nm[id]);
+    } else {
+      // Look for all nodes in this building on this exact floor
+      pool = nodesArr
+        .filter(n => String(n.floor) === String(floor) &&
+                     (n.location === buildingName ||
+                      n.building_id === buildingName ||
+                      n.building_id === buildingName.toLowerCase().replace(/\s+/g, '_')))
+        .map(n => n.node_id);
+
+      // No floor-specific nodes yet → fall back to entrance nodes
+      if (!pool.length) pool = entranceIds.filter(id => nm[id]);
+    }
+
+    if (!pool.length) return null;
+    if (pool.length === 1) return pool[0];
+
+    // Pick the candidate closest to the other building's center
+    let best = pool[0], bestDist = Infinity;
+    for (const id of pool) {
+      const n = nm[id];
+      if (!n) continue;
+      const d = Math.hypot(n.latitude - targetCenter.lat, n.longitude - targetCenter.lng);
+      if (d < bestDist) { bestDist = d; best = id; }
+    }
+    return best;
   }
-  if (!best) return null;
-  return { ...best, distMeters: best.cost, distMiles: best.cost/1609.34, segments: annotate(best.path, nm), instructions: makeInstructions(best.path, nm), nodeMap: nm };
+
+  const startNode = pickNode(startEntrances, startFloor, startBuildingName, endCenter);
+  const endNode   = pickNode(endEntrances,   endFloor,   endBuildingName,   startCenter);
+
+  if (!startNode || !endNode || startNode === endNode) return null;
+
+  const result = dijkstra(startNode, endNode, nm, adj, accessibleOnly);
+  if (!result) return null;
+
+  return {
+    ...result,
+    distMeters:   result.cost,
+    distMiles:    result.cost / 1609.34,
+    segments:     annotate(result.path, nm),
+    instructions: makeInstructions(result.path, nm),
+    nodeMap:      nm,
+    startNode,
+    endNode,
+  };
 }
 
 // ── State ──────────────────────────────────────────────────────────────────
@@ -467,13 +573,18 @@ function renderNodes(vis) {
 
 async function loadEdges() { edgesData = await dbEdges(); renderEdgeGraph(); }
 
+// edgesData is now a plain adjacency map: { "node_N": ["node_M", ...] }
 function renderEdgeGraph() {
   if (!edgesData) return;
   const nm = {}; nodesArr.forEach(n => nm[n.node_id] = n);
-  edgesData.paths.forEach(p => {
-    const from = nm[p.node]; if (!from) return;
-    Object.keys(p.connections).forEach(tid => {
-      const to = nm[tid]; if (!to) return;
+  const drawn = new Set();
+  Object.entries(edgesData).forEach(([fromId, neighbors]) => {
+    const from = nm[fromId]; if (!from) return;
+    neighbors.forEach(toId => {
+      const key = [fromId, toId].sort().join('|');
+      if (drawn.has(key)) return; // skip duplicate reverse edge
+      drawn.add(key);
+      const to = nm[toId]; if (!to) return;
       const indoor = from.location !== 'outside' || to.location !== 'outside';
       L.polyline([[from.latitude,from.longitude],[to.latitude,to.longitude]],
         { color: indoor ? '#93c5fd' : '#d1d5db', weight: 1.2, opacity: 0.4, dashArray: indoor ? '4 3' : null }).addTo(map);
@@ -505,16 +616,18 @@ async function showFPForPath(path, nm) {
 
 // ── Main route trigger ─────────────────────────────────────────────────────
 window.triggerFindRoute = async function() {
-  const sName = document.getElementById('start-building').value;
-  const eName = document.getElementById('end-building').value;
+  const sName  = document.getElementById('start-building').value;
+  const eName  = document.getElementById('end-building').value;
   const sFloor = document.getElementById('start-floor').value;
   const eFloor = document.getElementById('end-floor').value;
   const accOnly = document.getElementById('accessible-toggle').checked;
+  // TODO: Show floorplan when floor is being used
   const showFp  = document.getElementById('floorplan-toggle').checked;
 
   if (!sName || !eName) { showErr('Please select both a start and destination building.'); return; }
+  // TODO: Allow start and end building to be the same if floors are different
   if (sName === eName)  { showErr('Start and destination cannot be the same building.'); return; }
-  if (!edgesData) { showErr('Navigation data still loading, please wait…'); return; }
+  if (!edgesData)       { showErr('Navigation data still loading, please wait…'); return; }
 
   setLoad(true);
   routeLayers.forEach(l => map.removeLayer(l)); routeLayers = [];
@@ -522,30 +635,37 @@ window.triggerFindRoute = async function() {
   try {
     const sb = buildingMap[sName], eb = buildingMap[eName];
     if (!sb || !eb) { showErr('Building data not found.'); return; }
-
-    let sNodes = sb.entrance_nodes;
-    let eNodes = eb.entrance_nodes;
-
-    // Floor-specific entrance filtering
-    if (sFloor !== 'outside') {
-      const fn = nodesArr.filter(n => String(n.floor) === String(sFloor) && n.entrance &&
-        (n.building_id === sb.building_id || n.location === sName)).map(n => n.node_id);
-      if (fn.length) sNodes = fn;
-    }
-    if (eFloor !== 'outside') {
-      const fn = nodesArr.filter(n => String(n.floor) === String(eFloor) && n.entrance &&
-        (n.building_id === eb.building_id || n.location === eName)).map(n => n.node_id);
-      if (fn.length) eNodes = fn;
+    if (!sb.entrance_nodes.length || !eb.entrance_nodes.length) {
+      showErr('No entrance nodes found. Please check building data.'); return;
     }
 
-    if (!sNodes.length || !eNodes.length) { showErr('No entrance nodes found. Please check building data.'); return; }
+    // Pick one node on the correct floor for each building, then route between them.
+    const result = findRoute(
+      sb.entrance_nodes, eb.entrance_nodes,
+      nodesArr, edgesData, accOnly,
+      sFloor, eFloor,
+      sName, eName,
+      { lat: sb.center.lat, lng: sb.center.lng },
+      { lat: eb.center.lat, lng: eb.center.lng }
+    );
 
-    const result = findRoute(sNodes, eNodes, nodesArr, edgesData, accOnly);
     if (!result) {
       showErr(accOnly
         ? 'No accessible route found. Try disabling the Accessible Route option.'
         : 'No route found. The buildings may not be connected in the navigation graph.');
       return;
+    }
+
+    // Move start/end markers to the exact chosen nodes
+    const sNodeObj = result.nodeMap[result.startNode];
+    const eNodeObj = result.nodeMap[result.endNode];
+    if (sNodeObj) {
+      if (startMkr) startMkr.setLatLng([sNodeObj.latitude, sNodeObj.longitude]);
+      else startMkr = L.marker([sNodeObj.latitude, sNodeObj.longitude], { title: 'Start' }).addTo(map);
+    }
+    if (eNodeObj) {
+      if (endMkr) endMkr.setLatLng([eNodeObj.latitude, eNodeObj.longitude]);
+      else endMkr = L.marker([eNodeObj.latitude, eNodeObj.longitude], { title: 'End' }).addTo(map);
     }
 
     // Draw route segments
@@ -557,7 +677,7 @@ window.triggerFindRoute = async function() {
       routeLayers.push(l);
     });
 
-    showResults(result, sName, eName, accOnly);
+    showResults(result, sName, eName, accOnly, sFloor, eFloor);
     if (showFp) await showFPForPath(result.path, result.nodeMap);
 
     const bounds = L.latLngBounds(result.path.map(id => { const n = result.nodeMap[id]; return [n.latitude, n.longitude]; }));
@@ -569,12 +689,13 @@ window.triggerFindRoute = async function() {
   } finally { setLoad(false); }
 };
 
-function showResults(r, sName, eName, accOnly) {
+function showResults(r, sName, eName, accOnly, sFloor, eFloor) {
   const miles = r.distMiles.toFixed(2);
   const mins  = Math.ceil(r.distMiles / 0.05);
   const hasInd = r.segments.some(s => s.type === 'indoor');
   const hasOut = r.segments.some(s => s.type === 'outdoor');
   const hasFloor = r.instructions.some(i => i.type === 'floor_change');
+  const floorLabel = f => f === 'outside' ? 'Ground' : `Floor ${f}`;
   const tags = [
     hasOut   ? { c:'outdoor', t:'🌤️ Outdoor' } : null,
     hasInd   ? { c:'indoor',  t:'🏛️ Indoor'  } : null,
@@ -596,6 +717,11 @@ function showResults(r, sName, eName, accOnly) {
       <div class="rstat"><div class="v">${mins}</div><div class="l">Min walk</div></div>
       <div class="rdiv"></div>
       <div class="rstat"><div class="v">${r.path.length}</div><div class="l">Waypoints</div></div>
+    </div>
+    <div style="padding:8px 18px 4px;font-size:12px;color:#6b7280;border-bottom:1px solid #f3f4f6">
+      <span style="color:#374151;font-weight:600">${sName}</span> ${floorLabel(sFloor)}
+      &nbsp;→&nbsp;
+      <span style="color:#374151;font-weight:600">${eName}</span> ${floorLabel(eFloor)}
     </div>
     ${tags.length ? `<div class="route-tags">${tags.map(t=>`<span class="rtag ${t.c}">${t.t}</span>`).join('')}</div>` : ''}
     <div id="inst-list">

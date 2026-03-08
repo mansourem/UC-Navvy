@@ -54,7 +54,7 @@ export async function checkApiHealth() {
  *              entrance, elevator, accessible, indoor }
  */
 export async function fetchNodes() {
-  const data = await apiFetch('/api/nodes', 'nodes.json');
+  const data = await apiFetch('/api/nodes', null);
   if (!data) return [];
   // Normalize: DB returns array directly, local JSON wraps in { nodes: [] }
   return Array.isArray(data) ? data : (data.nodes || []);
@@ -67,7 +67,7 @@ export async function fetchNodes() {
  * Local format: { paths: [{ node, connections: { nodeId: true } }] }
  */
 export async function fetchEdges() {
-  const data = await apiFetch('/api/edges', 'edges.json');
+  const data = await apiFetch('/api/edges', null);
   if (!data) return { paths: [] };
   // If DB returns flat edge list, convert to adjacency format
   if (Array.isArray(data)) {
