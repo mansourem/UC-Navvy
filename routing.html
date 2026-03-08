@@ -1,76 +1,634 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>UC Navvy</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <meta charset="UTF-8">
+  <title>UC Navvy – Route Planner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
 
-    <!-- Leaflet stuff-->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin="" />
+  <style>
+    :root {
+      --red: #e00122; --darker-red: #b8011c;
+      --uc-black: #1a1a1a; --panel-bg: rgba(255,255,255,0.98);
+      --border: #e5e7eb; --accent: #2563eb;
+      --green: #16a34a; --orange: #ea580c;
+      --shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: #f1f3f5; height: 100vh; overflow: hidden; }
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin="" defer></script>
+    #app { display: grid; grid-template-columns: 380px 1fr; height: 100vh; }
 
+    /* Panel */
+    #panel {
+      background: var(--panel-bg);
+      overflow-y: auto;
+      display: flex; flex-direction: column;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.08);
+      z-index: 100;
+    }
+    #panel-header {
+      background: var(--red); padding: 14px 18px;
+      color: white; display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0; position: sticky; top: 0; z-index: 10;
+    }
+    #panel-header .hbtn {
+      background: none; border: none; cursor: pointer;
+      display: flex; flex-direction: column; gap: 4px; padding: 4px;
+    }
+    #panel-header .hbtn span { display: block; width: 20px; height: 2px; background: white; border-radius: 1px; }
+    #panel-header h1 { font-size: 17px; font-weight: 600; flex: 1; }
+
+    #api-status { display: flex; align-items: center; gap: 5px; font-size: 11px; opacity: 0.85; }
+    #api-dot { width: 7px; height: 7px; border-radius: 50%; background: #fbbf24; transition: background 0.4s; }
+    #api-dot.online { background: #4ade80; }
+    #api-dot.offline { background: #f87171; }
+
+    .psection { padding: 14px 18px; border-bottom: 1px solid var(--border); }
+    .psection h2 { font-size: 10px; font-weight: 700; letter-spacing: 0.9px; text-transform: uppercase; color: #9ca3af; margin-bottom: 10px; }
+
+    .loc-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+    .loc-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; margin-top: 6px; }
+    .loc-icon.s { background: #dcfce7; }
+    .loc-icon.e { background: #fee2e2; }
+    .loc-fields { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+
+    select {
+      width: 100%; padding: 8px 28px 8px 10px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+      background: white; color: var(--uc-black); cursor: pointer;
+      transition: border-color 0.2s; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23666' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+    }
+    select:focus { border-color: var(--red); outline: none; box-shadow: 0 0 0 3px rgba(224,1,34,0.1); }
+
+    .floor-row { display: flex; align-items: center; gap: 6px; }
+    .floor-row label { font-size: 11px; color: #6b7280; font-weight: 500; white-space: nowrap; }
+    .floor-row select { flex: 1; }
+
+    #swap-btn {
+      display: flex; align-items: center; justify-content: center; margin: 2px auto;
+      background: white; border: 1.5px solid var(--border); border-radius: 50%;
+      width: 28px; height: 28px; cursor: pointer; font-size: 13px; color: #6b7280;
+      transition: all 0.2s;
+    }
+    #swap-btn:hover { border-color: var(--red); color: var(--red); background: #fff0f2; }
+
+    .opt-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; }
+    .opt-label { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; }
+    .badge { font-size: 9px; background: var(--green); color: white; padding: 1px 5px; border-radius: 8px; font-weight: 700; }
+
+    .toggle { position: relative; width: 38px; height: 20px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .tslider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #d1d5db; border-radius: 20px; cursor: pointer; transition: 0.3s; }
+    .tslider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .tslider { background: var(--green); }
+    .toggle input:checked + .tslider::before { transform: translateX(18px); }
+
+    #find-btn {
+      margin: 14px 18px; padding: 11px; background: var(--red); color: white;
+      border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: all 0.2s;
+    }
+    #find-btn:hover { background: var(--darker-red); transform: translateY(-1px); }
+    #find-btn:disabled { background: #9ca3af; cursor: not-allowed; transform: none; }
+
+    .spinner { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .route-summary {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+      color: white; padding: 14px 18px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .rstat { text-align: center; }
+    .rstat .v { font-size: 18px; font-weight: 700; font-family: 'DM Mono', monospace; }
+    .rstat .l { font-size: 9px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.5px; }
+    .rdiv { width: 1px; height: 32px; background: rgba(255,255,255,0.2); }
+
+    .route-tags { padding: 8px 18px; display: flex; flex-wrap: wrap; gap: 5px; }
+    .rtag { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
+    .rtag.outdoor { background: #fef3c7; color: #92400e; }
+    .rtag.indoor  { background: #dbeafe; color: #1e40af; }
+    .rtag.floor   { background: #fed7aa; color: #9a3412; }
+    .rtag.acc     { background: #dcfce7; color: #14532d; }
+
+    #inst-list { padding: 0 18px 20px; }
+    #inst-list h3 { font-size: 10px; font-weight: 700; letter-spacing: 0.9px; text-transform: uppercase; color: #9ca3af; margin: 10px 0 7px; }
+    .inst-item { display: flex; align-items: flex-start; gap: 9px; padding: 7px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; color: #374151; animation: fadeUp 0.25s ease both; }
+    .inst-it style="display:none"em:last-child { border-bottom: none; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+    .inst-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .inst-item.floor_change { background: #fff7ed; padding: 7px 9px; border-radius: 7px; border: 1px solid #fed7aa !important; margin-bottom: 3px; }
+    .inst-item.building_entry, .inst-item.building_exit { background: #f0fdf4; padding: 7px 9px; border-radius: 7px; border: 1px solid #bbf7d0 !important; margin-bottom: 3px; }
+
+    /* Sidebar */
+    #sidebar { position: fixed; top: 0; left: -260px; width: 260px; height: 100%; background: var(--red); padding-top: 55px; transition: left 0.3s; z-index: 200; display: flex; flex-direction: column; box-shadow: 4px 0 20px rgba(0,0,0,0.2); }
+    #sidebar.active { left: 0; }
+    #sidebar a { color: white; text-decoration: none; padding: 13px 22px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
+    #sidebar a:hover { background: rgba(0,0,0,0.15); }
+    #sidebar .material-icons { font-size: 17px; }
+
+    /* Map area */
+    #map-wrap { position: relative; overflow: hidden; }
+    #map { height: 100%; width: 100%; }
+
+    .map-legend { position: absolute; bottom: 24px; left: 10px; background: white; border-radius: 9px; padding: 9px 12px; box-shadow: var(--shadow); z-index: 500; font-size: 11px; }
+    .ml-item { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+    .ml-item:last-child { margin: 0; }
+    .ml-line { width: 22px; height: 3px; border-radius: 2px; }
+
+    @media (max-width: 700px) {
+      #app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      #panel { max-height: 55vh; }
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Navbar -->
-    <button class="hamburger" onclick="toggleSidebar()">
-        <span></span>
-        <span></span>
-        <span></span>
+<div id="sidebar">
+  <a href="index.html"><span class="material-icons">home</span>Home</a>
+  <a href="routing.html"><span class="material-icons">directions</span>Route Planner</a>
+  <a href="shuttleroutes.html"><span class="material-icons">directions_bus</span>Live Shuttle</a>
+  <a href="hazard.html"><span class="material-icons">warning</span>Hazard Report</a>
+  <a href="help.html"><span class="material-icons">help</span>Help</a>
+</div>
+
+<div id="app">
+  <!-- ── Panel ── -->
+  <div id="panel">
+    <div id="panel-header">
+      <button class="hbtn" onclick="document.getElementById('sidebar').classList.toggle('active')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <h1>🗺️ Route Planner</h1>
+      <div id="api-status">
+        <div id="api-dot"></div>
+        <span id="api-label">Connecting…</span>
+      </div>
+    </div>
+
+    <div class="psection">
+      <h2>Start</h2>
+      <div class="loc-row">
+        <div class="loc-icon s">🟢</div>
+        <div class="loc-fields">
+          <select id="start-building">
+            <option value="choose">— Choose building —</option>
+            <option value="rhodes">Rhodes</option>
+            <option value="baldwin">Baldwin</option>
+            <option value="swift">Swift</option>
+            <option value="braunstein">Braunstein</option>
+          </select>
+          <div class="floor-row" id="start-floor-row">
+            <label>Floor:</label>
+            <select id="start-floor"><option value="outside">Ground / Outdoor</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin:4px 0">
+        <button id="swap-btn" title="Swap" onclick="swapLocations()">⇅</button>
+      </div>
+
+      <h2 style="margin-top:8px">Destination</h2>
+      <div class="loc-row">
+        <div class="loc-icon e">🔴</div>
+        <div class="loc-fields">
+          <select id="end-building">
+            <option value="choose">— Choose building —</option>
+            <option value="rhodes">Rhodes</option>
+            <option value="baldwin">Baldwin</option>
+            <option value="swift">Swift</option>
+            <option value="braunstein">Braunstein</option>
+          </select>
+          <div class="floor-row" id="end-floor-row">
+            <label>Floor:</label>
+            <select id="end-floor"><option value="outside">Ground / Outdoor</option></select>
+          </div>
+        </div>
+      </div>
+    </div>🗺️ Route Planner
+
+
+    <div class="psection">
+      <h2>Options</h2>
+      <div class="opt-row">
+        <div class="opt-label">♿ Accessible Route <span class="badge">ADA</span></div>
+        <label class="toggle"><input type="checkbox" id="accessible-toggle"><span class="tslider"></span></label>
+      </div>
+      <div class="opt-row">
+        <div class="opt-label">🏛️ Show Floorplans</div>
+        <label class="toggle"><input type="checkbox" id="floorplan-toggle" checked><span class="tslider"></span></label>
+      </div>
+      <div class="opt-row">
+        <div class="opt-label">📍 Show All Nodes</div>
+        <label class="toggle"><input type="checkbox" id="nodes-toggle"><span class="tslider"></span></label>
+      </div>
+    </div>
+
+    <button id="find-btn" onclick="triggerFindRoute()">
+      <span class="material-icons" style="font-size:17px">directions</span>Find Route
     </button>
 
-    <div id="sidebar" class="sidebar">
-        <div class="sidebar-header">UC Navvy</div>
-        <a href="index.html">Home</a>
-        <a href="routing.html">Routing</a>
-        <a href="shuttleroutes.html">Live Shuttle Tracking</a>
-        <a href="hazard.html">Hazard Reporting</a>
+    <div id="route-results"></div>
+  </div>
+
+  <!-- ── Map ── -->
+  <div id="map-wrap">
+    <div id="map"></div>
+    <div class="map-legend">
+      <div class="ml-item"><div class="ml-line" style="background:#e00122"></div><span>Outdoor route</span></div>
+      <div class="ml-item"><div class="ml-line" style="background:#2563eb;border-top:2px dashed #2563eb;height:0"></div><span>Indoor route</span></div>
+      <div class="ml-item"><div class="ml-line" style="background:#16a34a"></div><span>Accessible</span></div>
     </div>
+  </div>
+</div>
 
+<script type="module">
+// ── Inline API (no CORS/module issues with local fallback) ─────────────────
+const API_BASE = 'https://uc-navvy-api.onrender.com';
+const _apiCache = {};
 
+async function apiFetch(endpoint, fallback) {
+  if (_apiCache[endpoint]) return _apiCache[endpoint];
+  try {
+    const r = await fetch(`${API_BASE}${endpoint}`);
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    _apiCache[endpoint] = d; return d;
+  } catch {
+    if (!fallback) return null;
+    try { const r = await fetch(fallback); const d = await r.json(); _apiCache[endpoint] = d; return d; }
+    catch { return null; }
+  }
+}
 
-    <!-- Enter points -->
-    <div class="container">
-        <h1>Plan Your Route</h1>
+async function checkHealth() {
+  try { const r = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(5000) }); return r.ok; }
+  catch { return false; }
+}
+async function dbNodes()     { const d = await apiFetch('/api/nodes', 'nodes.json'); return Array.isArray(d) ? d : (d?.nodes || []); }
+async function dbEdges()     { const d = await apiFetch('/api/edges', 'edges.json'); if (Array.isArray(d)) return edgesFromList(d); return d || { paths: [] }; }
+async function dbBuildings() { const d = await apiFetch('/api/buildings', 'buildings.json'); return Array.isArray(d) ? d : []; }
+async function dbFloorplan(bid, floor) { return apiFetch(`/api/floorplans/${bid}/${String(floor).padStart(2,'0')}`); }
+async function dbFloors(bid) { const d = await apiFetch(`/api/buildings/${bid}/floors`); return d || []; }
 
-        <div class="route-wrapper">
-            <!-- Start -->
-            <div class="route-group">
-                <h2>Start Location</h2>
-                <label for="start-building">Starting Building</label>
-                <select id="start-building" name="start-building">
-                    <option value="">-- Choose a Building --</option>
-                </select>
-            </div>
+function edgesFromList(list) {
+  const m = {};
+  list.forEach(e => {
+    if (!m[e.from_node]) m[e.from_node] = { node: e.from_node, connections: {}, accessible: {} };
+    if (!m[e.to_node])   m[e.to_node]   = { node: e.to_node,   connections: {}, accessible: {} };
+    m[e.from_node].connections[e.to_node] = true;
+    m[e.from_node].accessible[e.to_node] = e.accessible !== false;
+    m[e.to_node].connections[e.from_node] = true;
+    m[e.to_node].accessible[e.from_node] = e.accessible !== false;
+  });
+  return { paths: Object.values(m) };
+}
 
-            <!-- End -->
-            <div class="route-group">
-                <h2>End Location</h2>
-                <label for="end-building">Destination Building</label>
-                <select id="end-building" name="end-building">
-                    <option value="">-- Choose a Building --</option>
-                </select>
-            </div>
-        </div>
+// ── Routing Engine ─────────────────────────────────────────────────────────
+function haversine(n1, n2) {
+  const R = 6371000, φ1 = n1.latitude*Math.PI/180, φ2 = n2.latitude*Math.PI/180;
+  const Δφ = (n2.latitude-n1.latitude)*Math.PI/180, Δλ = (n2.longitude-n1.longitude)*Math.PI/180;
+  const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+  return 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a))*R;
+}
 
-      <button onclick="findAndDrawBestPath()">Find Route</button>
-        <div id="map"></div>
-    </div>
+function buildAdj(edges) {
+  const adj = {};
+  edges.paths.forEach(p => {
+    adj[p.node] = { neighbors: Object.keys(p.connections), accessible: p.accessible || {} };
+  });
+  return adj;
+}
 
-    
-    <script>
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
+function dijkstra(startId, endId, nodeMap, adj, accessibleOnly) {
+  const queue = [[0, startId, [startId]]], visited = new Set(), dist = { [startId]: 0 };
+  while (queue.length) {
+    queue.sort((a,b) => a[0]-b[0]);
+    const [cost, nid, path] = queue.shift();
+    if (nid === endId) return { path, cost };
+    if (visited.has(nid)) continue;
+    visited.add(nid);
+    for (const nb of (adj[nid]?.neighbors || [])) {
+      if (visited.has(nb)) continue;
+      const n1 = nodeMap[nid], n2 = nodeMap[nb];
+      if (!n1 || !n2) continue;
+      if (accessibleOnly && adj[nid].accessible[nb] === false) continue;
+      let c = haversine(n1, n2);
+      if (n1.floor !== n2.floor) {
+        if (accessibleOnly) { if (!n2.elevator && !n1.elevator) continue; c += 20; }
+        else c += 50;
+      }
+      const nc = cost + c;
+      if (nc < (dist[nb] ?? Infinity)) { dist[nb] = nc; queue.push([nc, nb, [...path, nb]]); }
     }
-    </script>
-    <script src="index.js" defer></script>
-    <script src="routing.js" defer></script>
+  }
+  return null;
+}
+
+function getCtx(n) { return (!n || n.location === 'outside' || n.floor === 'outside') ? 'outdoor' : 'indoor'; }
+
+function annotate(path, nm) {
+  if (!path || path.length < 2) return [];
+  const segs = [];
+  let cur = { type: getCtx(nm[path[0]]), nodes: [path[0]], floor: nm[path[0]]?.floor };
+  for (let i = 1; i < path.length; i++) {
+    const pn = nm[path[i-1]], cn = nm[path[i]];
+    if (getCtx(pn) !== getCtx(cn) || pn?.floor !== cn?.floor) {
+      segs.push({ ...cur });
+      cur = { type: getCtx(cn), nodes: [path[i-1], path[i]], floor: cn?.floor };
+    } else cur.nodes.push(path[i]);
+  }
+  segs.push(cur); return segs;
+}
+
+function makeInstructions(path, nm) {
+  const inst = [];
+  for (let i = 1; i < path.length; i++) {
+    const p = nm[path[i-1]], c = nm[path[i]];
+    if (!p || !c) continue;
+    if (p.floor !== c.floor) {
+      const up = c.floor > p.floor;
+      inst.push({ icon: c.elevator ? '🛗' : '🪜', text: `${c.elevator ? 'Take elevator' : 'Take stairs'} ${up ? 'up' : 'down'} to floor ${c.floor}`, type: 'floor_change' });
+    } else if (getCtx(p) !== getCtx(c)) {
+      inst.push({ icon: getCtx(c) === 'indoor' ? '🏛️' : '🚶', text: getCtx(c) === 'indoor' ? 'Enter building' : 'Exit building', type: getCtx(c) === 'indoor' ? 'building_entry' : 'building_exit' });
+    } else {
+      const d = haversine(p, c);
+      if (d > 15) inst.push({ icon: '➡️', text: `Continue ${getCtx(c) === 'indoor' ? 'indoors' : 'outdoors'} (~${Math.round(d)}m)`, type: 'walk', distance: d });
+    }
+  }
+  return inst;
+}
+
+function findRoute(startIds, endIds, nodesArr, edgesData, accessibleOnly) {
+  const nm = {}; nodesArr.forEach(n => nm[n.node_id] = n);
+  const adj = buildAdj(edgesData);
+  let best = null, bestCost = Infinity;
+  for (const s of startIds) for (const e of endIds) {
+    if (s === e) continue;
+    const r = dijkstra(s, e, nm, adj, accessibleOnly);
+    if (r && r.cost < bestCost) { bestCost = r.cost; best = r; }
+  }
+  if (!best) return null;
+  return { ...best, distMeters: best.cost, distMiles: best.cost/1609.34, segments: annotate(best.path, nm), instructions: makeInstructions(best.path, nm), nodeMap: nm };
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
+let map, nodesArr = [], edgesData = null, buildingMap = {};
+let routeLayers = [], nodeMarkers = [], fpLayers = {}, fpCache = {};
+let startMkr = null, endMkr = null;
+
+// ── Init ───────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  const online = await checkHealth();
+  document.getElementById('api-dot').className = online ? 'online' : 'offline';
+  document.getElementById('api-label').textContent = online ? 'DB Connected' : 'Local Mode';
+
+  map = L.map('map').setView([39.1317, -84.5158], 16);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+
+  await Promise.all([loadBuildings(), loadNodes(), loadEdges()]);
+
+  document.getElementById('nodes-toggle').addEventListener('change', e => renderNodes(e.target.checked));
+  document.getElementById('floorplan-toggle').addEventListener('change', e => { if (!e.target.checked) hideAllFP(); });
+  document.getElementById('accessible-toggle').addEventListener('change', e => {
+    const lbl = e.target.parentElement?.previousElementSibling;
+  });
+});
+
+async function loadBuildings() {
+  const buildings = await dbBuildings();
+  const ss = document.getElementById('start-building'), es = document.getElementById('end-building');
+  buildings.forEach(b => {
+    [ss, es].forEach(sel => {
+      const o = document.createElement('option'); o.value = b.name; o.textContent = b.name; sel.appendChild(o);
+    });
+    if (b.coordinates?.length) {
+      const poly = L.polygon(b.coordinates, { className: 'building-polygon' }).addTo(map);
+      poly.bindPopup(`<b>${b.name}</b>`);
+      buildingMap[b.name] = {
+        poly, center: poly.getBounds().getCenter(),
+        entrance_nodes: b.entrance_nodes || [],
+        building_id: b.building_id || b.name.toLowerCase().replace(/\s+/g,'_'),
+        floors: b.floors || []
+      };
+    }
+  });
+  ss.addEventListener('change', () => onBldChange('start'));
+  es.addEventListener('change', () => onBldChange('end'));
+}
+
+async function onBldChange(which) {
+  const sel = document.getElementById(`${which}-building`);
+  const row = document.getElementById(`${which}-floor-row`);
+  const fsel = document.getElementById(`${which}-floor`);
+  const b = buildingMap[sel.value];
+  Object.values(buildingMap).forEach(x => x.poly?.getElement()?.classList.remove(`building-hover-${which}`));
+  if (!b) { row.style.display = 'none'; return; }
+  b.poly?.getElement()?.classList.add(`building-hover-${which}`);
+  const mkrIcon = which === 'start' ? '🟢' : '🔴';
+  if (which === 'start') { if (startMkr) startMkr.setLatLng(b.center); else startMkr = L.marker(b.center, { title: 'Start' }).addTo(map); }
+  else { if (endMkr) endMkr.setLatLng(b.center); else endMkr = L.marker(b.center, { title: 'End' }).addTo(map); }
+
+  const floors = await dbFloors(b.building_id);
+  fsel.innerHTML = '<option value="outside">Ground / Outdoor</option>';
+  const fl = floors.length > 0 ? floors : b.floors;
+  fl.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = `Floor ${f}`; fsel.appendChild(o); });
+  row.style.display = fl.length > 0 ? 'flex' : 'none';
+}
+
+async function loadNodes() { nodesArr = await dbNodes(); renderNodes(false); }
+
+function renderNodes(vis) {
+  nodeMarkers.forEach(m => map.removeLayer(m)); nodeMarkers = [];
+  if (!vis) return;
+  nodesArr.forEach(n => {
+    const color = n.elevator ? '#f59e0b' : n.entrance ? '#16a34a' : '#3b82f6';
+    const icon = L.divIcon({ className: '', iconSize: [10,10], html: `<div style="width:10px;height:10px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>` });
+    const m = L.marker([n.latitude, n.longitude], { icon }).addTo(map)
+      .bindTooltip(`${n.node_id} | Floor: ${n.floor}${n.elevator?' 🛗':''}${n.entrance?' 🚪':''}`, { direction: 'top' });
+    nodeMarkers.push(m);
+  });
+}
+
+async function loadEdges() { edgesData = await dbEdges(); renderEdgeGraph(); }
+
+function renderEdgeGraph() {
+  if (!edgesData) return;
+  const nm = {}; nodesArr.forEach(n => nm[n.node_id] = n);
+  edgesData.paths.forEach(p => {
+    const from = nm[p.node]; if (!from) return;
+    Object.keys(p.connections).forEach(tid => {
+      const to = nm[tid]; if (!to) return;
+      const indoor = from.location !== 'outside' || to.location !== 'outside';
+      L.polyline([[from.latitude,from.longitude],[to.latitude,to.longitude]],
+        { color: indoor ? '#93c5fd' : '#d1d5db', weight: 1.2, opacity: 0.4, dashArray: indoor ? '4 3' : null }).addTo(map);
+    });
+  });
+}
+
+// Floorplan helpers
+async function showFP(bid, floor) {
+  const key = `${bid}_${floor}`;
+  if (fpLayers[bid]) { map.removeLayer(fpLayers[bid]); delete fpLayers[bid]; }
+  if (!floor || floor === 'outside') return;
+  let gj = fpCache[key];
+  if (!gj) { gj = await dbFloorplan(bid, floor); if (!gj) return; fpCache[key] = gj; }
+  fpLayers[bid] = L.geoJSON(gj, { style: { color: '#2563eb', weight: 1.5, opacity: 0.6 } }).addTo(map);
+}
+function hideAllFP() { Object.values(fpLayers).forEach(l => map.removeLayer(l)); Object.keys(fpLayers).forEach(k => delete fpLayers[k]); }
+
+async function showFPForPath(path, nm) {
+  hideAllFP();
+  const seen = new Set();
+  for (const id of path) {
+    const n = nm[id];
+    if (!n || n.location === 'outside' || n.floor === 'outside') continue;
+    const bid = n.building_id || n.location, fl = n.floor, key = `${bid}_${fl}`;
+    if (!seen.has(key) && bid) { seen.add(key); await showFP(bid, fl); }
+  }
+}
+
+// ── Main route trigger ─────────────────────────────────────────────────────
+window.triggerFindRoute = async function() {
+  const sName = document.getElementById('start-building').value;
+  const eName = document.getElementById('end-building').value;
+  const sFloor = document.getElementById('start-floor').value;
+  const eFloor = document.getElementById('end-floor').value;
+  const accOnly = document.getElementById('accessible-toggle').checked;
+  const showFp  = document.getElementById('floorplan-toggle').checked;
+
+  if (!sName || !eName) { showErr('Please select both a start and destination building.'); return; }
+  if (sName === eName)  { showErr('Start and destination cannot be the same building.'); return; }
+  if (!edgesData) { showErr('Navigation data still loading, please wait…'); return; }
+
+  setLoad(true);
+  routeLayers.forEach(l => map.removeLayer(l)); routeLayers = [];
+
+  try {
+    const sb = buildingMap[sName], eb = buildingMap[eName];
+    if (!sb || !eb) { showErr('Building data not found.'); return; }
+
+    let sNodes = sb.entrance_nodes;
+    let eNodes = eb.entrance_nodes;
+
+    // Floor-specific entrance filtering
+    if (sFloor !== 'outside') {
+      const fn = nodesArr.filter(n => String(n.floor) === String(sFloor) && n.entrance &&
+        (n.building_id === sb.building_id || n.location === sName)).map(n => n.node_id);
+      if (fn.length) sNodes = fn;
+    }
+    if (eFloor !== 'outside') {
+      const fn = nodesArr.filter(n => String(n.floor) === String(eFloor) && n.entrance &&
+        (n.building_id === eb.building_id || n.location === eName)).map(n => n.node_id);
+      if (fn.length) eNodes = fn;
+    }
+
+    if (!sNodes.length || !eNodes.length) { showErr('No entrance nodes found. Please check building data.'); return; }
+
+    const result = findRoute(sNodes, eNodes, nodesArr, edgesData, accOnly);
+    if (!result) {
+      showErr(accOnly
+        ? 'No accessible route found. Try disabling the Accessible Route option.'
+        : 'No route found. The buildings may not be connected in the navigation graph.');
+      return;
+    }
+
+    // Draw route segments
+    result.segments.forEach(seg => {
+      const pts = seg.nodes.map(id => { const n = result.nodeMap[id]; return n ? [n.latitude, n.longitude] : null; }).filter(Boolean);
+      if (pts.length < 2) return;
+      const color = accOnly ? '#16a34a' : seg.type === 'indoor' ? '#2563eb' : '#e00122';
+      const l = L.polyline(pts, { color, weight: 5, opacity: 0.85, dashArray: seg.type === 'indoor' ? '6 3' : null, lineCap: 'round' }).addTo(map);
+      routeLayers.push(l);
+    });
+
+    showResults(result, sName, eName, accOnly);
+    if (showFp) await showFPForPath(result.path, result.nodeMap);
+
+    const bounds = L.latLngBounds(result.path.map(id => { const n = result.nodeMap[id]; return [n.latitude, n.longitude]; }));
+    map.fitBounds(bounds.pad(0.15));
+
+  } catch(err) {
+    console.error(err);
+    showErr('Routing error: ' + err.message);
+  } finally { setLoad(false); }
+};
+
+function showResults(r, sName, eName, accOnly) {
+  const miles = r.distMiles.toFixed(2);
+  const mins  = Math.ceil(r.distMiles / 0.05);
+  const hasInd = r.segments.some(s => s.type === 'indoor');
+  const hasOut = r.segments.some(s => s.type === 'outdoor');
+  const hasFloor = r.instructions.some(i => i.type === 'floor_change');
+  const tags = [
+    hasOut   ? { c:'outdoor', t:'🌤️ Outdoor' } : null,
+    hasInd   ? { c:'indoor',  t:'🏛️ Indoor'  } : null,
+    hasFloor ? { c:'floor',   t:'🪜 Multi-floor' } : null,
+    sName !== eName ? { c:'indoor', t:'🏢 Multi-building' } : null,
+    accOnly  ? { c:'acc',     t:'♿ Accessible' } : null,
+  ].filter(Boolean);
+
+  const instHTML = r.instructions.map((inst, i) =>
+    `<div class="inst-item ${inst.type}" style="animation-delay:${i*0.04}s">
+       <span class="inst-icon">${inst.icon}</span>
+       <span>${inst.text}</span>
+     </div>`).join('');
+
+  document.getElementById('route-results').innerHTML = `
+    <div class="route-summary">
+      <div class="rstat"><div class="v">${miles}</div><div class="l">Miles</div></div>
+      <div class="rdiv"></div>
+      <div class="rstat"><div class="v">${mins}</div><div class="l">Min walk</div></div>
+      <div class="rdiv"></div>
+      <div class="rstat"><div class="v">${r.path.length}</div><div class="l">Waypoints</div></div>
+    </div>
+    ${tags.length ? `<div class="route-tags">${tags.map(t=>`<span class="rtag ${t.c}">${t.t}</span>`).join('')}</div>` : ''}
+    <div id="inst-list">
+      <h3>Turn-by-Turn</h3>
+      ${instHTML || '<p style="color:#9ca3af;font-size:13px;padding:6px 0">Walk directly to destination.</p>'}
+    </div>`;
+}
+
+function showErr(msg) {
+  document.getElementById('route-results').innerHTML =
+    `<div style="margin:14px 18px;padding:12px;background:#fee2e2;color:#dc2626;border-radius:8px;border:1px solid #fca5a5;font-size:13px">⚠️ ${msg}</div>`;
+}
+
+function setLoad(l) {
+  const btn = document.getElementById('find-btn');
+  btn.disabled = l;
+  btn.innerHTML = l
+    ? '<div class="spinner"></div> Finding…'
+    : '<span class="material-icons" style="font-size:17px">directions</span>Find Route';
+}
+
+window.swapLocations = function() {
+  const ss = document.getElementById('start-building'), es = document.getElementById('end-building');
+  const sf = document.getElementById('start-floor'), ef = document.getElementById('end-floor');
+  [ss.value, es.value] = [es.value, ss.value];
+  [sf.value, ef.value] = [ef.value, sf.value];
+  onBldChange('start'); onBldChange('end');
+};
+
+document.addEventListener('click', e => {
+  const s = document.getElementById('sidebar');
+  if (s.classList.contains('active') && !s.contains(e.target) && !e.target.closest('.hbtn')) s.classList.remove('active');
+});
+</script>
 </body>
 </html>
