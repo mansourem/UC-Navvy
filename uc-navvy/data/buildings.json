@@ -1,0 +1,79 @@
+{
+  "buildings": {
+    "baldwin": {
+      "name": "Baldwin Hall",
+      "shortName": "Baldwin",
+      "coords": [-84.516688, 39.132891],
+      "floors": [4, 5, 6, 7, 8, 9],
+      "accessibleFloors": [4, 5, 6, 7, 8, 9],
+      "hasElevator": true,
+      "elevatorLocation": "Main lobby, east corridor",
+      "entranceFloor": 4,
+      "accessibleEntrance": true,
+      "accessibleEntranceNote": "Ramp on south side of building",
+      "apiKey": "baldwin",
+      "description": "Home to the College of Design, Architecture, Art, and Planning",
+      "address": "2624 Clifton Ave, Cincinnati, OH 45221"
+    },
+    "braunstein": {
+      "name": "Braunstein Hall",
+      "shortName": "Braunstein",
+      "coords": [-84.5180, 39.1315],
+      "floors": [1, 2, 3, 4],
+      "accessibleFloors": [1, 2, 3, 4],
+      "hasElevator": true,
+      "elevatorLocation": "Central atrium",
+      "entranceFloor": 1,
+      "accessibleEntrance": true,
+      "accessibleEntranceNote": "Level entrance on north face",
+      "apiKey": "braunstein",
+      "description": "Residential hall with academic support spaces",
+      "address": "University of Cincinnati, Cincinnati, OH 45221"
+    },
+    "swift": {
+      "name": "Swift Hall",
+      "shortName": "Swift",
+      "coords": [-84.5160, 39.1340],
+      "floors": [1, 2, 3],
+      "accessibleFloors": [1, 2],
+      "hasElevator": false,
+      "elevatorLocation": null,
+      "entranceFloor": 1,
+      "accessibleEntrance": false,
+      "accessibleEntranceNote": "Steps at main entrance — no accessible entry currently available",
+      "apiKey": "swift",
+      "description": "Historic hall — limited accessibility",
+      "address": "University of Cincinnati, Cincinnati, OH 45221"
+    },
+    "mccmicken": {
+      "name": "McMicken Hall",
+      "shortName": "McMicken",
+      "coords": [-84.5195, 39.1320],
+      "floors": [1, 2, 3, 4, 5],
+      "accessibleFloors": [1, 2, 3, 4, 5],
+      "hasElevator": true,
+      "elevatorLocation": "West wing, near room 100",
+      "entranceFloor": 1,
+      "accessibleEntrance": true,
+      "accessibleEntranceNote": "Accessible entrance on east side with automatic doors",
+      "apiKey": "mccmicken",
+      "description": "Home to Arts & Sciences, featuring a landmark rotunda",
+      "address": "2700 Campus Way, Cincinnati, OH 45221"
+    },
+    "tangeman": {
+      "name": "Tangeman University Center",
+      "shortName": "TUC",
+      "coords": [-84.5170, 39.1308],
+      "floors": [1, 2, 3],
+      "accessibleFloors": [1, 2, 3],
+      "hasElevator": true,
+      "elevatorLocation": "Multiple elevators throughout",
+      "entranceFloor": 1,
+      "accessibleEntrance": true,
+      "accessibleEntranceNote": "All entrances accessible with automatic doors",
+      "apiKey": "tangeman",
+      "description": "Main student union with dining, offices, and event spaces",
+      "address": "2766 UC's University Sq, Cincinnati, OH 45219"
+    }
+  }
+}

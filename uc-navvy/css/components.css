@@ -1,0 +1,474 @@
+/* ============================================================
+   components.css
+   Route cards, selects, ADA toggle, navigate button,
+   floor tabs, route summary, steps, toasts.
+   ============================================================ */
+
+/* ── Section Connector ─────────────────────────────────────── */
+
+.route-connector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 0;
+  margin: 0 var(--space-md);
+}
+
+.route-connector__line {
+  width: 1px;
+  height: 18px;
+  background: linear-gradient(to bottom, var(--green), var(--uc-red));
+}
+
+/* ── Route Cards ─────────────────────────────────────────────── */
+
+.route-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-sm);
+  transition: border-color var(--transition-base);
+}
+
+.route-card:hover {
+  border-color: var(--border-lit);
+}
+
+.route-card__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: var(--space-sm);
+}
+
+.route-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.route-dot--start {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green-glow);
+}
+
+.route-dot--end {
+  background: var(--uc-red);
+  box-shadow: 0 0 6px var(--uc-red-glow);
+}
+
+.select-row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.select-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.select-group label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* ── Select ─────────────────────────────────────────────────── */
+
+select {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-base);
+  color: var(--text-primary);
+  padding: 9px 28px 9px 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  width: 100%;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--uc-red);
+  box-shadow: 0 0 0 3px var(--uc-red-glow);
+}
+
+select option {
+  background: var(--bg-panel);
+}
+
+/* ── ADA Toggle ─────────────────────────────────────────────── */
+
+.ada-row {
+  margin: 0 var(--space-md) var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 13px var(--space-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  cursor: pointer;
+  transition: border-color var(--transition-base), background var(--transition-base);
+  user-select: none;
+}
+
+.ada-row:hover {
+  border-color: var(--border-lit);
+  background: var(--bg-hover);
+}
+
+.ada-row.ada-row--active {
+  border-color: var(--amber);
+  background: rgba(255,179,0,0.04);
+}
+
+.ada-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ada-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ada-badge {
+  background: var(--amber);
+  color: var(--bg-dark);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+}
+
+.ada-subtitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Toggle switch */
+.toggle {
+  width: 44px;
+  height: 24px;
+  background: var(--border-base);
+  border-radius: 12px;
+  position: relative;
+  flex-shrink: 0;
+  transition: background var(--transition-base);
+}
+
+.toggle--active {
+  background: var(--amber);
+}
+
+.toggle__thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: left var(--transition-base);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.toggle--active .toggle__thumb {
+  left: 23px;
+}
+
+/* ── Navigate Button ─────────────────────────────────────────── */
+
+.nav-btn-wrap {
+  padding: 0 var(--space-md) var(--space-md);
+}
+
+.nav-btn {
+  width: 100%;
+  background: var(--uc-red);
+  color: white;
+  border: none;
+  padding: 13px var(--space-md);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: var(--uc-red-dim);
+  box-shadow: 0 0 20px var(--uc-red-glow);
+}
+
+.nav-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.nav-btn:disabled {
+  background: var(--border-base);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.nav-btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* ── Floor Tabs ─────────────────────────────────────────────── */
+
+.floor-viewer {
+  padding: 0 var(--space-md) var(--space-md);
+}
+
+.floor-viewer__hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.floor-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.floor-tab {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 6px 11px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+  user-select: none;
+}
+
+.floor-tab:hover {
+  border-color: var(--border-lit);
+  color: var(--text-primary);
+}
+
+.floor-tab--active {
+  background: var(--uc-red);
+  border-color: var(--uc-red);
+  color: white;
+}
+
+/* ── Route Summary ──────────────────────────────────────────── */
+
+.route-summary {
+  margin: 0 var(--space-md) var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: none;
+  animation: slideIn 0.25s ease;
+}
+
+.route-summary--visible {
+  display: block;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.route-summary__header {
+  padding: 10px var(--space-md);
+  background: var(--bg-hover);
+  border-bottom: 1px solid var(--border-dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.route-summary__title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--green);
+  text-transform: uppercase;
+}
+
+.route-summary__body {
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Steps ──────────────────────────────────────────────────── */
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: 4px 0;
+}
+
+.step__num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--border-base);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.step__icon {
+  font-size: 13px;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+
+.step__text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.step--vertical .step__num { background: rgba(74,158,255,0.15); color: var(--blue); }
+.step--arrive .step__num   { background: rgba(0,200,80,0.15);   color: var(--green); }
+.step--warning .step__text { color: var(--amber); }
+
+.step-ada-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--amber);
+  border-top: 1px solid var(--border-dim);
+  padding-top: var(--space-sm);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-base);
+  color: var(--text-primary);
+  padding: 11px 20px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  z-index: 9000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-base), transform var(--transition-base);
+  max-width: 440px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast--error {
+  border-color: var(--uc-red);
+  background: #180009;
+}
+
+.toast--success {
+  border-color: var(--green);
+  background: #021207;
+}
+
+/* ── Building Marker (Leaflet) ──────────────────────────────── */
+
+.building-marker {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: opacity var(--transition-base);
+  white-space: nowrap;
+}
+
+.building-marker__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--uc-red);
+  box-shadow: 0 0 8px var(--uc-red-glow);
+  flex-shrink: 0;
+  transition: box-shadow var(--transition-base);
+}
+
+.building-marker:hover .building-marker__dot {
+  box-shadow: 0 0 14px var(--uc-red);
+}
+
+.building-marker__label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: rgba(10,10,10,0.85);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  backdrop-filter: blur(6px);
+  letter-spacing: 0.2px;
+  transition: border-color var(--transition-fast);
+}
+
+.building-marker:hover .building-marker__label {
+  border-color: var(--uc-red);
+}
