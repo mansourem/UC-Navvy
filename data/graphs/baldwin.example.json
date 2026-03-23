@@ -1,0 +1,94 @@
+{
+  "nodes": [
+    {
+      "id": 101,
+      "floor": 4,
+      "lat": 39.132750,
+      "lng": -84.516820,
+      "entrance": true,
+      "ada": true,
+      "type": "entrance",
+      "label": "South Entrance"
+    },
+    {
+      "id": 102,
+      "floor": 4,
+      "lat": 39.132780,
+      "lng": -84.516780,
+      "entrance": false,
+      "ada": true,
+      "type": "corridor",
+      "label": "Main Lobby"
+    },
+    {
+      "id": 103,
+      "floor": 4,
+      "lat": 39.132810,
+      "lng": -84.516730,
+      "entrance": false,
+      "ada": true,
+      "type": "elevator",
+      "label": "Elevator — Floor 4"
+    },
+    {
+      "id": 104,
+      "floor": 4,
+      "lat": 39.132860,
+      "lng": -84.516700,
+      "entrance": false,
+      "ada": false,
+      "type": "stair",
+      "label": "North Stairwell — Floor 4"
+    },
+    {
+      "id": 105,
+      "floor": 4,
+      "lat": 39.132830,
+      "lng": -84.516750,
+      "entrance": false,
+      "ada": true,
+      "type": "corridor",
+      "label": "Hall Junction"
+    },
+    {
+      "id": 201,
+      "floor": 5,
+      "lat": 39.132810,
+      "lng": -84.516730,
+      "entrance": false,
+      "ada": true,
+      "type": "elevator",
+      "label": "Elevator — Floor 5"
+    },
+    {
+      "id": 202,
+      "floor": 5,
+      "lat": 39.132860,
+      "lng": -84.516700,
+      "entrance": false,
+      "ada": false,
+      "type": "stair",
+      "label": "North Stairwell — Floor 5"
+    },
+    {
+      "id": 203,
+      "floor": 5,
+      "lat": 39.132830,
+      "lng": -84.516750,
+      "entrance": false,
+      "ada": true,
+      "type": "corridor",
+      "label": "Hall Junction"
+    }
+  ],
+  "edges": [
+    { "id": 1, "from": 101, "to": 102, "type": "entrance",  "ada": true  },
+    { "id": 2, "from": 102, "to": 105, "type": "corridor",  "ada": true  },
+    { "id": 3, "from": 105, "to": 103, "type": "corridor",  "ada": true  },
+    { "id": 4, "from": 105, "to": 104, "type": "corridor",  "ada": true  },
+    { "id": 5, "from": 103, "to": 201, "type": "elevator",  "ada": true  },
+    { "id": 6, "from": 104, "to": 202, "type": "stair",     "ada": false },
+    { "id": 7, "from": 201, "to": 203, "type": "corridor",  "ada": true  },
+    { "id": 8, "from": 202, "to": 203, "type": "corridor",  "ada": true  }
+  ]
+}

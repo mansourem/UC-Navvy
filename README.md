@@ -1,6 +1,6 @@
 # UC Navvy — Campus Navigation System
 
-A production-grade indoor/outdoor campus navigation system for the University of Cincinnati, built with vanilla HTML, CSS, and JavaScript. Uses Leaflet.js for mapping and pulls live GeoJSON floorplans from the UC NavVy REST API.
+A production-grade indoor/outdoor campus navigation system for the University of Cincinnati, built with vanilla HTML, CSS, and JavaScript. Uses Leaflet.js for mapping and pulls live GeoJSON floorplans from the UC Navvy REST API.
 
 ---
 

@@ -1,6 +1,6 @@
 /**
  * config.js
- * Central configuration for UC NavVy.
+ * Central configuration for UC Navvy.
  * All building metadata, API endpoints, and map defaults live here.
  */
 
@@ -9,7 +9,8 @@
 // ─── API ─────────────────────────────────────────────────────────────────────
 
 export const API = {
-  BASE_URL: 'https://uc-navvy-api.onrender.com/api/floorplan',
+  BASE_URL:       'https://uc-navvy-api.onrender.com/api/floorplan',
+  GRAPH_BASE_URL: 'https://uc-navvy-api.onrender.com/api/graph',
 
   /**
    * Build the URL for a specific building + floor's GeoJSON.
@@ -20,6 +21,16 @@ export const API = {
   floorplanUrl(buildingKey, floor) {
     return `${this.BASE_URL}/${buildingKey}/${floor}`;
   },
+
+  /**
+   * Build the URL for a building's navigation graph.
+   * Use 'campus' as the key for the outdoor campus graph.
+   * @param {string} key  - e.g. 'baldwin' or 'campus'
+   * @returns {string}
+   */
+  graphUrl(key) {
+    return `${this.GRAPH_BASE_URL}/${key}`;
+  },
 };
 
 // ─── MAP DEFAULTS ─────────────────────────────────────────────────────────────
@@ -29,7 +40,7 @@ export const MAP_CONFIG = {
   zoom: 16,
   minZoom: 14,
   maxZoom: 22,
-  tileUrl: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  tileUrl: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
   tileAttribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
   tileSubdomains: 'abcd',
 };
@@ -54,100 +65,64 @@ export const STYLES = {
 };
 
 // ─── BUILDING REGISTRY ────────────────────────────────────────────────────────
-
+// TODO: Add all building definitons
 /**
  * @typedef {Object} Building
  * @property {string}   name                 - Full display name
- * @property {string}   shortName            - Abbreviated name
- * @property {[number,number]} coords        - [lng, lat]
+ * @property {[number,number]} center        - [lng, lat]
  * @property {number[]} floors               - Available floor numbers
- * @property {number[]} accessibleFloors     - ADA-compliant floors
- * @property {boolean}  hasElevator
- * @property {string|null} elevatorLocation
- * @property {number}   entranceFloor        - Floor where main entrance is
- * @property {boolean}  accessibleEntrance
- * @property {string}   accessibleEntranceNote
+ * @property {number[]|null} elevatorNodes
+ * @property {number[]}   entranceNodes        - Floor where main entrance is
+ * @property {number[]}   accessibleEntranceNodes
  * @property {string}   apiKey               - Key used in API URL
- * @property {string}   description
- * @property {string}   address
  */
 
 /** @type {Object.<string, Building>} */
 export const BUILDINGS = {
   baldwin: {
     name: 'Baldwin Hall',
-    shortName: 'Baldwin',
-    coords: [-84.516688, 39.132891],
+    center: [-84.516688, 39.132891],
     floors: [4, 5, 6, 7, 8, 9],
-    accessibleFloors: [4, 5, 6, 7, 8, 9],
-    hasElevator: true,
-    elevatorLocation: 'Main lobby, east corridor',
-    entranceFloor: 4,
-    accessibleEntrance: true,
-    accessibleEntranceNote: 'Ramp on south side of building',
+    elevatorNodes: [],
+    entranceNodes: [4],
+    accessibleEntranceNodes: [4],
     apiKey: 'baldwin',
-    description: 'College of Design, Architecture, Art, and Planning',
-    address: '2624 Clifton Ave, Cincinnati, OH 45221',
   },
   braunstein: {
     name: 'Braunstein Hall',
-    shortName: 'Braunstein',
-    coords: [-84.5180, 39.1315],
+    center: [-84.5180, 39.1315],
     floors: [1, 2, 3, 4],
-    accessibleFloors: [1, 2, 3, 4],
-    hasElevator: true,
-    elevatorLocation: 'Central atrium',
-    entranceFloor: 1,
-    accessibleEntrance: true,
-    accessibleEntranceNote: 'Level entrance on north face',
+    elevatorNodes: [1, 2, 3, 4],
+    entranceNodes: [1],
+    accessibleEntranceNodes: [1, 2, 3, 4],
     apiKey: 'braunstein',
-    description: 'Residential hall with academic support spaces',
-    address: 'University of Cincinnati, Cincinnati, OH 45221',
   },
   swift: {
     name: 'Swift Hall',
-    shortName: 'Swift',
-    coords: [-84.5160, 39.1340],
+    center: [-84.5160, 39.1340],
     floors: [1, 2, 3],
-    accessibleFloors: [1, 2],
-    hasElevator: false,
-    elevatorLocation: null,
-    entranceFloor: 1,
-    accessibleEntrance: false,
-    accessibleEntranceNote: 'Steps at main entrance — no accessible entry currently available',
+    elevatorNodes: null,
+    entranceNodes: [],
+    accessibleEntranceNodes: [],
     apiKey: 'swift',
-    description: 'Historic hall — limited accessibility',
-    address: 'University of Cincinnati, Cincinnati, OH 45221',
   },
   mccmicken: {
     name: 'McMicken Hall',
-    shortName: 'McMicken',
-    coords: [-84.5195, 39.1320],
+    center: [-84.5195, 39.1320],
     floors: [1, 2, 3, 4, 5],
-    accessibleFloors: [1, 2, 3, 4, 5],
-    hasElevator: true,
-    elevatorLocation: 'West wing, near room 100',
-    entranceFloor: 1,
-    accessibleEntrance: true,
-    accessibleEntranceNote: 'Accessible entrance on east side with automatic doors',
+    elevatorNodes: [],
+    entranceNodes: [],
+    accessibleEntranceNodes: [],
     apiKey: 'mccmicken',
-    description: 'Arts & Sciences — landmark rotunda',
-    address: '2700 Campus Way, Cincinnati, OH 45221',
   },
   tangeman: {
     name: 'Tangeman University Center',
-    shortName: 'TUC',
-    coords: [-84.5170, 39.1308],
+    center: [-84.5170, 39.1308],
     floors: [1, 2, 3],
-    accessibleFloors: [1, 2, 3],
-    hasElevator: true,
-    elevatorLocation: 'Multiple elevators throughout',
-    entranceFloor: 1,
-    accessibleEntrance: true,
-    accessibleEntranceNote: 'All entrances accessible with automatic doors',
+    elevatorNodes: [],
+    entranceNodes: [],
+    accessibleEntranceNodes: [],
     apiKey: 'tangeman',
-    description: 'Main student union — dining, offices, events',
-    address: '2766 UC\'s University Sq, Cincinnati, OH 45219',
   },
 };
 

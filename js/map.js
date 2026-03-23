@@ -94,14 +94,14 @@ export function highlightBuilding(selectedKey) {
 
 function _addBuildingMarkers() {
   Object.entries(BUILDINGS).forEach(([key, bldg]) => {
-    const [lng, lat] = bldg.coords;
+    const [lng, lat] = bldg.center;
 
     const el = document.createElement('div');
     el.className = 'building-marker';
     el.setAttribute('data-building', key);
     el.innerHTML = `
       <span class="building-marker__dot"></span>
-      <span class="building-marker__label">${bldg.shortName}</span>
+      <span class="building-marker__label">${bldg.name}</span>
     `;
 
     const icon = L.divIcon({

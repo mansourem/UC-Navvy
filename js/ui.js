@@ -26,12 +26,12 @@ let _toastTimer = null;
  * @param {Function} handlers.onPreview    - Called with (building, floor) when a floor tab is clicked
  * @param {Function} handlers.onBuildingMapClick - Passed to map.js as onBuildingClick
  */
-export function initUI({ onNavigate, onPreview }) {
+export function initUI({ onNavigate, onFloorTab }) {
   _populateBuildingSelects();
   _bindSelectEvents();
   _bindADAToggle();
   _bindNavigateButton(onNavigate);
-  _bindFloorTabs(onPreview);
+  _bindFloorTabs(onFloorTab);
   _listenToRouteEvents();
 }
 
@@ -184,7 +184,7 @@ function _updateFloorSelect(which) {
   if (!buildingKey || !BUILDINGS[buildingKey]) return;
 
   const bldg  = BUILDINGS[buildingKey];
-  const floors = _adaMode ? bldg.accessibleFloors : bldg.floors;
+  const floors = bldg.floors;
 
   floors.forEach(f => {
     const opt = document.createElement('option');
