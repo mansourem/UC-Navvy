@@ -1,14 +1,22 @@
 {
   "nodes": [
     {
+    "node_id": 16,
+    "lat": 39.1328611111111,
+    "longitude": -84.5168333333333,
+    "floor": null,
+    "entrance": true,
+    "type": "entrance",
+    "ada": false
+  },
+    {
       "id": 101,
       "floor": 4,
-      "lat": 39.132750,
-      "lng": -84.516820,
+      "lat": 39.1328,
+      "lng": -84.5168,
       "entrance": true,
-      "ada": true,
-      "type": "entrance",
-      "label": "South Entrance"
+      "ada": false,
+      "type": "entrance"
     },
     {
       "id": 102,

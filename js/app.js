@@ -10,7 +10,8 @@
 import { BUILDINGS } from './config.js';
 import { initMap, highlightBuilding } from './map.js';
 import { planRoute } from './router.js';
-import { initUI, showToast, setActiveFloorTab, selectBuilding } from './ui.js';
+// TODO: re-enable setActiveFloorTab once floor tab UI is wired up
+import { initUI, showToast, /* setActiveFloorTab, */ selectBuilding } from './ui.js';
 
 // ─── BOOTSTRAP ────────────────────────────────────────────────────────────────
 
@@ -21,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. Init UI with handlers
   initUI({
     onNavigate: _onNavigate,
-    onFloorTab: _onFloorTab,
+    // TODO: re-enable onFloorTab once floor tab UI is wired up
+    // onFloorTab: _onFloorTab,
   });
 });
 
@@ -41,10 +43,10 @@ function _onBuildingMarkerClick(buildingKey) {
   highlightBuilding(buildingKey);
 }
 
-/** Called when a floor tab is clicked — updates tab UI only, no floorplan rendered */
-function _onFloorTab(_building, floor) {
-  setActiveFloorTab(floor);
-}
+// TODO: re-enable once floor tab UI is wired up
+// function _onFloorTab(_building, floor) {
+//   setActiveFloorTab(floor);
+// }
 
 /** Called when Navigate button is clicked */
 async function _onNavigate(req) {

@@ -1,0 +1,14 @@
+{
+    "nodes": [
+        {
+            "node_id": 999,
+            "lat": 39.13298976121624,
+            "lng": -84.51753096080566,
+            "floor": null,
+            "entrance": true,
+            "type": "entrance",
+            "ada": true
+        }
+    ]
+    
+}

@@ -52,7 +52,8 @@ export function selectBuilding(which, buildingKey) {
   const opt = sel.querySelector(`option[value="${buildingKey}"]`);
   if (opt) {
     sel.value = buildingKey;
-    _updateFloorSelect(which);
+    // TODO: re-enable once floor selection is wired up
+    // _updateFloorSelect(which);
     _checkNavigateReady();
   }
 }
@@ -165,34 +166,38 @@ function _populateBuildingSelects() {
 function _bindSelectEvents() {
   ['start', 'end'].forEach(which => {
     const bldgSel = document.getElementById(`${which}Building`);
-    const floorSel = document.getElementById(`${which}Floor`);
+    // TODO: re-enable floor select binding once floor selection is wired up
+    // const floorSel = document.getElementById(`${which}Floor`);
     if (bldgSel) bldgSel.addEventListener('change', () => {
-      _updateFloorSelect(which);
+      // TODO: re-enable once floor selection is wired up
+      // _updateFloorSelect(which);
       _checkNavigateReady();
     });
-    if (floorSel) floorSel.addEventListener('change', _checkNavigateReady);
+    // TODO: re-enable once floor selection is wired up
+    // if (floorSel) floorSel.addEventListener('change', _checkNavigateReady);
   });
 }
 
-function _updateFloorSelect(which) {
-  const buildingKey = document.getElementById(`${which}Building`)?.value;
-  const floorSel    = document.getElementById(`${which}Floor`);
-  if (!floorSel) return;
-
-  floorSel.innerHTML = '<option value="">Floor…</option>';
-
-  if (!buildingKey || !BUILDINGS[buildingKey]) return;
-
-  const bldg  = BUILDINGS[buildingKey];
-  const floors = bldg.floors;
-
-  floors.forEach(f => {
-    const opt = document.createElement('option');
-    opt.value = f;
-    opt.textContent = `Floor ${f}`;
-    floorSel.appendChild(opt);
-  });
-}
+// TODO: re-enable _updateFloorSelect once floor selection is wired up
+// function _updateFloorSelect(which) {
+//   const buildingKey = document.getElementById(`${which}Building`)?.value;
+//   const floorSel    = document.getElementById(`${which}Floor`);
+//   if (!floorSel) return;
+//
+//   floorSel.innerHTML = '<option value="">Floor…</option>';
+//
+//   if (!buildingKey || !BUILDINGS[buildingKey]) return;
+//
+//   const bldg  = BUILDINGS[buildingKey];
+//   const floors = bldg.floors;
+//
+//   floors.forEach(f => {
+//     const opt = document.createElement('option');
+//     opt.value = f;
+//     opt.textContent = `Floor ${f}`;
+//     floorSel.appendChild(opt);
+//   });
+// }
 
 function _bindADAToggle() {
   const row = document.getElementById('adaToggleRow');
@@ -203,7 +208,8 @@ function _bindADAToggle() {
     row.setAttribute('aria-checked', String(_adaMode));
     row.classList.toggle('ada-row--active', _adaMode);
     row.querySelector('.toggle')?.classList.toggle('toggle--active', _adaMode);
-    ['start', 'end'].forEach(_updateFloorSelect);
+    // TODO: re-enable once floor selection is wired up
+    // ['start', 'end'].forEach(_updateFloorSelect);
     _checkNavigateReady();
     document.dispatchEvent(new CustomEvent('navvy:ada:changed', { detail: { adaMode: _adaMode } }));
   }
@@ -219,11 +225,12 @@ function _bindADAToggle() {
 
 function _checkNavigateReady() {
   const sb = document.getElementById('startBuilding')?.value;
-  const sf = document.getElementById('startFloor')?.value;
   const eb = document.getElementById('endBuilding')?.value;
-  const ef = document.getElementById('endFloor')?.value;
+  // TODO: re-enable floor checks once floor selection is wired up
+  // const sf = document.getElementById('startFloor')?.value;
+  // const ef = document.getElementById('endFloor')?.value;
   const btn = document.getElementById('navigateBtn');
-  if (btn) btn.disabled = !(sb && sf && eb && ef);
+  if (btn) btn.disabled = !(sb && eb);
 }
 
 function _bindNavigateButton(onNavigate) {
@@ -232,9 +239,13 @@ function _bindNavigateButton(onNavigate) {
   btn.addEventListener('click', () => {
     const req = {
       startBuilding: document.getElementById('startBuilding')?.value,
-      startFloor:    parseInt(document.getElementById('startFloor')?.value),
+      // TODO: replace hardcoded floor with value from floor select once wired up
+      // startFloor: parseInt(document.getElementById('startFloor')?.value),
+      startFloor:    1,
       endBuilding:   document.getElementById('endBuilding')?.value,
-      endFloor:      parseInt(document.getElementById('endFloor')?.value),
+      // TODO: replace hardcoded floor with value from floor select once wired up
+      // endFloor: parseInt(document.getElementById('endFloor')?.value),
+      endFloor:      1,
       adaOnly:       _adaMode,
     };
     if (onNavigate) onNavigate(req);

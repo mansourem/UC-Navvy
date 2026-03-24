@@ -54,17 +54,30 @@ const _cache = new Map();
 
 /**
  * Fetch and cache a navigation graph.
- * @param {string} key  - building key (e.g. 'baldwin') or 'campus'
+ * @param {string} key  - building key (e.g. 'baldwin') or 'outdoor'
  * @returns {Promise<Graph>}
  */
 export async function loadGraph(key) {
   if (_cache.has(key)) return _cache.get(key);
 
-  const url = API.graphUrl(key);
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error(`Graph API ${resp.status} — ${url}`);
+  let graph;
 
-  const graph = await resp.json();
+  if (key === 'campusquad') {
+    // TODO: Replace this local file load with the live API call once the outdoor
+    //       graph endpoint is available:
+    //         const url = API.graphUrl('outdoor');  // GET /api/graph/outdoor
+    //         const resp = await fetch(url);
+    //         graph = await resp.json();
+    const resp = await fetch('data/graphs/campusquad.json');
+    if (!resp.ok) throw new Error(`Campus quad graph ${resp.status}`);
+    graph = _remapOutdoorGraph(await resp.json());
+  } else {
+    const url = API.graphUrl(key);
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Graph API ${resp.status} — ${url}`);
+    graph = await resp.json();
+  }
+
   _normalise(graph);
   _cache.set(key, graph);
   return graph;
@@ -98,7 +111,9 @@ export function mergeGraphs(...graphs) {
  * @param {string}  startId
  * @param {string}  endId
  * @param {boolean} adaOnly  - skip nodes/edges where ada === false
- * @returns {string[]|null}  ordered node IDs from start→end, or null if unreachable
+ * @returns {{ nodes: string[], edges: Edge[] }|null}
+ *   Ordered node IDs from start→end and the actual Edge objects traversed,
+ *   or null if unreachable.
  */
 export function findPath(graph, startId, endId, adaOnly) {
   const { nodes, edges } = graph;
@@ -111,7 +126,7 @@ export function findPath(graph, startId, endId, adaOnly) {
 
   if (!eligible.has(startId) || !eligible.has(endId)) return null;
 
-  // Build adjacency list
+  // Build adjacency list — store edge reference alongside each neighbour
   const adj = new Map();
   eligible.forEach(id => adj.set(id, []));
 
@@ -119,13 +134,13 @@ export function findPath(graph, startId, endId, adaOnly) {
     if (!eligible.has(e.from) || !eligible.has(e.to)) continue;
     if (adaOnly && e.ada === false) continue;
     const w = e.weight ?? 1;
-    adj.get(e.from).push({ id: e.to, w });
-    if (!e.directed) adj.get(e.to).push({ id: e.from, w });
+    adj.get(e.from).push({ id: e.to, w, edge: e });
+    if (!e.directed) adj.get(e.to).push({ id: e.from, w, edge: e });
   }
 
   // Dijkstra — O(V²) but fine for sub-500 node graphs
   const dist = new Map();
-  const prev = new Map();
+  const prev = new Map();      // prev[v] = { fromId, edge }
   eligible.forEach(id => dist.set(id, Infinity));
   dist.set(startId, 0);
 
@@ -140,21 +155,27 @@ export function findPath(graph, startId, endId, adaOnly) {
     if (dist.get(u) === Infinity || u === endId) break;
     unvisited.delete(u);
 
-    for (const { id: v, w } of adj.get(u)) {
+    for (const { id: v, w, edge } of adj.get(u)) {
       const alt = dist.get(u) + w;
       if (alt < dist.get(v)) {
         dist.set(v, alt);
-        prev.set(v, u);
+        prev.set(v, { fromId: u, edge });
       }
     }
   }
 
   if (dist.get(endId) === Infinity) return null;
 
-  // Reconstruct path
-  const path = [];
-  for (let cur = endId; cur !== undefined; cur = prev.get(cur)) path.unshift(cur);
-  return path;
+  // Reconstruct ordered node IDs and the edges traversed
+  const pathNodes = [];
+  const pathEdges = [];
+  for (let cur = endId; cur !== undefined; cur = prev.get(cur)?.fromId) {
+    pathNodes.unshift(cur);
+    const entry = prev.get(cur);
+    if (entry) pathEdges.unshift(entry.edge);
+  }
+
+  return { nodes: pathNodes, edges: pathEdges };
 }
 
 /**
@@ -239,6 +260,37 @@ function _normalise(graph) {
       e.weight = (a && b) ? _haversine(a.lat, a.lng, b.lat, b.lng) : 1;
     }
   }
+}
+
+/**
+ * Remap outside.json's field names to the internal graph schema.
+ * outside.json uses node_id/longitude/edge_id; internally we expect id/lng/id.
+ * Node 58 has a typo ("log" instead of "longitude") — handled via fallback chain.
+ * @param {{ nodes: object[], edges: object[] }} raw
+ * @returns {Graph}
+ */
+function _remapOutdoorGraph(raw) {
+  return {
+    nodes: raw.nodes.map(n => ({
+      id:       n.node_id,
+      lat:      n.lat,
+      lng:      n.longitude ?? n.log ?? n.lng,
+      floor:    n.floor,
+      entrance: n.entrance,
+      type:     n.type,
+      ada:      n.ada,
+      label:    n.label,
+    })),
+    edges: raw.edges.map(e => ({
+      id:       e.edge_id,
+      from:     e.from,
+      to:       e.to,
+      weight:   e.weight,
+      type:     e.type,
+      ada:      e.ada,
+      directed: e.directed ?? false,
+    })),
+  };
 }
 
 function _haversine(lat1, lng1, lat2, lng2) {

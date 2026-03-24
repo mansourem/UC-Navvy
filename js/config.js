@@ -418,7 +418,7 @@ export const BUILDINGS = {
     apiKey: 'scioto',
   },    
   
-  //FIX: SAPC?
+  //TODO FIX: SAPC?
 
   shoe: {
     name: 'Myrl H. Shoemaker Multipurpose Center',

@@ -1,0 +1,353 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "lat": 39.1328064,
+      "lng": -84.5168307,
+      "building": "Baldwin Hall",
+      "floor": "6",
+      "entrance": true,
+      "ada": false,
+      "type": "entrance"
+    },
+    {
+      "id": "2",
+      "lat": 39.1328984,
+      "lng": -84.516864,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": false,
+      "type": "stair"
+    },
+    {
+      "id": "3",
+      "lat": 39.1327592,
+      "lng": -84.5167844,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": false,
+      "type": "stair"
+    },
+    {
+      "id": "4",
+      "lat": 39.1328589,
+      "lng": -84.5169891,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "5",
+      "lat": 39.1329358,
+      "lng": -84.5170303,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "6",
+      "lat": 39.1329708,
+      "lng": -84.5171251,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "7",
+      "lat": 39.132939,
+      "lng": -84.5172397,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "8",
+      "lat": 39.1329224,
+      "lng": -84.5173678,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "9",
+      "lat": 39.1328888,
+      "lng": -84.517522,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "10",
+      "lat": 39.1329914,
+      "lng": -84.5175159,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": false,
+      "type": "stair"
+    },
+    {
+      "id": "11",
+      "lat": 39.1329571,
+      "lng": -84.5174369,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": false,
+      "type": "stair"
+    },
+    {
+      "id": "12",
+      "lat": 39.1329453,
+      "lng": -84.517484,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "13",
+      "lat": 39.1329789,
+      "lng": -84.5174796,
+      "building": "Old Chemisty Building",
+      "floor": "6",
+      "entrance": true,
+      "ada": true,
+      "type": "entrance"
+    },
+    {
+      "id": "15",
+      "lat": 39.1328723,
+      "lng": -84.5176383,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "16",
+      "lat": 39.1328485,
+      "lng": -84.5178151,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "17",
+      "lat": 39.1328047,
+      "lng": -84.5179368,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "18",
+      "lat": 39.1329455,
+      "lng": -84.5174583,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "19",
+      "lat": 39.132957,
+      "lng": -84.5173821,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "20",
+      "lat": 39.1329363,
+      "lng": -84.5172187,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    },
+    {
+      "id": "21",
+      "lat": 39.1329827,
+      "lng": -84.5170443,
+      "building": "Outside",
+      "floor": null,
+      "entrance": false,
+      "ada": true,
+      "type": "outdoor"
+    }
+  ],
+  "edges": [
+    {
+      "id": "3",
+      "from": "2",
+      "to": "3",
+      "type": "stair",
+      "ada": false
+    },
+    {
+      "id": "4",
+      "from": "1",
+      "to": "2",
+      "type": "outdoor",
+      "ada": false
+    },
+    {
+      "id": "5",
+      "from": "4",
+      "to": "4",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "6",
+      "from": "3",
+      "to": "4",
+      "type": "outdoor",
+      "ada": false
+    },
+    {
+      "id": "7",
+      "from": "4",
+      "to": "5",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "8",
+      "from": "5",
+      "to": "6",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "9",
+      "from": "6",
+      "to": "7",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "10",
+      "from": "7",
+      "to": "8",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "11",
+      "from": "8",
+      "to": "9",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "12",
+      "from": "9",
+      "to": "10",
+      "type": "outdoor",
+      "ada": false
+    },
+    {
+      "id": "13",
+      "from": "10",
+      "to": "11",
+      "type": "stair",
+      "ada": false
+    },
+    {
+      "id": "14",
+      "from": "11",
+      "to": "12",
+      "type": "outdoor",
+      "ada": false
+    },
+    {
+      "id": "15",
+      "from": "12",
+      "to": "13",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "17",
+      "from": "15",
+      "to": "16",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "18",
+      "from": "16",
+      "to": "17",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "19",
+      "from": "9",
+      "to": "15",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "20",
+      "from": "12",
+      "to": "18",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "21",
+      "from": "19",
+      "to": "20",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "22",
+      "from": "18",
+      "to": "19",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "23",
+      "from": "20",
+      "to": "21",
+      "type": "outdoor",
+      "ada": true
+    },
+    {
+      "id": "24",
+      "from": "5",
+      "to": "21",
+      "type": "outdoor",
+      "ada": true
+    }
+  ]
+}

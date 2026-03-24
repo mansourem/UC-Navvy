@@ -4,8 +4,8 @@
  *
  * Handles:
  *  - ADA accessibility validation
- *  - Graph-based pathfinding (intra- and inter-building)
- *  - Leaflet route layer drawing with real hallway polylines
+ *  - Outdoor graph-based pathfinding between buildings
+ *  - Leaflet route layer drawing, edge by edge along the outdoor graph
  *  - Graceful fallback to straight-line rendering when graph data is unavailable
  *  - Turn-by-turn step generation
  *
@@ -14,17 +14,21 @@
  *  - navvy:route:ready   { request, steps, layers }
  *  - navvy:route:error   { request, error }
  *  - navvy:route:cleared
+ *
+ * TODO: Re-enable intra-building routing once indoor graphs are available
+ * TODO: Re-enable floorplan rendering once floorplan API is stable
  */
 
 'use strict';
 
 import { BUILDINGS, STYLES, APP } from './config.js';
 import { getMap, fitBounds } from './map.js';
-import { renderFloorplan, clearAllFloorplans } from './floorplan.js';
+// TODO: re-enable floorplan import once floorplan rendering is wired up
+// import { renderFloorplan, clearAllFloorplans } from './floorplan.js';
 import {
-  loadGraph, mergeGraphs,
-  findBestPath,
-  getEntranceNodes, getFloorNodes, nodeMap,
+  loadGraph,
+  findPath,
+  nodeMap,
 } from './graph.js';
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
@@ -37,10 +41,9 @@ let _routeLayerGroup = null;
 /**
  * @typedef {Object} RouteRequest
  * @property {string}  startBuilding
- * @property {number}  startFloor
  * @property {string}  endBuilding
- * @property {number}  endFloor
  * @property {boolean} adaOnly
+ * TODO: add startFloor / endFloor back once floor selection is wired up
  */
 
 /**
@@ -51,27 +54,28 @@ let _routeLayerGroup = null;
  */
 
 /**
- * Validate a route request against ADA constraints.
+ * Validate a route request.
  * @param {RouteRequest} req
  * @returns {{ valid: boolean, reason?: string }}
  */
 export function validateRoute(req) {
-  const { startBuilding, startFloor, endBuilding, endFloor, adaOnly } = req;
+  const { startBuilding, endBuilding } = req;
   const sb = BUILDINGS[startBuilding];
   const eb = BUILDINGS[endBuilding];
 
   if (!sb) return { valid: false, reason: `Unknown building: ${startBuilding}` };
   if (!eb) return { valid: false, reason: `Unknown building: ${endBuilding}` };
 
-  if (adaOnly) {
-    if (!sb.accessibleEntranceNodes.length)
-      return { valid: false, reason: `${sb.name} does not have an ADA accessible entrance.` };
-    if (startBuilding !== endBuilding && !eb.accessibleEntranceNodes.length)
-      return { valid: false, reason: `${eb.name} does not have an ADA accessible entrance.` };
-  }
+  if (startBuilding === endBuilding)
+    return { valid: false, reason: 'Start and destination are the same building.' };
 
-  if (startBuilding === endBuilding && startFloor === endFloor)
-    return { valid: false, reason: 'Start and destination are the same location.' };
+  // TODO: re-enable ADA entrance validation once entrance nodes are mapped
+  // if (adaOnly) {
+  //   if (!sb.accessibleEntranceNodes.length)
+  //     return { valid: false, reason: `${sb.name} does not have an ADA accessible entrance.` };
+  //   if (!eb.accessibleEntranceNodes.length)
+  //     return { valid: false, reason: `${eb.name} does not have an ADA accessible entrance.` };
+  // }
 
   return { valid: true };
 }
@@ -92,23 +96,16 @@ export async function planRoute(req) {
   }
 
   clearRoute();
-  clearAllFloorplans();
 
-  const { startBuilding, startFloor, endBuilding, endFloor, adaOnly } = req;
-  const isSameBuilding = startBuilding === endBuilding;
+  // TODO: re-enable floorplan clearing once floorplan rendering is wired up
+  // clearAllFloorplans();
 
-  // Render floorplan(s) as the background layer
-  await renderFloorplan(startBuilding, startFloor, 'start', !isSameBuilding);
-  if (isSameBuilding && startFloor !== endFloor) {
-    await renderFloorplan(startBuilding, endFloor, 'ghost', false);
-  }
+  // TODO: re-enable floorplan rendering once floorplan API is stable
+  // await renderFloorplan(req.startBuilding, req.startFloor, 'start', true);
 
-  let layers;
-  if (isSameBuilding) {
-    layers = await _renderIntraBuilding(startBuilding, startFloor, endFloor, adaOnly);
-  } else {
-    layers = await _renderInterBuilding(startBuilding, startFloor, endBuilding, endFloor, adaOnly);
-  }
+  // TODO: re-enable intra-building routing once indoor graphs are available
+  // Currently routes outdoor only regardless of building
+  const layers = await _renderOutdoorRoute(req.startBuilding, req.endBuilding, req.adaOnly);
 
   const steps = _buildSteps(req);
   emit('navvy:route:ready', { request: req, steps, layers });
@@ -127,145 +124,99 @@ export function clearRoute() {
   emit('navvy:route:cleared', {});
 }
 
-// ─── INTRA-BUILDING ───────────────────────────────────────────────────────────
+// ─── OUTDOOR ROUTING ─────────────────────────────────────────────────────────
 
-async function _renderIntraBuilding(building, startFloor, endFloor, adaOnly) {
-  // Try graph-based path first
+/**
+ * Route between two buildings using the outdoor campus graph.
+ * Finds the nearest outdoor node to each building's center, runs Dijkstra,
+ * then draws the path edge by edge (from → to for each step).
+ */
+async function _renderOutdoorRoute(startBuilding, endBuilding, adaOnly) {
+  const sb = BUILDINGS[startBuilding];
+  const eb = BUILDINGS[endBuilding];
+
+  let outdoorGraph;
   try {
-    const graph = await loadGraph(building);
-    const layers = _routeFromGraph(graph, startFloor, endFloor, adaOnly);
-    if (layers) return layers;
+    outdoorGraph = await loadGraph('campusquad');
   } catch (_) {
-    // Graph not yet available — fall through to fallback
+    return _outdoorFallback(startBuilding, endBuilding, adaOnly);
   }
 
-  return _intraFallback(building, startFloor, endFloor, adaOnly);
-}
+  const nMap = nodeMap(outdoorGraph);
 
-// ─── INTER-BUILDING ───────────────────────────────────────────────────────────
+  // Find the outdoor node closest to each building's center
+  const startNode = _nearestNode(outdoorGraph.nodes, sb.center[1], sb.center[0]);
+  const endNode   = _nearestNode(outdoorGraph.nodes, eb.center[1], eb.center[0]);
 
-async function _renderInterBuilding(startBuilding, startFloor, endBuilding, endFloor, adaOnly) {
-  // Load both building graphs. If either fails, fall back immediately.
-  let startGraph, endGraph;
-  try {
-    [startGraph, endGraph] = await Promise.all([
-      loadGraph(startBuilding),
-      loadGraph(endBuilding),
-    ]);
-  } catch (_) {
-    return _interFallback(startBuilding, startFloor, endBuilding, endFloor, adaOnly);
+  if (!startNode || !endNode || startNode.id === endNode.id) {
+    return _outdoorFallback(startBuilding, endBuilding, adaOnly);
   }
 
-  const startAnchors = _floorAnchors(startGraph, startFloor, adaOnly);
-  const endAnchors   = _floorAnchors(endGraph,   endFloor,   adaOnly);
+  const result = findPath(outdoorGraph, startNode.id, endNode.id, adaOnly);
 
-  if (startAnchors.length && endAnchors.length) {
-    // ── Step 1: Try indoor-only merge.
-    // Buildings connected by a shared interior node (tunnel, skybridge, connected corridor)
-    // will have matching node IDs at the connection point. mergeGraphs deduplicates by ID,
-    // so those shared nodes automatically stitch the two graphs together — no outdoor
-    // segment needed.
-    const indoorMerged = mergeGraphs(startGraph, endGraph);
-    const indoorPath   = findBestPath(indoorMerged, startAnchors, endAnchors, adaOnly);
-    if (indoorPath) {
-      return _drawPath(indoorPath, nodeMap(indoorMerged), adaOnly);
-    }
-
-    // ── Step 2: No indoor connection — route via the campus outdoor graph.
-    try {
-      const campusGraph  = await loadGraph('campus');
-      const fullMerged   = mergeGraphs(startGraph, endGraph, campusGraph);
-      const outdoorPath  = findBestPath(fullMerged, startAnchors, endAnchors, adaOnly);
-      if (outdoorPath) {
-        return _drawPath(outdoorPath, nodeMap(fullMerged), adaOnly);
-      }
-    } catch (_) {
-      // Campus graph not yet available
-    }
+  if (!result || result.nodes.length < 2) {
+    return _outdoorFallback(startBuilding, endBuilding, adaOnly);
   }
 
-  return _interFallback(startBuilding, startFloor, endBuilding, endFloor, adaOnly);
+  return _drawEdges(result.edges, result.nodes, nMap, adaOnly);
 }
 
-// ─── GRAPH RENDERING HELPERS ─────────────────────────────────────────────────
+// ─── DRAWING ─────────────────────────────────────────────────────────────────
 
 /**
- * Find and draw a path between floors within a single building graph.
- * Returns null if no suitable anchor nodes exist.
+ * Draw a route as individual edge segments.
+ * Each Edge object carries its own from/to node IDs; coordinates are pulled
+ * from nMap so every line exactly matches the graph edge.
+ *
+ * @param {Edge[]}          edges - ordered edges returned by findPath
+ * @param {string[]}        pathNodes - ordered node IDs (used for start/end markers)
+ * @param {Map<string,Node>} nMap
+ * @param {boolean}         adaOnly
  */
-function _routeFromGraph(graph, startFloor, endFloor, adaOnly) {
-  const startAnchors = _floorAnchors(graph, startFloor, adaOnly);
-  const endAnchors   = _floorAnchors(graph, endFloor,   adaOnly);
-
-  if (!startAnchors.length || !endAnchors.length) return null;
-
-  const path = findBestPath(graph, startAnchors, endAnchors, adaOnly);
-  if (!path) return null;
-
-  return _drawPath(path, nodeMap(graph), adaOnly);
-}
-
-/**
- * Pick anchor nodes for a floor: prefer entrance nodes, fall back to any floor node.
- */
-function _floorAnchors(graph, floor, adaOnly) {
-  const entrances = getEntranceNodes(graph, floor, adaOnly);
-  if (entrances.length) return entrances;
-  const floorNodes = getFloorNodes(graph, floor).filter(n => !adaOnly || n.ada !== false);
-  return floorNodes;
-}
-
-/**
- * Convert a node-ID path into Leaflet polyline layers, split by floor segment.
- * Outdoor segments (floor === null) use the outdoor style.
- * Returns the array of layers, and sets _routeLayerGroup.
- */
-function _drawPath(path, nMap, adaOnly) {
+function _drawEdges(edges, pathNodes, nMap, adaOnly) {
   const map = getMap();
   if (!map) return [];
 
-  const routeStyle  = adaOnly ? STYLES.route.ada      : STYLES.route.standard;
-  const glowStyle   = { ...routeStyle, weight: routeStyle.weight + 6, opacity: 0.12 };
-  const outdoorStyle = {
-    ...routeStyle,
-    dashArray: adaOnly ? '10,6' : '12,5',
-    opacity: routeStyle.opacity * 0.85,
-  };
-
-  // Split path into contiguous floor segments
-  const segments = _splitByFloor(path, nMap);
+  const style     = adaOnly ? STYLES.route.ada : STYLES.route.standard;
+  const glowStyle = { ...style, weight: style.weight + 6, opacity: 0.12 };
 
   const layers = [];
+  const allCoords = [];
 
-  for (const seg of segments) {
-    if (seg.coords.length < 2) continue;
-    const style = seg.floor === null ? outdoorStyle : routeStyle;
-    const glow  = L.polyline(seg.coords, glowStyle);
-    const line  = L.polyline(seg.coords, style);
-    layers.push(glow, line);
+  // Draw one polyline per edge using the edge's own from/to node IDs
+  for (const edge of edges) {
+    const a = nMap.get(edge.from);
+    const b = nMap.get(edge.to);
+    if (!a || !b) continue;
+
+    const coordA = [a.lat, a.lng];
+    const coordB = [b.lat, b.lng];
+
+    layers.push(L.polyline([coordA, coordB], glowStyle));
+    layers.push(L.polyline([coordA, coordB], style));
+
+    allCoords.push(coordA, coordB);
   }
 
-  // Start / end markers from first and last node in path
-  const firstNode = nMap.get(path[0]);
-  const lastNode  = nMap.get(path[path.length - 1]);
+  // Start / end markers
+  const firstNode = nMap.get(pathNodes[0]);
+  const lastNode  = nMap.get(pathNodes[pathNodes.length - 1]);
 
   if (firstNode) {
     layers.push(
       L.circleMarker([firstNode.lat, firstNode.lng], STYLES.marker.start)
-        .bindPopup(`<strong>Start</strong>${firstNode.label ? '<br>' + firstNode.label : ''}`)
+        .bindPopup(`<strong>Start</strong>`)
     );
   }
   if (lastNode) {
     layers.push(
       L.circleMarker([lastNode.lat, lastNode.lng], STYLES.marker.end)
-        .bindPopup(`<strong>Destination</strong>${lastNode.label ? '<br>' + lastNode.label : ''}`)
+        .bindPopup(`<strong>Destination</strong>`)
     );
   }
 
   _routeLayerGroup = L.layerGroup(layers).addTo(map);
 
-  // Fit to the full path bounds
-  const allCoords = segments.flatMap(s => s.coords);
   if (allCoords.length >= 2) {
     try { fitBounds(L.latLngBounds(allCoords), APP.FIT_PADDING); } catch (_) {}
   }
@@ -273,65 +224,10 @@ function _drawPath(path, nMap, adaOnly) {
   return [_routeLayerGroup];
 }
 
-/**
- * Split an ordered node-ID path into contiguous same-floor segments.
- * Each segment: { floor: number|null, coords: [lat, lng][] }
- * Nodes crossing floors share a coord point at the boundary so lines connect visually.
- */
-function _splitByFloor(path, nMap) {
-  if (!path.length) return [];
+// ─── FALLBACK RENDERER ───────────────────────────────────────────────────────
+// Used when the outdoor graph is unavailable or no path is found.
 
-  const segments = [];
-  let current = null;
-
-  for (const id of path) {
-    const node = nMap.get(id);
-    if (!node) continue;
-    const floor = node.floor ?? null;
-    const coord = [node.lat, node.lng];
-
-    if (!current || current.floor !== floor) {
-      // Share the boundary coord with the previous segment so lines connect
-      if (current) current.coords.push(coord);
-      current = { floor, coords: [coord] };
-      segments.push(current);
-    } else {
-      current.coords.push(coord);
-    }
-  }
-
-  return segments;
-}
-
-// ─── FALLBACK RENDERERS ───────────────────────────────────────────────────────
-// Used when graph data is not yet available for a building.
-
-function _intraFallback(building, startFloor, endFloor, adaOnly) {
-  const bldg = BUILDINGS[building];
-  const [lng, lat] = bldg.center;
-  const map = getMap();
-
-  const vStyle = adaOnly && bldg.elevatorNodes?.length ? STYLES.route.ada : STYLES.route.standard;
-
-  const startMarker = L.circleMarker([lat, lng], STYLES.marker.start)
-    .bindPopup(`<strong>Start</strong><br>${bldg.name} — Floor ${startFloor}`);
-  const endMarker   = L.circleMarker([lat, lng], STYLES.marker.end)
-    .bindPopup(`<strong>Destination</strong><br>${bldg.name} — Floor ${endFloor}`);
-  const vLine = L.polyline([[lat, lng], [lat, lng]], { ...vStyle, opacity: 0.5 });
-
-  _routeLayerGroup = L.layerGroup([startMarker, endMarker, vLine]).addTo(map);
-
-  try {
-    fitBounds(
-      L.latLngBounds([[lat - 0.001, lng - 0.001], [lat + 0.001, lng + 0.001]]),
-      APP.FIT_PADDING
-    );
-  } catch (_) {}
-
-  return [_routeLayerGroup];
-}
-
-function _interFallback(startBuilding, startFloor, endBuilding, endFloor, adaOnly) {
+function _outdoorFallback(startBuilding, endBuilding, adaOnly) {
   const sb = BUILDINGS[startBuilding];
   const eb = BUILDINGS[endBuilding];
   const map = getMap();
@@ -340,17 +236,42 @@ function _interFallback(startBuilding, startFloor, endBuilding, endFloor, adaOnl
   const endLL   = L.latLng(eb.center[1], eb.center[0]);
   const style   = adaOnly ? STYLES.route.ada : STYLES.route.standard;
 
-  const glow       = L.polyline([startLL, endLL], { ...style, weight: style.weight + 4, opacity: 0.15 });
-  const routeLine  = L.polyline([startLL, endLL], style);
+  const glow        = L.polyline([startLL, endLL], { ...style, weight: style.weight + 4, opacity: 0.15 });
+  const routeLine   = L.polyline([startLL, endLL], style);
   const startMarker = L.circleMarker(startLL, STYLES.marker.start)
-    .bindPopup(`<strong>Start</strong><br>${sb.name} — Floor ${startFloor}`);
+    .bindPopup(`<strong>Start</strong><br>${sb.name}`);
   const endMarker   = L.circleMarker(endLL, STYLES.marker.end)
-    .bindPopup(`<strong>Destination</strong><br>${eb.name} — Floor ${endFloor}`);
+    .bindPopup(`<strong>Destination</strong><br>${eb.name}`);
 
   _routeLayerGroup = L.layerGroup([glow, routeLine, startMarker, endMarker]).addTo(map);
   fitBounds(L.latLngBounds([startLL, endLL]), APP.FIT_PADDING);
 
   return [_routeLayerGroup];
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+
+/**
+ * Return the node in `nodes` closest to [lat, lng].
+ */
+function _nearestNode(nodes, lat, lng) {
+  let best = null;
+  let bestDist = Infinity;
+  for (const n of nodes) {
+    const d = _haversine(lat, lng, n.lat, n.lng);
+    if (d < bestDist) { bestDist = d; best = n; }
+  }
+  return best;
+}
+
+function _haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const toRad = x => x * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 // ─── STEP GENERATION ─────────────────────────────────────────────────────────
@@ -360,66 +281,41 @@ function _interFallback(startBuilding, startFloor, endBuilding, endFloor, adaOnl
  * @returns {RouteStep[]}
  */
 function _buildSteps(req) {
-  const { startBuilding, startFloor, endBuilding, endFloor, adaOnly } = req;
+  const { startBuilding, endBuilding, adaOnly } = req;
   const sb = BUILDINGS[startBuilding];
   const eb = BUILDINGS[endBuilding];
-  const vertical     = adaOnly ? 'elevator' : 'stairwell';
-  const vertIcon     = adaOnly ? '🛗' : '🪜';
   const entranceType = adaOnly ? 'accessible entrance' : 'main entrance';
 
   const steps = [];
 
   steps.push({ icon: '📍', type: 'info',
-    text: `Begin at ${sb.name}, Floor ${startFloor}` });
+    text: `Begin at ${sb.name}` });
 
-  if (startBuilding === endBuilding) {
-    if (startFloor !== endFloor) {
-      const dir    = endFloor > startFloor ? 'up' : 'down';
-      const floors = Math.abs(endFloor - startFloor);
-      steps.push({ icon: vertIcon, type: 'vertical',
-        text: `Take the ${vertical} ${dir} ${floors} floor${floors > 1 ? 's' : ''} to Floor ${endFloor}` });
-    }
-  } else {
-    if (sb.entranceNodes.length) {
-      steps.push({ icon: vertIcon, type: 'vertical',
-        text: `Take the ${vertical} down to the entrance level` });
-    }
+  steps.push({ icon: '🚪', type: 'info',
+    text: `Exit ${sb.name} via the ${entranceType}` });
 
-    steps.push({ icon: '🚪', type: 'info',
-      text: `Exit ${sb.name} via the ${entranceType}` });
+  const distNote = _estimateWalkTime(sb.center, eb.center);
+  steps.push({ icon: '🚶', type: 'walk',
+    text: `Walk to ${eb.name} (~${distNote})` });
 
-    const distNote = _estimateWalkTime(sb.center, eb.center);
-    steps.push({ icon: '🚶', type: 'walk',
-      text: `Walk to ${eb.name} (~${distNote})` });
+  // TODO: re-enable ADA entrance warning once entrance nodes are mapped
+  // if (adaOnly && !eb.accessibleEntranceNodes.length) {
+  //   steps.push({ icon: '⚠️', type: 'warning',
+  //     text: `Note: ${eb.name} has no mapped ADA accessible entrance.` });
+  // }
 
-    if (adaOnly && !eb.accessibleEntranceNodes.length) {
-      steps.push({ icon: '⚠️', type: 'warning',
-        text: `Note: ${eb.name} has no mapped ADA accessible entrance.` });
-    }
-
-    steps.push({ icon: '🚪', type: 'info',
-      text: `Enter ${eb.name} via the ${entranceType}` });
-
-    if (endFloor > 1) {
-      steps.push({ icon: vertIcon, type: 'vertical',
-        text: `Take the ${vertical} to Floor ${endFloor}` });
-    }
-  }
+  steps.push({ icon: '🚪', type: 'info',
+    text: `Enter ${eb.name} via the ${entranceType}` });
 
   steps.push({ icon: '🏁', type: 'arrive',
-    text: `Arrive at ${eb.name}, Floor ${endFloor}` });
+    text: `Arrive at ${eb.name}` });
 
   return steps;
 }
 
 /** Rough walk-time estimate from Haversine distance */
 function _estimateWalkTime([lng1, lat1], [lng2, lat2]) {
-  const R = 6371000;
-  const φ1 = lat1 * Math.PI / 180, φ2 = lat2 * Math.PI / 180;
-  const Δφ = (lat2 - lat1) * Math.PI / 180;
-  const Δλ = (lng2 - lng1) * Math.PI / 180;
-  const a  = Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
-  const metres  = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const metres  = _haversine(lat1, lng1, lat2, lng2);
   const minutes = Math.max(1, Math.round(metres / 80));
   return `${minutes} min walk`;
 }
