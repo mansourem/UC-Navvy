@@ -109,7 +109,7 @@ export const BUILDINGS = {
   artsci:{
   name: 'Arts & Sciences Hall',
   center: [-84.51914563201682, 39.131863468061795],
-  floors: [N/A],     //FIX: NOT IN DB
+  floors: [1],     //FIX: NOT IN DB
   elevatorNodes: [],
   entranceNodes: [],
   accessibleEntranceNodes: [],
@@ -127,7 +127,7 @@ export const BUILDINGS = {
   blegen: {
     name: 'Carl Blegen Library',
     center: [-84.51934098443131, 39.12958090288538],
-    floors: [N/A],     //FIX: NOT IN DB
+    floors: [1],     //FIX: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -204,7 +204,7 @@ export const BUILDINGS = {
   dabney: {
     name: 'Dabney Hall',
     center: [-84.51311555671336, 39.131668135819666],
-    floors: [N/A],     //FIX: NOT IN DB
+    floors: [1],     //FIX: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -222,7 +222,7 @@ export const BUILDINGS = {
   dyers: {
     name: 'Teachers-Dyer Complex',
     center: [-84.51863197602383, 39.13042132369668],
-    floors: [N/A],     //FIX: NOT IN DB
+    floors: [1],     //FIX: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -231,7 +231,7 @@ export const BUILDINGS = {
   edwards: {
     name: 'Edwards Center',
     center: [-84.51218652864813, 39.12906331848919],
-    floors: [N/A],     //FIX: NOT IN DB
+    floors: [1],     //FIX: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -240,7 +240,7 @@ export const BUILDINGS = {
   emery: {
     name: 'Mary Emery Hall',
     center: [-84.51789815695886, 39.1303875174853],
-    floors: [N/A],     //FIX: NOT IN DB
+    floors: [1],     //FIX: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -249,7 +249,7 @@ export const BUILDINGS = {
   frenchw: {
     name: 'French Hall',
     center: [-84.51305821376505, 39.13241250641286],
-    floors: [N/A],     //FIX: NOT IN DB
+    floors: [1],     //FIX: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -276,7 +276,7 @@ export const BUILDINGS = {
   law: {
     name: 'College of Law Building',
     center: [-84.5136542262, 39.13476248008203],
-    floors: [N/A],     //FIX: NOT IN DB
+    floors: [1],     //FIX: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -339,7 +339,7 @@ export const BUILDINGS = {
   memorial: {
     name: 'Memorial Hall',
     center: [-84.51729620021955, 39.12953145608253],
-    floors: [N/A],     //FIX: NOT IN DB
+    floors: [1],     //FIX: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
