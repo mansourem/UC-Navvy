@@ -70,7 +70,8 @@ export async function loadGraph(key) {
     //         graph = await resp.json();
     const resp = await fetch('data/graphs/campusquad.json');
     if (!resp.ok) throw new Error(`Campus quad graph ${resp.status}`);
-    graph = _remapOutdoorGraph(await resp.json());
+    // campusquad.json already uses the standard schema (id/lat/lng) — no remap needed
+    graph = await resp.json();
   } else {
     const url = API.graphUrl(key);
     const resp = await fetch(url);
@@ -262,36 +263,31 @@ function _normalise(graph) {
   }
 }
 
-/**
- * Remap outside.json's field names to the internal graph schema.
- * outside.json uses node_id/longitude/edge_id; internally we expect id/lng/id.
- * Node 58 has a typo ("log" instead of "longitude") — handled via fallback chain.
- * @param {{ nodes: object[], edges: object[] }} raw
- * @returns {Graph}
- */
-function _remapOutdoorGraph(raw) {
-  return {
-    nodes: raw.nodes.map(n => ({
-      id:       n.node_id,
-      lat:      n.lat,
-      lng:      n.longitude ?? n.log ?? n.lng,
-      floor:    n.floor,
-      entrance: n.entrance,
-      type:     n.type,
-      ada:      n.ada,
-      label:    n.label,
-    })),
-    edges: raw.edges.map(e => ({
-      id:       e.edge_id,
-      from:     e.from,
-      to:       e.to,
-      weight:   e.weight,
-      type:     e.type,
-      ada:      e.ada,
-      directed: e.directed ?? false,
-    })),
-  };
-}
+// TODO: restore _remapOutdoorGraph if outside.json (node_id/longitude schema) is ever used.
+// outside.json uses node_id/longitude/edge_id; campusquad.json uses the standard schema.
+// function _remapOutdoorGraph(raw) {
+//   return {
+//     nodes: raw.nodes.map(n => ({
+//       id:       n.node_id,
+//       lat:      n.lat,
+//       lng:      n.longitude ?? n.log ?? n.lng,  // node 58 has typo "log"
+//       floor:    n.floor,
+//       entrance: n.entrance,
+//       type:     n.type,
+//       ada:      n.ada,
+//       label:    n.label,
+//     })),
+//     edges: raw.edges.map(e => ({
+//       id:       e.edge_id,
+//       from:     e.from,
+//       to:       e.to,
+//       weight:   e.weight,
+//       type:     e.type,
+//       ada:      e.ada,
+//       directed: e.directed ?? false,
+//     })),
+//   };
+// }
 
 function _haversine(lat1, lng1, lat2, lng2) {
   const R = 6371000;
