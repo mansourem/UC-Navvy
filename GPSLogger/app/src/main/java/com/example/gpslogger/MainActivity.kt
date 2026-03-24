@@ -52,12 +52,11 @@ data class Node(
 
 // Edge connecting two nodes (explicit graph connectivity)
 data class Edge(
-    val edgeId: String,
-    val fromNodeId: String,
-    val toNodeId: String,
-    val bidirectional: Boolean = true,
-    val edgeType: String = "walkway",
-    val accessible: Boolean = true
+    val id: String,
+    val from: String,
+    val to: String,
+    val type: String = "corridor",// elevator, outdoor, ramp, stair, entrance
+    val ada: Boolean = true
 )
 
 object AppSettings {
@@ -211,6 +210,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         findViewById<Button>(R.id.btnSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+        val entranceBox = findViewById<CheckBox?>(R.id.checkbox_entrance)
+        val elevatorBox = findViewById<CheckBox?>(R.id.checkbox_elevator)
+        val staircaseBox = findViewById<CheckBox?>(R.id.checkbox_staircase)
+
+        // Require entrances to be independent points seperate from stair cases or elevators
+        // This helps the edge logic process properly
+        entranceBox?.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                staircaseBox?.isEnabled = false      // Lock off
+                staircaseBox?.isChecked = false      // Force unchecked
+                elevatorBox?.isEnabled = false      // Lock off
+                elevatorBox?.isChecked = false      // Force unchecked
+            } else {
+                staircaseBox?.isEnabled = true       // Unlock
+                elevatorBox?.isEnabled = true       // Unlock
+            }
+        }
 
         // load settings and apply initial nodeCounter
         applySettings()
@@ -301,9 +317,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     // Determine type
                     val nodeType = when {
                         isEntrance  -> "entrance"
-                        locTag == "Outside" -> "outdoor"
                         isStaircase -> "stair"
                         isElevator  -> "elevator"
+                        locTag == "Outside" -> "outdoor"
                         else -> "corridor"
                     }
 
@@ -336,16 +352,31 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                             val edgeId = "$edgeCounter"
                             edgeCounter++
 
-                            val accessible = !isStaircase
-                            val edgeType = if (isStaircase) "stair" else "walkway"
+                            val toType = node.type
+                            val prevNode = nodes.find { it.id == prevId }
+                            val fromType = prevNode?.type
+                            val fromAda =  prevNode?.ada
+                            val toAda = node.ada
+
+                            val edgeType = when {
+                                fromType == "elevator" && toType == "elevator" -> "elevator"
+                                fromType == "stair" && toType == "stair" -> "stair"
+                                ((prevNode?.building == "Outside") || (node.building == "Outside")) -> "outdoor"
+                                else -> "corridor"
+                            }
+
+                            val accessible = when {
+                                fromAda == false && !toAda -> false
+                                else -> true
+                            }
+
 
                             val edge = Edge(
-                                edgeId = edgeId,
-                                fromNodeId = prevId,
-                                toNodeId = nodeId,
-                                bidirectional = true,
-                                edgeType = edgeType,
-                                accessible = accessible
+                                id = edgeId,
+                                from = prevId,
+                                to = nodeId,
+                                type = edgeType,
+                                ada = accessible
                             )
                             edges.add(edge)
                         }
@@ -386,13 +417,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 1) Draw edges as polylines
         edges.forEach { edge ->
-            val from = nodes.find { it.id == edge.fromNodeId }
-            val to = nodes.find { it.id == edge.toNodeId }
+            val from = nodes.find { it.id == edge.from }
+            val to = nodes.find { it.id == edge.to }
             if (from != null && to != null) {
                 val polylineOptions = PolylineOptions()
                     .add(LatLng(from.lat, from.lng))
                     .add(LatLng(to.lat, to.lng))
-                    .color(if (edge.accessible) Color.GREEN else Color.RED)
+                    .color(if (edge.ada) Color.GREEN else Color.RED)
                     .width(6f)
 
                 map.addPolyline(polylineOptions)
@@ -448,19 +479,34 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
 
-        val accessible = !toNode.ada
-        val edgeType = toNode.type
+        val toType = toNode.type
+        val prevNode = nodes.find { it.id == fromId }
+        val fromType = prevNode?.type
+        val fromAda =  prevNode?.ada
+        val toAda = toNode.ada
 
-        val edgeId = "edge_$edgeCounter"
+        val edgeType = when {
+            fromType == "elevator" && toType == "elevator" -> "elevator"
+            fromType == "stair" && toType == "stair" -> "stair"
+            ((prevNode?.building == "Outside") || (toNode.building == "Outside")) -> "outdoor"
+            else -> "corridor"
+        }
+
+        val accessible = when {
+            fromAda == false && !toAda -> false
+            else -> true
+        }
+
+
+        val edgeId = "$edgeCounter"
         edgeCounter++
 
         val edge = Edge(
-            edgeId = edgeId,
-            fromNodeId = fromId,
-            toNodeId = toNode.id,
-            bidirectional = true,
-            edgeType = edgeType,
-            accessible = accessible
+            id = edgeId,
+            from = fromId,
+            to = toNode.id,
+            type = edgeType,
+            ada = accessible
         )
         edges.add(edge)
 
@@ -499,12 +545,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     edges.forEach { e ->
                         put(
                             JSONObject().apply {
-                                put("edgeId", e.edgeId)
-                                put("fromNodeId", e.fromNodeId)
-                                put("toNodeId", e.toNodeId)
-                                put("bidirectional", e.bidirectional)
-                                put("edgeType", e.edgeType)
-                                put("accessible", e.accessible)
+                                put("id", e.id)
+                                put("from", e.from)
+                                put("to", e.to)
+                                put("type", e.type)
+                                put("ada", e.ada)
                             }
                         )
                     }
@@ -569,12 +614,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         val obj = edgesArray.getJSONObject(i)
                         edges.add(
                             Edge(
-                                edgeId = obj.optString("edgeId"),
-                                fromNodeId = obj.optString("fromNodeId"),
-                                toNodeId = obj.optString("toNodeId"),
-                                bidirectional = obj.optBoolean("bidirectional", true),
-                                edgeType = obj.optString("edgeType", "walkway"),
-                                accessible = obj.optBoolean("accessible", true)
+                                id = obj.optString("id"),
+                                from = obj.optString("from"),
+                                to = obj.optString("to"),
+                                type = obj.optString("type", "walkway"),
+                                ada = obj.optBoolean("ada", true)
                             )
                         )
                     }
@@ -616,7 +660,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val iterator = edges.iterator()
         while (iterator.hasNext()) {
             val e = iterator.next()
-            if (e.fromNodeId == nodeToDelete.id || e.toNodeId == nodeToDelete.id) {
+            if (e.from == nodeToDelete.id || e.to == nodeToDelete.id) {
                 iterator.remove()
             }
         }
@@ -646,6 +690,31 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         saveGraphToFile()
 
         Toast.makeText(this, "Node deleted.", Toast.LENGTH_SHORT).show()
+
+        // Resets counters to 1 more than the last id in the list
+        // This helps not leave empty node ids when deleting the more recent node
+        // This does not fix deleting nodes halfway through list
+        // To prevent breaking other things for the moment nodes deleted halfway into list
+        // will just be a skipped number.
+        resetNodeCounter()
+        resetEdgeCounter()
+    }
+    private fun resetNodeCounter() {
+        if (nodes.isNotEmpty()) {
+            val maxId = nodes.maxOf { it.id.toIntOrNull() ?: 0 }
+            nodeCounter = maxId + 1
+        } else {
+            nodeCounter = 1  // Fresh list
+        }
+    }
+
+    private fun resetEdgeCounter() {
+        if (edges.isNotEmpty()) {
+            val maxId = edges.maxOf { it.id.toIntOrNull() ?: 0 }
+            edgeCounter = maxId + 1
+        } else {
+            edgeCounter = 1
+        }
     }
 
 }
