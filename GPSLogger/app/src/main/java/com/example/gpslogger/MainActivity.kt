@@ -35,17 +35,19 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import android.content.Context
 
 
-// Normalized node (DB-ready)
+
+
+
 data class Node(
-    val nodeId: String,
-    val latitude: Double,
-    val longitude: Double,
-    val elevationM: Double?,
-    val location: String,
-    val floorCode: String,
+    val id: String,                  // numeric id
+    val lat: Double,
+    val lng: Double,
+    val building: String,
+    val floor: String?,              // null if outside
     val entrance: Boolean = false,
-    val elevator: Boolean = false,
-    val staircase: Boolean = false
+    val ada: Boolean = true,
+    val type: String = "corridor",// elevator, entrance, corridor, outdoor, ramp, stair, room
+    val label: String? = null
 )
 
 // Edge connecting two nodes (explicit graph connectivity)
@@ -144,8 +146,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             if (connectMode) {
                 // First or second node for connect
                 if (pendingFromNodeId == null) {
-                    pendingFromNodeId = node.nodeId
-                    Toast.makeText(this, "Start node: ${node.nodeId}. Now tap the second node.", Toast.LENGTH_SHORT).show()
+                    pendingFromNodeId = node.id
+                    Toast.makeText(this, "Start node: ${node.id}. Now tap the second node.", Toast.LENGTH_SHORT).show()
                 } else {
                     // We have from + to; connect and exit mode
                     connectPendingToSelected()
@@ -296,17 +298,30 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     val nodeId = "$nodeCounter"
                     nodeCounter++
 
+                    // Determine type
+                    val nodeType = when {
+                        isEntrance  -> "entrance"
+                        locTag == "Outside" -> "outdoor"
+                        isStaircase -> "stair"
+                        isElevator  -> "elevator"
+                        else -> "corridor"
+                    }
+
+                    // ADA false for stairs, true otherwise (customize as needed)
+                    val adaFlag = !isStaircase
+
                     val node = Node(
-                        nodeId = nodeId,
-                        latitude = location.latitude,
-                        longitude = location.longitude,
-                        elevationM = location.altitude,
-                        location = locTag,
-                        floorCode = floorCode,
+                        id = nodeId,
+                        lat = location.latitude,
+                        lng = location.longitude,
+                        building = locTag,
+                        floor = if (locTag == "Outside") null else floorCode,
                         entrance = isEntrance,
-                        elevator = isElevator,
-                        staircase = isStaircase
+                        ada = adaFlag,
+                        type = nodeType,
+                        label = null // add UI text input later
                     )
+
 
                     nodes.add(node)
                     selectedNodeIndex = nodes.size - 1
@@ -358,9 +373,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // Show a single pin at the selected node
     private fun updateMapPin(node: Node) {
-        val latLng = LatLng(node.latitude, node.longitude)
+        val latLng = LatLng(node.lat, node.lng)
         googleMap?.clear()
-        googleMap?.addMarker(MarkerOptions().position(latLng).title(node.nodeId))
+        googleMap?.addMarker(MarkerOptions().position(latLng).title(node.id))
         googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17f))
     }
 
@@ -371,12 +386,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 1) Draw edges as polylines
         edges.forEach { edge ->
-            val from = nodes.find { it.nodeId == edge.fromNodeId }
-            val to = nodes.find { it.nodeId == edge.toNodeId }
+            val from = nodes.find { it.id == edge.fromNodeId }
+            val to = nodes.find { it.id == edge.toNodeId }
             if (from != null && to != null) {
                 val polylineOptions = PolylineOptions()
-                    .add(LatLng(from.latitude, from.longitude))
-                    .add(LatLng(to.latitude, to.longitude))
+                    .add(LatLng(from.lat, from.lng))
+                    .add(LatLng(to.lat, to.lng))
                     .color(if (edge.accessible) Color.GREEN else Color.RED)
                     .width(6f)
 
@@ -386,11 +401,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 2) Draw markers for all nodes
         nodes.forEach { n ->
-            val isSelected = selected?.nodeId == n.nodeId
+            val isSelected = selected?.id == n.id
 
             val markerOptions = MarkerOptions()
-                .position(LatLng(n.latitude, n.longitude))
-                .title(n.nodeId)
+                .position(LatLng(n.lat, n.lng))
+                .title(n.id)
 
             if (isSelected) {
                 // highlighted pin (e.g., yellow)
@@ -409,7 +424,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 3) Center/zoom on selected node if provided
         selected?.let {
-            val latLng = LatLng(it.latitude, it.longitude)
+            val latLng = LatLng(it.lat, it.lng)
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17f))
         }
     }
@@ -428,17 +443,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val fromId = pendingFromNodeId!!
         val toNode = nodes[selectedNodeIndex]
 
-        if (fromId == toNode.nodeId) {
+        if (fromId == toNode.id) {
             Toast.makeText(this, "Cannot connect node to itself.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val accessible = !toNode.staircase
-        val edgeType = when {
-            toNode.staircase -> "stair"
-            toNode.elevator  -> "elevator"
-            else             -> "corridor"
-        }
+        val accessible = !toNode.ada
+        val edgeType = toNode.type
 
         val edgeId = "edge_$edgeCounter"
         edgeCounter++
@@ -446,14 +457,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val edge = Edge(
             edgeId = edgeId,
             fromNodeId = fromId,
-            toNodeId = toNode.nodeId,
+            toNodeId = toNode.id,
             bidirectional = true,
             edgeType = edgeType,
             accessible = accessible
         )
         edges.add(edge)
 
-        Toast.makeText(this, "Connected $fromId → ${toNode.nodeId}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Connected $fromId → ${toNode.id}", Toast.LENGTH_SHORT).show()
 
         // Persist updated graph
         saveGraphToFile()
@@ -470,15 +481,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     nodes.forEach { n ->
                         put(
                             JSONObject().apply {
-                                put("nodeId", n.nodeId)
-                                put("lat", n.latitude)
-                                put("lon", n.longitude)
-                                put("elevationM", n.elevationM)
-                                put("location", n.location)
-                                put("floorCode", n.floorCode)
-                                put("entrance", n.entrance)
-                                put("elevator", n.elevator)
-                                put("staircase", n.staircase)
+                                put("id", n.id)
+                                put("lat", n.lat)
+                                put("lng", n.lng)
+                                put("building", n.building)
+                                put("floor", n.floor ?: JSONObject.NULL)
+                                put("entrance", if (n.entrance) true else false)
+                                put("ada", n.ada)
+                                put("type", n.type)
+                                if (n.label != null) put("label", n.label)
                             }
                         )
                     }
@@ -524,12 +535,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             data?.data?.also { uri ->
                 jsonFileUri = uri
                 val input = contentResolver.openInputStream(uri)
-                val text = input?.bufferedReader()?.readText()
+                val text = input?.bufferedReader()?.readText() ?:""
 
                 nodes.clear()
                 edges.clear()
+                nodeCounter = AppSettings.initialNodeNumber
+                edgeCounter = AppSettings.initialEdgeNumber
+                selectedNodeIndex = -1
 
-                if (!text.isNullOrBlank()) {
+                if (!text.isNullOrBlank() && text != "{}") {
                     gpsRootObject = JSONObject(text)
 
                     val nodesArray = gpsRootObject.optJSONArray("nodes") ?: JSONArray()
@@ -537,16 +551,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         val obj = nodesArray.getJSONObject(i)
                         nodes.add(
                             Node(
-                                nodeId = obj.optString("nodeId"),
-                                latitude = obj.optDouble("lat"),
-                                longitude = obj.optDouble("lon"),
-                                elevationM = if (obj.has("elevationM")) obj.optDouble("elevationM") else null,
-                                location = obj.optString("location", "outside"),
-                                floorCode = obj.optString("floorCode", "outside"),
+                                id = obj.optString("id"),
+                                lat = obj.optDouble("lat"),
+                                lng = obj.optDouble("lng"),
+                                building = obj.optString("building"),
+                                floor = if (obj.isNull("floor")) null else obj.optString("floor"),
                                 entrance = obj.optBoolean("entrance", false),
-                                elevator = obj.optBoolean("elevator", false),
-                                staircase = obj.optBoolean("staircase", false)
-                            )
+                                ada = obj.optBoolean("ada", true),
+                                type = obj.optString("type", "corridor"),
+                                label = if (obj.isNull("label")) null else obj.optString("label"),
+                                )
                         )
                     }
 
@@ -568,7 +582,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     nodeCounter = nodes.size + 1
                     edgeCounter = edges.size + 1
                     selectedNodeIndex = if (nodes.isNotEmpty()) nodes.size - 1 else -1
-                    redrawGraphOnMap(selected = nodes[selectedNodeIndex])
+
+                    val selectedNode = if (selectedNodeIndex >= 0) nodes[selectedNodeIndex] else null
+                    redrawGraphOnMap(selected = selectedNode)
                     nodeAdapter.updateNodes(nodes, selectedNodeIndex)
                     if (selectedNodeIndex >= 0) redrawGraphOnMap(nodes[selectedNodeIndex])
                 } else {
@@ -580,6 +596,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     edgeCounter = initialEdgeValue
                     selectedNodeIndex = -1
                     nodeAdapter.updateNodes(nodes, selectedNodeIndex)
+                    googleMap?.clear()
                     redrawGraphOnMap(null)
                 }
 
@@ -599,7 +616,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val iterator = edges.iterator()
         while (iterator.hasNext()) {
             val e = iterator.next()
-            if (e.fromNodeId == nodeToDelete.nodeId || e.toNodeId == nodeToDelete.nodeId) {
+            if (e.fromNodeId == nodeToDelete.id || e.toNodeId == nodeToDelete.id) {
                 iterator.remove()
             }
         }
@@ -613,8 +630,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             selectedNodeIndex >= nodes.size -> nodes.size - 1
             else -> selectedNodeIndex
         }
-        redrawGraphOnMap(selected = nodes[selectedNodeIndex])
-
+        //redrawGraphOnMap(selected = nodes[selectedNodeIndex])
+        val selectedNode = if (selectedNodeIndex >= 0) nodes[selectedNodeIndex] else null
+        redrawGraphOnMap(selected = selectedNode)
 
         nodeAdapter.updateNodes(nodes, selectedNodeIndex)
 
@@ -652,7 +670,7 @@ class NodeAdapter(
     override fun onBindViewHolder(holder: NodeViewHolder, position: Int) {
         val node = nodes[position]
         holder.textView.text =
-            "${node.nodeId} (${node.latitude}, ${node.longitude})\nFloor: ${node.floorCode}"
+            "${node.id} (${node.lat}, ${node.lng})\nFloor: ${node.floor}"
         holder.textView.setBackgroundColor(
             if (position == selectedIndex) Color.LTGRAY else Color.TRANSPARENT
         )
