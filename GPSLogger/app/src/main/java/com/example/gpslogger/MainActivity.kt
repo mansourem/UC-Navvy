@@ -227,6 +227,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 elevatorBox?.isEnabled = true       // Unlock
             }
         }
+        val adaBox = findViewById<CheckBox>(R.id.checkbox_ADA)
+        adaBox?.isChecked = true
+        staircaseBox?.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                adaBox?.isEnabled = false      // Lock off
+                adaBox?.isChecked = false      // Force unchecked
+            } else {
+                adaBox?.isEnabled = true       // Unlock
+                adaBox?.isChecked = true      // Force unchecked
+            }
+        }
 
         // load settings and apply initial nodeCounter
         applySettings()
@@ -306,10 +317,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     val entranceBox = findViewById<CheckBox?>(R.id.checkbox_entrance)
                     val elevatorBox = findViewById<CheckBox?>(R.id.checkbox_elevator)
                     val staircaseBox = findViewById<CheckBox?>(R.id.checkbox_staircase)
+                    val adaBox = findViewById<CheckBox?>(R.id.checkbox_ADA)
 
                     val isEntrance = entranceBox?.isChecked ?: false
                     val isElevator = elevatorBox?.isChecked ?: false
                     val isStaircase = staircaseBox?.isChecked ?: false
+                    val isADA = adaBox?.isChecked ?: false
 
                     val nodeId = "$nodeCounter"
                     nodeCounter++
@@ -324,7 +337,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
 
                     // ADA false for stairs, true otherwise (customize as needed)
-                    val adaFlag = !isStaircase
+                    val adaFlag = when {
+                        isStaircase -> false
+                        else -> isADA
+                    }
+
+                    //TODO: add checkbox to UI for is ada.  only look at that if not a staircase
 
                     val node = Node(
                         id = nodeId,
@@ -366,7 +384,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                             }
 
                             val accessible = when {
-                                fromAda == false && !toAda -> false
+                                fromAda == false || !toAda -> false
                                 else -> true
                             }
 
@@ -493,7 +511,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         val accessible = when {
-            fromAda == false && !toAda -> false
+            fromAda == false || !toAda -> false
             else -> true
         }
 
