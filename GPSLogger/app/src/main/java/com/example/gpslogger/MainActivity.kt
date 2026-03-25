@@ -33,6 +33,11 @@ import android.widget.CheckBox
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import android.content.Context
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import android.os.Looper
+import kotlin.math.*
 
 
 
@@ -285,8 +290,148 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     // Collect normalized node + edges into in-memory graph and write to JSON file
+//    private fun getCurrentLocation(locationTextView: TextView, recyclerView: RecyclerView) {
+//        val button = findViewById<Button>(R.id.btn_log_location)
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_FINE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            ActivityCompat.requestPermissions(
+//                this,
+//                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+//                1001
+//            )
+//            return
+//        }
+//        button.isEnabled = false
+//        button.alpha = 0.5f
+//
+//        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+//            .addOnSuccessListener { location: Location? ->
+//                if (location != null) {
+//                    locationTextView.text =
+//                        "Lat: ${location.latitude}, Lon: ${location.longitude}, Alt: ${location.altitude}"
+//
+//                    // TODO: replace with real building/floor mapping logic
+//                    AppSettings.load(this)
+//                    val floorCode = AppSettings.currentFloor
+//                    val locTag = AppSettings.currentBuilding
+//
+//                    // Optional: read checkboxes if you add them in layout
+//                    val entranceBox = findViewById<CheckBox?>(R.id.checkbox_entrance)
+//                    val elevatorBox = findViewById<CheckBox?>(R.id.checkbox_elevator)
+//                    val staircaseBox = findViewById<CheckBox?>(R.id.checkbox_staircase)
+//                    val adaBox = findViewById<CheckBox?>(R.id.checkbox_ADA)
+//
+//                    val isEntrance = entranceBox?.isChecked ?: false
+//                    val isElevator = elevatorBox?.isChecked ?: false
+//                    val isStaircase = staircaseBox?.isChecked ?: false
+//                    val isADA = adaBox?.isChecked ?: false
+//
+//                    val nodeId = "$nodeCounter"
+//                    nodeCounter++
+//
+//                    // Determine type
+//                    val nodeType = when {
+//                        isEntrance  -> "entrance"
+//                        isStaircase -> "stair"
+//                        isElevator  -> "elevator"
+//                        locTag == "Outside" -> "outdoor"
+//                        else -> "corridor"
+//                    }
+//
+//                    // ADA false for stairs, true otherwise (customize as needed)
+//                    val adaFlag = when {
+//                        isStaircase -> false
+//                        else -> isADA
+//                    }
+//
+//                    //TODO: add checkbox to UI for is ada.  only look at that if not a staircase
+//
+//                    val node = Node(
+//                        id = nodeId,
+//                        lat = location.latitude,
+//                        lng = location.longitude,
+//                        building = locTag,
+//                        floor = if (locTag == "Outside") null else floorCode,
+//                        entrance = isEntrance,
+//                        ada = adaFlag,
+//                        type = nodeType,
+//                        label = null // add UI text input later
+//                    )
+//
+//
+//                    nodes.add(node)
+//                    selectedNodeIndex = nodes.size - 1
+//                    redrawGraphOnMap(selected = node)
+//                    nodeAdapter.updateNodes(nodes, selectedNodeIndex)
+//                    redrawGraphOnMap(node)
+//                    recyclerView.scrollToPosition(nodes.size - 1)
+//
+//                    // If recording, add an edge from the previous path node to this node
+//                    if (isRecordingPath) {
+//                        lastPathNodeId?.let { prevId ->
+//                            val edgeId = "$edgeCounter"
+//                            edgeCounter++
+//
+//                            val toType = node.type
+//                            val prevNode = nodes.find { it.id == prevId }
+//                            val fromType = prevNode?.type
+//                            val fromAda =  prevNode?.ada
+//                            val toAda = node.ada
+//
+//                            val edgeType = when {
+//                                fromType == "elevator" && toType == "elevator" -> "elevator"
+//                                fromType == "stair" && toType == "stair" -> "stair"
+//                                ((prevNode?.building == "Outside") || (node.building == "Outside")) -> "outdoor"
+//                                else -> "corridor"
+//                            }
+//
+//                            val accessible = when {
+//                                fromAda == false || !toAda -> false
+//                                else -> true
+//                            }
+//
+//
+//                            val edge = Edge(
+//                                id = edgeId,
+//                                from = prevId,
+//                                to = nodeId,
+//                                type = edgeType,
+//                                ada = accessible
+//                            )
+//                            edges.add(edge)
+//                        }
+//                        lastPathNodeId = nodeId
+//                    }
+//
+//                    // Persist whole graph (nodes + edges) to JSON
+//                    saveGraphToFile()
+//                } else {
+//                    locationTextView.text = "Unable to get location."
+//                }
+//
+//                object : CountDownTimer(5000, 1000) {
+//                    override fun onTick(millisUntilFinished: Long) {
+//                        button.text = "Wait ${millisUntilFinished / 1000}s"
+//                    }
+//                    override fun onFinish() {
+//                        button.text = "Save Current Location"
+//                        button.isEnabled = true
+//                        button.alpha = 1.0f
+//                    }
+//                }.start()
+//            }
+//    }
+
+
+
+
     private fun getCurrentLocation(locationTextView: TextView, recyclerView: RecyclerView) {
+
         val button = findViewById<Button>(R.id.btn_log_location)
+
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -299,126 +444,236 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             )
             return
         }
+        AppSettings.load(this)
         button.isEnabled = false
         button.alpha = 0.5f
+        button.text = "Collecting GPS samples..."
 
-        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-            .addOnSuccessListener { location: Location? ->
-                if (location != null) {
-                    locationTextView.text =
-                        "Lat: ${location.latitude}, Lon: ${location.longitude}, Alt: ${location.altitude}"
+        // ✅ HIGH ACCURACY REQUEST (KEY FIX)
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            3000L   //  target update rate   // was 2000L
+        )
+            .setMinUpdateIntervalMillis(1500L)  // fastest update rate allowed // was 1000L
+            .setWaitForAccurateLocation(true)
+            .build()
+        /*
+        // OLD ACCEPT BEST POINT LOGIC
+        var bestLocation: Location? = null
+        var attempts = 0
 
-                    // TODO: replace with real building/floor mapping logic
-                    AppSettings.load(this)
-                    val floorCode = AppSettings.currentFloor
-                    val locTag = AppSettings.currentBuilding
+        val callback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
 
-                    // Optional: read checkboxes if you add them in layout
-                    val entranceBox = findViewById<CheckBox?>(R.id.checkbox_entrance)
-                    val elevatorBox = findViewById<CheckBox?>(R.id.checkbox_elevator)
-                    val staircaseBox = findViewById<CheckBox?>(R.id.checkbox_staircase)
-                    val adaBox = findViewById<CheckBox?>(R.id.checkbox_ADA)
+                val location = result.lastLocation ?: return
 
-                    val isEntrance = entranceBox?.isChecked ?: false
-                    val isElevator = elevatorBox?.isChecked ?: false
-                    val isStaircase = staircaseBox?.isChecked ?: false
-                    val isADA = adaBox?.isChecked ?: false
+                attempts++
 
-                    val nodeId = "$nodeCounter"
-                    nodeCounter++
-
-                    // Determine type
-                    val nodeType = when {
-                        isEntrance  -> "entrance"
-                        isStaircase -> "stair"
-                        isElevator  -> "elevator"
-                        locTag == "Outside" -> "outdoor"
-                        else -> "corridor"
-                    }
-
-                    // ADA false for stairs, true otherwise (customize as needed)
-                    val adaFlag = when {
-                        isStaircase -> false
-                        else -> isADA
-                    }
-
-                    //TODO: add checkbox to UI for is ada.  only look at that if not a staircase
-
-                    val node = Node(
-                        id = nodeId,
-                        lat = location.latitude,
-                        lng = location.longitude,
-                        building = locTag,
-                        floor = if (locTag == "Outside") null else floorCode,
-                        entrance = isEntrance,
-                        ada = adaFlag,
-                        type = nodeType,
-                        label = null // add UI text input later
-                    )
-
-
-                    nodes.add(node)
-                    selectedNodeIndex = nodes.size - 1
-                    redrawGraphOnMap(selected = node)
-                    nodeAdapter.updateNodes(nodes, selectedNodeIndex)
-                    redrawGraphOnMap(node)
-                    recyclerView.scrollToPosition(nodes.size - 1)
-
-                    // If recording, add an edge from the previous path node to this node
-                    if (isRecordingPath) {
-                        lastPathNodeId?.let { prevId ->
-                            val edgeId = "$edgeCounter"
-                            edgeCounter++
-
-                            val toType = node.type
-                            val prevNode = nodes.find { it.id == prevId }
-                            val fromType = prevNode?.type
-                            val fromAda =  prevNode?.ada
-                            val toAda = node.ada
-
-                            val edgeType = when {
-                                fromType == "elevator" && toType == "elevator" -> "elevator"
-                                fromType == "stair" && toType == "stair" -> "stair"
-                                ((prevNode?.building == "Outside") || (node.building == "Outside")) -> "outdoor"
-                                else -> "corridor"
-                            }
-
-                            val accessible = when {
-                                fromAda == false || !toAda -> false
-                                else -> true
-                            }
-
-
-                            val edge = Edge(
-                                id = edgeId,
-                                from = prevId,
-                                to = nodeId,
-                                type = edgeType,
-                                ada = accessible
-                            )
-                            edges.add(edge)
-                        }
-                        lastPathNodeId = nodeId
-                    }
-
-                    // Persist whole graph (nodes + edges) to JSON
-                    saveGraphToFile()
-                } else {
-                    locationTextView.text = "Unable to get location."
+                // Keep best accuracy seen
+                if (bestLocation == null || location.accuracy < bestLocation!!.accuracy) {
+                    bestLocation = location
                 }
 
-                object : CountDownTimer(5000, 1000) {
-                    override fun onTick(millisUntilFinished: Long) {
-                        button.text = "Wait ${millisUntilFinished / 1000}s"
-                    }
-                    override fun onFinish() {
-                        button.text = "Save Current Location"
-                        button.isEnabled = true
-                        button.alpha = 1.0f
-                    }
-                }.start()
+                locationTextView.text =
+                    "Lat: ${location.latitude}, Lon: ${location.longitude}, Acc: ${location.accuracy}m"
+
+
+
+                // ACCEPT GOOD LOCATION
+                // if accuracy < meters or more that number of attempts
+                // then take best location found
+                if (location.accuracy < 5f || attempts >= 8) {     // was 15 and 5
+
+                    fusedLocationClient.removeLocationUpdates(this)
+
+                    val finalLocation = bestLocation ?: location
+
+                    saveNodeFromLocation(finalLocation, locationTextView, recyclerView)
+
+                    startCooldown(button)
+                }
             }
+            */
+
+
+
+        // NEW COLLECT SAMPLES AND FILTER FOR BEST RESULT
+        val currentBuilding = AppSettings.currentBuilding
+        val samples = mutableListOf<Location>()
+        val MAX_SAMPLES = 10  // collect up to was 8
+
+        val callback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                val location = result.lastLocation ?: return
+
+                samples.add(location)
+
+                locationTextView.text = "Got ${samples.size}/$MAX_SAMPLES samples (acc: ${location.accuracy}m)"
+
+                // Stop after N samples OR if we have enough good ones early
+                if (samples.size >= MAX_SAMPLES) {
+                    fusedLocationClient.removeLocationUpdates(this)
+                    processSamplesAndSave(samples, locationTextView, recyclerView, currentBuilding, button)
+                }
+            }
+
     }
+
+
+
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            callback,
+            Looper.getMainLooper()
+        )
+    }
+
+    private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val R = 6371000.0  // Earth radius in meters
+        val dlat = Math.toRadians(lat2 - lat1)
+        val dlon = Math.toRadians(lon2 - lon1)
+        val a = sin(dlat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dlon / 2).pow(2)
+        return 2 * R * asin(sqrt(a))
+    }
+
+    private fun processSamplesAndSave(
+        samples: List<Location>,
+        locationTextView: TextView,
+        recyclerView: RecyclerView,
+        currentBuilding: String,
+        button: Button
+    ) {
+        if (samples.isEmpty()) {
+            locationTextView.text = "No samples collected."
+            startCooldown(button)
+            return
+        }
+
+        // 1. Median position
+        val medianLat = samples.map { it.latitude }.sorted()[samples.size / 2]
+        val medianLng = samples.map { it.longitude }.sorted()[samples.size / 2]
+
+        // 2. Filter within 20m of median
+        val goodSamples = samples.filter { loc ->
+            haversine(medianLat, medianLng, loc.latitude, loc.longitude) < 20.0
+        }
+
+        if (goodSamples.isEmpty()) {
+            locationTextView.text = "All samples were outliers."
+            startCooldown(button)
+            return
+        }
+
+        // 3. Weighted average: weight = 1 / accuracy^2
+        val weights = goodSamples.map { 1.0 / (it.accuracy * it.accuracy.coerceAtLeast(1f)) }
+        val finalLat = goodSamples.map { it.latitude }.zip(weights) { lat, w -> lat * w }.sum() / weights.sum()
+        val finalLng = goodSamples.map { it.longitude }.zip(weights) { lng, w -> lng * w }.sum() / weights.sum()
+
+        // 4. Create averaged Location and save
+        val finalLocation = Location("filtered").apply {
+            latitude = finalLat
+            longitude = finalLng
+            accuracy = goodSamples.map { it.accuracy }.average().toFloat()
+        }
+
+        locationTextView.text = "Filtered to: ${finalLat}, ${finalLng} (acc: ${finalLocation.accuracy}m from ${goodSamples.size}/${samples.size} samples)"
+
+        saveNodeFromLocation(finalLocation, locationTextView, recyclerView)
+        startCooldown(button)
+    }
+
+
+    private fun startCooldown(button: Button) {
+        object : CountDownTimer(10000, 1000) { // ⬅️ now 10 seconds (better GPS stability)
+            override fun onTick(millisUntilFinished: Long) {
+                button.text = "Wait ${millisUntilFinished / 1000}s"
+            }
+
+            override fun onFinish() {
+                button.text = "Save Current Location"
+                button.isEnabled = true
+                button.alpha = 1.0f
+            }
+        }.start()
+    }
+
+    private fun saveNodeFromLocation(
+        location: Location,
+        locationTextView: TextView,
+        recyclerView: RecyclerView
+    ) {
+
+        AppSettings.load(this)
+
+        val floorCode = AppSettings.currentFloor
+        val locTag = AppSettings.currentBuilding
+
+        val entranceBox = findViewById<CheckBox?>(R.id.checkbox_entrance)
+        val elevatorBox = findViewById<CheckBox?>(R.id.checkbox_elevator)
+        val staircaseBox = findViewById<CheckBox?>(R.id.checkbox_staircase)
+        val adaBox = findViewById<CheckBox?>(R.id.checkbox_ADA)
+
+        val isEntrance = entranceBox?.isChecked ?: false
+        val isElevator = elevatorBox?.isChecked ?: false
+        val isStaircase = staircaseBox?.isChecked ?: false
+        val isADA = adaBox?.isChecked ?: false
+
+        val nodeId = "$nodeCounter"
+        nodeCounter++
+
+        val nodeType = when {
+            isEntrance -> "entrance"
+            isStaircase -> "stair"
+            isElevator -> "elevator"
+            locTag == "Outside" -> "outdoor"
+            else -> "corridor"
+        }
+
+        val adaFlag = if (isStaircase) false else isADA
+
+        val node = Node(
+            id = nodeId,
+            lat = location.latitude,
+            lng = location.longitude,
+            building = locTag,
+            floor = if (locTag == "Outside") null else floorCode,
+            entrance = isEntrance,
+            ada = adaFlag,
+            type = nodeType
+        )
+
+        nodes.add(node)
+        selectedNodeIndex = nodes.size - 1
+
+        nodeAdapter.updateNodes(nodes, selectedNodeIndex)
+        recyclerView.scrollToPosition(nodes.size - 1)
+
+        redrawGraphOnMap(node)
+
+        // Path logic stays unchanged
+        if (isRecordingPath) {
+            lastPathNodeId?.let { prevId ->
+
+                val prevNode = nodes.find { it.id == prevId }
+
+                val edge = Edge(
+                    id = "$edgeCounter",
+                    from = prevId,
+                    to = nodeId,
+                    type = "corridor",
+                    ada = prevNode?.ada != false && node.ada
+                )
+
+                edgeCounter++
+                edges.add(edge)
+            }
+            lastPathNodeId = nodeId
+        }
+
+        saveGraphToFile()
+    }
+
+
 
     // Show a single pin at the selected node
     private fun updateMapPin(node: Node) {
