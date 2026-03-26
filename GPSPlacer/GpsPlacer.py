@@ -4,6 +4,7 @@ from tkinter import ttk
 import json
 import tkintermapview
 import math
+from PIL import Image, ImageTk
 
 #TODO: - edited ada values not saving to json or between selections
 
@@ -61,12 +62,17 @@ rotation_center_lng = -84.5165
 # updating UI widgets (e.g., when populating the editor from a node)
 ui_update_suppressed = False
 
+# When back button (on my mouse) is pressed, redraw icons
+def on_back_button(event):
+    redraw()
+
 # =========================
 # UI
 # =========================
 
 root = tk.Tk()
 root.title("Map Node Editor")
+root.bind("<Button-4>", on_back_button)
 
 main_frame = tk.Frame(root)
 main_frame.pack(fill="both", expand=True)
@@ -84,6 +90,9 @@ tk.Label(panel, text="Node Editor", font=("Arial", 14)).pack(pady=10)
 
 status_label = tk.Label(panel, text="Mode: Add")
 status_label.pack()
+
+redraw_btn = tk.Button(panel, text="Redraw", command=lambda: redraw())
+redraw_btn.pack()
 
 # =========================
 # SETTINGS DATA (EXPANDED)
@@ -106,6 +115,18 @@ buildings = ["Outside",
     "Turner Hall", "University Pavilion", "Van Wormer Hall", "Varsity Village Baseball",
     "Wolfson Center", "Zimmer Hall"
 ]
+
+# =========================
+# PIN MARKER IMAGES
+# =========================
+
+pin_icon_size = 25
+
+img = Image.open("MapPin.png").resize((pin_icon_size, pin_icon_size))
+marker_img = ImageTk.PhotoImage(img)
+
+img = Image.open("MapPinSelected.png").resize((pin_icon_size, pin_icon_size))
+selected_marker_img = ImageTk.PhotoImage(img)
 
 # =========================
 # PERSISTENT EDIT PANEL VARS
@@ -247,7 +268,7 @@ def populate_editor(node):
         ui_update_suppressed = False
 
     # Apply rules once UI reflects the node
-    enforce_rules()
+    enforce_rules(from_user=False)
 
 
 def clear_selection():
@@ -264,6 +285,9 @@ def clear_selection():
         ada_var.set(True)
     finally:
         ui_update_suppressed = False
+
+    enforce_rules(from_user=False)
+
     redraw()
 
 # =========================
@@ -408,7 +432,10 @@ def update_selected_node_from_ui():
     _update_connected_edges(selected_node)
     redraw()
 
-def enforce_rules():
+def enforce_rules(from_user=False):
+    if ui_update_suppressed:
+        return
+
     if entrance_var.get():
         elevator_cb.config(state="disabled")
         stair_cb.config(state="disabled")
@@ -420,22 +447,24 @@ def enforce_rules():
 
     if stair_var.get():
         ada_cb.config(state="disabled")
-        ada_var.set(False)
+        if from_user:
+            ada_var.set(False)
     else:
         ada_cb.config(state="normal")
-        ada_var.set(True)
+        if from_user and not entrance_var.get():
+            ada_var.set(True)
 
 # Event bindings
 def _on_entrance_change(*a):
     if ui_update_suppressed:
         return
-    enforce_rules()
+    enforce_rules(from_user=True)
     update_selected_node_from_ui()
 
 def _on_stair_change(*a):
     if ui_update_suppressed:
         return
-    enforce_rules()
+    enforce_rules(from_user=True)
     update_selected_node_from_ui()
 
 def _on_elevator_change(*a):
@@ -661,13 +690,25 @@ def redraw():
                 color="green" if e.ada else "red"
             ))
 
+    offset = pixel_to_lat_offset(pin_icon_size // 2, map_widget.zoom)
+
     for n in nodes:
         r_lat, r_lng = get_rotated_coords(n.lat, n.lng)
         markers.append(map_widget.set_marker(
-            r_lat, r_lng,
+            r_lat + offset,
+            r_lng,
             text=n.id,
-            marker_color_circle="yellow" if n == selected_node else "red"
+            icon=selected_marker_img if n == selected_node else marker_img
+            #marker_color_circle="#2ef24d" if n == selected_node else "white"
         ))
+
+def pixel_to_lat_offset(pixels, zoom):
+    # meters per pixel (approx)
+    meters_per_pixel = 156543.03392 * math.cos(math.radians(map_widget.get_position()[0])) / (2 ** zoom)
+    
+    # convert meters to latitude degrees
+    return (pixels * meters_per_pixel) / 110540
+
 
 # =========================
 # INITIALIZE
