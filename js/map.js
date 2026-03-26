@@ -6,12 +6,14 @@
 
 'use strict';
 
-import { MAP_CONFIG, BUILDINGS } from './config.js';
+import { MAP_CONFIG, BUILDINGS, STYLES } from './config.js';
 
 // ─── INTERNAL STATE ───────────────────────────────────────────────────────────
 
 let _map = null;
 let _buildingMarkers = [];
+/** @type {Map<string, L.Polygon>} */
+let _buildingPolygons = new Map();
 let _onBuildingClick = null;
 
 // ─── PUBLIC API ───────────────────────────────────────────────────────────────
@@ -42,9 +44,13 @@ export function initMap(containerId, onBuildingClick) {
     maxZoom: MAP_CONFIG.maxZoom,
   }).addTo(_map);
 
-  // Zoom control — bottom right
-  L.control.zoom({ position: 'bottomright' }).addTo(_map);
 
+
+  // Zoom control placement
+  L.control.zoom({ position: 'topright' }).addTo(_map);
+
+  // Polygons rendered first so markers sit on top
+  _addBuildingPolygons();
   _addBuildingMarkers();
 
   return _map;
@@ -79,8 +85,9 @@ export function fitBounds(bounds, padding = [60, 60]) {
 }
 
 /**
- * Dim/un-dim building markers based on a selected building key.
- * @param {string|null} selectedKey - Highlight this building; dim the rest
+ * Highlight a selected building polygon and dim the rest.
+ * Also updates marker opacity to match.
+ * @param {string|null} selectedKey - Highlight this building; dim the rest. null = reset all.
  */
 export function highlightBuilding(selectedKey) {
   _buildingMarkers.forEach(({ key, el }) => {
@@ -88,9 +95,31 @@ export function highlightBuilding(selectedKey) {
     el.style.opacity = (!selectedKey || key === selectedKey) ? '1' : '0.3';
     el.style.borderColor = key === selectedKey ? '#E00122' : '#333';
   });
+
+  _buildingPolygons.forEach((poly, key) => {
+    if (!selectedKey) {
+      poly.setStyle(STYLES.buildingPolygon.default);
+    } else if (key === selectedKey) {
+      poly.setStyle(STYLES.buildingPolygon.highlighted);
+    } else {
+      poly.setStyle(STYLES.buildingPolygon.dimmed);
+    }
+  });
 }
 
 // ─── PRIVATE HELPERS ─────────────────────────────────────────────────────────
+
+function _addBuildingPolygons() {
+  Object.entries(BUILDINGS).forEach(([key, bldg]) => {
+    const coords = bldg.polygon ?? _placeholderPolygon(bldg.center);
+    const poly = L.polygon(coords, { ...STYLES.buildingPolygon.default, interactive: true })
+      .addTo(_map)
+      .on('click', () => {
+        if (_onBuildingClick) _onBuildingClick(key);
+      });
+    _buildingPolygons.set(key, poly);
+  });
+}
 
 function _addBuildingMarkers() {
   Object.entries(BUILDINGS).forEach(([key, bldg]) => {
@@ -119,4 +148,21 @@ function _addBuildingMarkers() {
     // Store reference to DOM element for highlight updates
     _buildingMarkers.push({ key, marker, el });
   });
+}
+
+/**
+ * Generate a small rectangular placeholder polygon from a building center.
+ * Used when a building has no surveyed polygon data.
+ * @param {[number, number]} center - [lng, lat]
+ * @returns {[number, number][]} [[lat,lng], ...] ring
+ */
+function _placeholderPolygon([lng, lat]) {
+  const hw = 0.00030; // ~26 m in longitude
+  const hh = 0.00023; // ~26 m in latitude
+  return [
+    [lat + hh, lng - hw],
+    [lat + hh, lng + hw],
+    [lat - hh, lng + hw],
+    [lat - hh, lng - hw],
+  ];
 }

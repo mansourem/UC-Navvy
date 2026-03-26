@@ -4,9 +4,9 @@
    ============================================================ */
 
 /* ── Leaflet Tile Dim ────────────────────────────────────────── */
-
+/* determines how the base map looks */
 .leaflet-tile-pane {
-  filter: brightness(0.65) saturate(0.45);
+  filter: brightness(1) saturate(0.75);
 }
 
 /* ── Leaflet Controls ────────────────────────────────────────── */

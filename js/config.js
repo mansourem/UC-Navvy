@@ -34,19 +34,19 @@ export const API = {
 };
 
 // ─── MAP DEFAULTS ─────────────────────────────────────────────────────────────
-
+// determines where to get map info from, look here to pick different style https://leaflet-extras.github.io/leaflet-providers/preview/ 
 export const MAP_CONFIG = {
   center: [39.1316, -84.5176],  // UC campus centroid [lat, lng]
   zoom: 16,
   minZoom: 14,
   maxZoom: 22,
-  tileUrl: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  tileAttribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+  tileUrl: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png',
+  tileAttribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   tileSubdomains: 'abcd',
 };
 
 // ─── STYLE TOKENS ────────────────────────────────────────────────────────────
-
+// TODO: fix styling for ui improvements
 export const STYLES = {
   floorplan: {
     default:     { color: 'rgba(180,180,180,0.75)', weight: 1.2, opacity: 0.75, fillOpacity: 0.06, fillColor: 'rgba(180,180,180,0.3)' },
@@ -62,20 +62,45 @@ export const STYLES = {
     start: { fillColor: '#00C851', color: '#00ff66', radius: 10, weight: 2, fillOpacity: 0.95 },
     end:   { fillColor: '#E00122', color: '#ff3344', radius: 10, weight: 2, fillOpacity: 0.95 },
   },
+  buildingPolygon: {
+    default:     { color: '#4A9EFF', weight: 1.2, opacity: 0.5,  fillColor: '#4A9EFF', fillOpacity: 0.06 },
+    highlighted: { color: '#E00122', weight: 2,   opacity: 0.9,  fillColor: '#E00122', fillOpacity: 0.18 },
+    dimmed:      { color: '#888',    weight: 0.8, opacity: 0.15, fillColor: '#888',    fillOpacity: 0.02 },
+  },
+};
+
+// ─── FEATURE FLAGS ────────────────────────────────────────────────────────────
+
+export const FEATURES = {
+  /**
+   * Enable indoor routing, floor selection UI, and floorplan rendering.
+   * Set to true once indoor graphs and the floorplan API are stable.
+   */
+  INDOOR_ROUTING: false,
+
+  /**
+   * Render GeoJSON floorplan overlays on the map during routing.
+   * Independent of INDOOR_ROUTING — floorplans can be shown on outdoor routes too.
+   * Not user-accessible; toggle here only.
+   */
+  FLOORPLAN_DISPLAY: false,
 };
 
 // ─── BUILDING REGISTRY ────────────────────────────────────────────────────────
-// TODO: Add all building definitons
 /**
  * @typedef {Object} Building
- * @property {string}   name                 - Full display name
- * @property {[number,number]} center        - [lng, lat]
- * @property {number[]} floors               - Available floor numbers
+ * @property {string}   name                         - Full display name
+ * @property {[number,number]} center                - [lng, lat]
+ * @property {number[]} floors                       - Available floor numbers
  * @property {number[]|null} elevatorNodes
- * @property {number[]}   entranceNodes        - Floor where main entrance is
+ * @property {number[]}   entranceNodes              - Floor where main entrance is
  * @property {number[]}   accessibleEntranceNodes
- * @property {string}   apiKey               - Key used in API URL
+ * @property {string}   apiKey                       - Key used in API URL
+ * @property {[number,number][]|null} [polygon]      - Building footprint as [[lat,lng],...] coordinate ring.
+ *         Use [lat, lng] pairs (Leaflet order). Omitting falls back to a generated placeholder box.
  */
+// TODO: Replace with actual surveyed footprint coordinates for each building.
+
 
 /** @type {Object.<string, Building>} */
 export const BUILDINGS = {
@@ -109,7 +134,7 @@ export const BUILDINGS = {
   artsci:{
   name: 'Arts & Sciences Hall',
   center: [-84.51914563201682, 39.131863468061795],
-  floors: [1],     //FIX: NOT IN DB
+  floors: [1],     //FIXME: NOT IN DB
   elevatorNodes: [],
   entranceNodes: [],
   accessibleEntranceNodes: [],
@@ -127,7 +152,7 @@ export const BUILDINGS = {
   blegen: {
     name: 'Carl Blegen Library',
     center: [-84.51934098443131, 39.12958090288538],
-    floors: [1],     //FIX: NOT IN DB
+    floors: [1],     //FIXME: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -161,7 +186,7 @@ export const BUILDINGS = {
     apiKey: 'calhoun',
   },
 
-  //CCPA FIX: OFF CAMPUS?
+  //CCPA FIXME: OFF CAMPUS?
   //
   //
 
@@ -204,7 +229,7 @@ export const BUILDINGS = {
   dabney: {
     name: 'Dabney Hall',
     center: [-84.51311555671336, 39.131668135819666],
-    floors: [1],     //FIX: NOT IN DB
+    floors: [1],     //FIXME: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -222,7 +247,7 @@ export const BUILDINGS = {
   dyers: {
     name: 'Teachers-Dyer Complex',
     center: [-84.51863197602383, 39.13042132369668],
-    floors: [1],     //FIX: NOT IN DB
+    floors: [1],     //FIXME: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -231,7 +256,7 @@ export const BUILDINGS = {
   edwards: {
     name: 'Edwards Center',
     center: [-84.51218652864813, 39.12906331848919],
-    floors: [1],     //FIX: NOT IN DB
+    floors: [1],     //FIXME: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -240,7 +265,7 @@ export const BUILDINGS = {
   emery: {
     name: 'Mary Emery Hall',
     center: [-84.51789815695886, 39.1303875174853],
-    floors: [1],     //FIX: NOT IN DB
+    floors: [1],     //FIXME: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -249,7 +274,7 @@ export const BUILDINGS = {
   frenchw: {
     name: 'French Hall',
     center: [-84.51305821376505, 39.13241250641286],
-    floors: [1],     //FIX: NOT IN DB
+    floors: [1],     //FIXME: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -276,7 +301,7 @@ export const BUILDINGS = {
   law: {
     name: 'College of Law Building',
     center: [-84.5136542262, 39.13476248008203],
-    floors: [1],     //FIX: NOT IN DB
+    floors: [1],     //FIXME: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
@@ -339,13 +364,13 @@ export const BUILDINGS = {
   memorial: {
     name: 'Memorial Hall',
     center: [-84.51729620021955, 39.12953145608253],
-    floors: [1],     //FIX: NOT IN DB
+    floors: [1],     //FIXME: NOT IN DB
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
     apiKey: 'memorial',
   },
-  mcmicken: { //FIX: Not in DB
+  mcmicken: { //FIXME: Not in DB
     name: 'McMicken Hall',
     center: [-84.51914221815957, 39.131871165618605],
     floors: [1, 2, 3, 4, 5],
@@ -418,8 +443,6 @@ export const BUILDINGS = {
     apiKey: 'scioto',
   },    
   
-  //TODO FIX: SAPC?
-
   shoe: {
     name: 'Myrl H. Shoemaker Multipurpose Center',
     center: [-84.51406348593618, 39.131213349497244],

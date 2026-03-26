@@ -21,10 +21,9 @@
 
 'use strict';
 
-import { BUILDINGS, STYLES, APP } from './config.js';
+import { BUILDINGS, STYLES, APP, FEATURES } from './config.js';
 import { getMap, fitBounds } from './map.js';
-// TODO: re-enable floorplan import once floorplan rendering is wired up
-// import { renderFloorplan, clearAllFloorplans } from './floorplan.js';
+import { renderFloorplan, clearAllFloorplans } from './floorplan.js';
 import {
   loadGraph,
   findPath,
@@ -97,14 +96,12 @@ export async function planRoute(req) {
 
   clearRoute();
 
-  // TODO: re-enable floorplan clearing once floorplan rendering is wired up
-  // clearAllFloorplans();
+  if (FEATURES.FLOORPLAN_DISPLAY) {
+    clearAllFloorplans();
+    await renderFloorplan(req.startBuilding, req.startFloor, 'start', true);
+  }
 
-  // TODO: re-enable floorplan rendering once floorplan API is stable
-  // await renderFloorplan(req.startBuilding, req.startFloor, 'start', true);
-
-  // TODO: re-enable intra-building routing once indoor graphs are available
-  // Currently routes outdoor only regardless of building
+  // TODO: re-enable intra-building routing once indoor graphs are available (requires INDOOR_ROUTING)
   const layers = await _renderOutdoorRoute(req.startBuilding, req.endBuilding, req.adaOnly);
 
   const steps = _buildSteps(req);
@@ -121,6 +118,7 @@ export function clearRoute() {
     try { map.removeLayer(_routeLayerGroup); } catch (_) {}
     _routeLayerGroup = null;
   }
+  if (FEATURES.FLOORPLAN_DISPLAY) clearAllFloorplans();
   emit('navvy:route:cleared', {});
 }
 

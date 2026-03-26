@@ -10,7 +10,7 @@
 
 'use strict';
 
-import { BUILDINGS, APP } from './config.js';
+import { BUILDINGS, APP, FEATURES } from './config.js';
 
 // ─── INTERNAL STATE ───────────────────────────────────────────────────────────
 
@@ -28,6 +28,7 @@ let _toastTimer = null;
  */
 export function initUI({ onNavigate, onFloorTab }) {
   _populateBuildingSelects();
+  _applyIndoorRoutingVisibility();
   _bindSelectEvents();
   _bindADAToggle();
   _bindNavigateButton(onNavigate);
@@ -52,8 +53,7 @@ export function selectBuilding(which, buildingKey) {
   const opt = sel.querySelector(`option[value="${buildingKey}"]`);
   if (opt) {
     sel.value = buildingKey;
-    // TODO: re-enable once floor selection is wired up
-    // _updateFloorSelect(which);
+    if (FEATURES.INDOOR_ROUTING) _updateFloorSelect(which);
     _checkNavigateReady();
   }
 }
@@ -149,6 +149,12 @@ export function setActiveFloorTab(floor) {
 
 // ─── PRIVATE HELPERS ─────────────────────────────────────────────────────────
 
+function _applyIndoorRoutingVisibility() {
+  document.querySelectorAll('.indoor-routing-field').forEach(el => {
+    el.style.display = FEATURES.INDOOR_ROUTING ? '' : 'none';
+  });
+}
+
 function _populateBuildingSelects() {
   const startSel = document.getElementById('startBuilding');
   const endSel   = document.getElementById('endBuilding');
@@ -165,39 +171,35 @@ function _populateBuildingSelects() {
 
 function _bindSelectEvents() {
   ['start', 'end'].forEach(which => {
-    const bldgSel = document.getElementById(`${which}Building`);
-    // TODO: re-enable floor select binding once floor selection is wired up
-    // const floorSel = document.getElementById(`${which}Floor`);
+    const bldgSel  = document.getElementById(`${which}Building`);
+    const floorSel = document.getElementById(`${which}Floor`);
     if (bldgSel) bldgSel.addEventListener('change', () => {
-      // TODO: re-enable once floor selection is wired up
-      // _updateFloorSelect(which);
+      if (FEATURES.INDOOR_ROUTING) _updateFloorSelect(which);
       _checkNavigateReady();
     });
-    // TODO: re-enable once floor selection is wired up
-    // if (floorSel) floorSel.addEventListener('change', _checkNavigateReady);
+    if (FEATURES.INDOOR_ROUTING && floorSel) {
+      floorSel.addEventListener('change', _checkNavigateReady);
+    }
   });
 }
 
-// TODO: re-enable _updateFloorSelect once floor selection is wired up
-// function _updateFloorSelect(which) {
-//   const buildingKey = document.getElementById(`${which}Building`)?.value;
-//   const floorSel    = document.getElementById(`${which}Floor`);
-//   if (!floorSel) return;
-//
-//   floorSel.innerHTML = '<option value="">Floor…</option>';
-//
-//   if (!buildingKey || !BUILDINGS[buildingKey]) return;
-//
-//   const bldg  = BUILDINGS[buildingKey];
-//   const floors = bldg.floors;
-//
-//   floors.forEach(f => {
-//     const opt = document.createElement('option');
-//     opt.value = f;
-//     opt.textContent = `Floor ${f}`;
-//     floorSel.appendChild(opt);
-//   });
-// }
+function _updateFloorSelect(which) {
+  const buildingKey = document.getElementById(`${which}Building`)?.value;
+  const floorSel    = document.getElementById(`${which}Floor`);
+  if (!floorSel) return;
+
+  floorSel.innerHTML = '<option value="">Floor…</option>';
+
+  if (!buildingKey || !BUILDINGS[buildingKey]) return;
+
+  const floors = BUILDINGS[buildingKey].floors;
+  floors.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f;
+    opt.textContent = `Floor ${f}`;
+    floorSel.appendChild(opt);
+  });
+}
 
 function _bindADAToggle() {
   const row = document.getElementById('adaToggleRow');
@@ -208,8 +210,7 @@ function _bindADAToggle() {
     row.setAttribute('aria-checked', String(_adaMode));
     row.classList.toggle('ada-row--active', _adaMode);
     row.querySelector('.toggle')?.classList.toggle('toggle--active', _adaMode);
-    // TODO: re-enable once floor selection is wired up
-    // ['start', 'end'].forEach(_updateFloorSelect);
+    if (FEATURES.INDOOR_ROUTING) ['start', 'end'].forEach(_updateFloorSelect);
     _checkNavigateReady();
     document.dispatchEvent(new CustomEvent('navvy:ada:changed', { detail: { adaMode: _adaMode } }));
   }
@@ -226,11 +227,14 @@ function _bindADAToggle() {
 function _checkNavigateReady() {
   const sb = document.getElementById('startBuilding')?.value;
   const eb = document.getElementById('endBuilding')?.value;
-  // TODO: re-enable floor checks once floor selection is wired up
-  // const sf = document.getElementById('startFloor')?.value;
-  // const ef = document.getElementById('endFloor')?.value;
+  let ready = !!(sb && eb);
+  if (FEATURES.INDOOR_ROUTING) {
+    const sf = document.getElementById('startFloor')?.value;
+    const ef = document.getElementById('endFloor')?.value;
+    ready = ready && !!(sf && ef);
+  }
   const btn = document.getElementById('navigateBtn');
-  if (btn) btn.disabled = !(sb && eb);
+  if (btn) btn.disabled = !ready;
 }
 
 function _bindNavigateButton(onNavigate) {
@@ -239,14 +243,14 @@ function _bindNavigateButton(onNavigate) {
   btn.addEventListener('click', () => {
     const req = {
       startBuilding: document.getElementById('startBuilding')?.value,
-      // TODO: replace hardcoded floor with value from floor select once wired up
-      // startFloor: parseInt(document.getElementById('startFloor')?.value),
-      startFloor:    1,
-      endBuilding:   document.getElementById('endBuilding')?.value,
-      // TODO: replace hardcoded floor with value from floor select once wired up
-      // endFloor: parseInt(document.getElementById('endFloor')?.value),
-      endFloor:      1,
-      adaOnly:       _adaMode,
+      startFloor: FEATURES.INDOOR_ROUTING
+        ? parseInt(document.getElementById('startFloor')?.value)
+        : 1,
+      endBuilding: document.getElementById('endBuilding')?.value,
+      endFloor: FEATURES.INDOOR_ROUTING
+        ? parseInt(document.getElementById('endFloor')?.value)
+        : 1,
+      adaOnly: _adaMode,
     };
     if (onNavigate) onNavigate(req);
   });
