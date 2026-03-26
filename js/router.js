@@ -102,9 +102,9 @@ export async function planRoute(req) {
   }
 
   // TODO: re-enable intra-building routing once indoor graphs are available (requires INDOOR_ROUTING)
-  const layers = await _renderOutdoorRoute(req.startBuilding, req.endBuilding, req.adaOnly);
+  const { layers, pathEdges, nMap } = await _renderOutdoorRoute(req.startBuilding, req.endBuilding, req.adaOnly);
 
-  const steps = _buildSteps(req);
+  const steps = _buildSteps(req, pathEdges, nMap);
   emit('navvy:route:ready', { request: req, steps, layers });
   return steps;
 }
@@ -128,6 +128,7 @@ export function clearRoute() {
  * Route between two buildings using the outdoor campus graph.
  * Finds the nearest outdoor node to each building's center, runs Dijkstra,
  * then draws the path edge by edge (from → to for each step).
+ * @returns {{ layers: L.Layer[], pathEdges: Edge[]|null, nMap: Map|null }}
  */
 async function _renderOutdoorRoute(startBuilding, endBuilding, adaOnly) {
   const sb = BUILDINGS[startBuilding];
@@ -156,7 +157,8 @@ async function _renderOutdoorRoute(startBuilding, endBuilding, adaOnly) {
     return _outdoorFallback(startBuilding, endBuilding, adaOnly);
   }
 
-  return _drawEdges(result.edges, result.nodes, nMap, adaOnly);
+  const layers = _drawEdges(result.edges, result.nodes, nMap, adaOnly);
+  return { layers, pathEdges: result.edges, nMap };
 }
 
 // ─── DRAWING ─────────────────────────────────────────────────────────────────
@@ -244,7 +246,7 @@ function _outdoorFallback(startBuilding, endBuilding, adaOnly) {
   _routeLayerGroup = L.layerGroup([glow, routeLine, startMarker, endMarker]).addTo(map);
   fitBounds(L.latLngBounds([startLL, endLL]), APP.FIT_PADDING);
 
-  return [_routeLayerGroup];
+  return { layers: [_routeLayerGroup], pathEdges: null, nMap: null };
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -276,9 +278,11 @@ function _haversine(lat1, lng1, lat2, lng2) {
 
 /**
  * @param {RouteRequest} req
+ * @param {Edge[]|null}  pathEdges
+ * @param {Map|null}     nMap
  * @returns {RouteStep[]}
  */
-function _buildSteps(req) {
+function _buildSteps(req, pathEdges, nMap) {
   const { startBuilding, endBuilding, adaOnly } = req;
   const sb = BUILDINGS[startBuilding];
   const eb = BUILDINGS[endBuilding];
@@ -292,9 +296,34 @@ function _buildSteps(req) {
   steps.push({ icon: '🚪', type: 'info',
     text: `Exit ${sb.name} via the ${entranceType}` });
 
-  const distNote = _estimateWalkTime(sb.center, eb.center);
-  steps.push({ icon: '🚶', type: 'walk',
-    text: `Walk to ${eb.name} (~${distNote})` });
+  if (pathEdges && pathEdges.length > 5 && nMap) {
+    const segments = _groupByBearing(pathEdges, nMap);
+
+    for (let i = 0; i < segments.length; i++) {
+      const seg     = segments[i];
+      const prevSeg = segments[i - 1];
+
+      if(seg.distance > 5){
+      if (i === 0) {
+        steps.push({ icon: '🧭', type: 'walk',
+          text: `Head ${seg.direction} for ${seg.distanceText}` });
+      } else {
+        const turn = _turnDirection(prevSeg.bearing, seg.bearing);
+        if (turn) {
+          steps.push({ icon: turn === 'right' ? '↪️' : '↩️', type: 'walk',
+            text: `Turn ${turn}, then head ${seg.direction} for ${seg.distanceText}` });
+        } else {
+          steps.push({ icon: '⬆️', type: 'walk',
+            text: `Continue ${seg.direction} for ${seg.distanceText}` });
+        }
+      }
+    }}
+  } else {
+    // Fallback when no graph path is available
+    const distNote = _estimateWalkTime(sb.center, eb.center);
+    steps.push({ icon: '🚶', type: 'walk',
+      text: `Walk to ${eb.name} (~${distNote})` });
+  }
 
   // TODO: re-enable ADA entrance warning once entrance nodes are mapped
   // if (adaOnly && !eb.accessibleEntranceNodes.length) {
@@ -316,6 +345,81 @@ function _estimateWalkTime([lng1, lat1], [lng2, lat2]) {
   const metres  = _haversine(lat1, lng1, lat2, lng2);
   const minutes = Math.max(1, Math.round(metres / 80));
   return `${minutes} min walk`;
+}
+
+// ─── DIRECTION HELPERS ────────────────────────────────────────────────────────
+
+/**
+ * Compass bearing (0–360°) from point A to point B.
+ */
+function _bearing(lat1, lng1, lat2, lng2) {
+  const toRad = x => x * Math.PI / 180;
+  const toDeg = x => x * 180 / Math.PI;
+  const dLng  = toRad(lng2 - lng1);
+  const y = Math.sin(dLng) * Math.cos(toRad(lat2));
+  const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2))
+          - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+/** Convert a bearing to a cardinal/intercardinal direction name. */
+function _cardinalDirection(bearing) {
+  const dirs = ['north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest'];
+  return dirs[Math.round(bearing / 45) % 8];
+}
+
+/**
+ * Determine turn direction between two bearings.
+ * Returns 'left', 'right', or null (straight).
+ */
+function _turnDirection(fromBearing, toBearing) {
+  const diff = ((toBearing - fromBearing) + 360) % 360;
+  if (diff < 45 || diff > 315) return null;
+  return diff <= 180 ? 'right' : 'left';
+}
+
+/** Format a metre distance for display. */
+function _formatDistance(metres) {
+  if (metres < 50) return `${Math.round(metres)} m`;
+  return `${Math.round(metres / 10) * 10} m`;
+}
+
+/**
+ * Group consecutive path edges into directional segments.
+ * Edges within BEARING_THRESHOLD degrees of the current segment are merged.
+ * @param {Edge[]}          edges
+ * @param {Map<id, Node>}   nMap
+ * @returns {{ bearing: number, direction: string, distance: number, distanceText: string }[]}
+ */
+function _groupByBearing(edges, nMap) {
+  const BEARING_THRESHOLD = 30;
+  const segments = [];
+  let current = null;
+
+  for (const edge of edges) {
+    const a = nMap.get(edge.from);
+    const b = nMap.get(edge.to);
+    if (!a || !b) continue;
+
+    const brg  = _bearing(a.lat, a.lng, b.lat, b.lng);
+    const dist = edge.weight ?? 0;
+
+    if (!current) {
+      current = { bearing: brg, direction: _cardinalDirection(brg), distance: dist };
+    } else {
+      const diff = Math.abs(((brg - current.bearing) + 540) % 360 - 180);
+      if (diff <= BEARING_THRESHOLD) {
+        current.distance += dist;
+      } else {
+        segments.push({ ...current, distanceText: _formatDistance(current.distance) });
+        current = { bearing: brg, direction: _cardinalDirection(brg), distance: dist };
+      }
+    }
+  }
+
+  if (current) segments.push({ ...current, distanceText: _formatDistance(current.distance) });
+
+  return segments;
 }
 
 function emit(name, detail) {
