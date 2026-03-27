@@ -204,3 +204,33 @@
     transparent 6px, transparent 10px
   );
 }
+
+.legend-toggle {
+  position: absolute;
+  bottom: 30px;
+  right: 5px;
+  z-index: 1100;
+  background: rgba(5,5,5,0.88);
+  border: 1px solid var(--border-base);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 6px 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.map-legend--collapsed {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .legend-toggle {
+    display: none;
+  }
+
+  .map-legend {
+    display: block !important;
+  }
+}

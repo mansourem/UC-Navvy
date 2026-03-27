@@ -476,3 +476,367 @@ select option {
   border-color: var(--uc-red);
   opacity: 1;
 }
+
+@media (hover: none) and (pointer: coarse) {
+  select,
+  button {
+    min-height: 44px;
+  }
+
+  .nav-btn:hover {
+    box-shadow: none;
+  }
+}
+
+
+/* Collapses Plannar when path is successfully computed  */
+.planner-toggle-btn {
+  display: none;
+  width: calc(100% - 16px);
+  margin: 6px 8px;
+  padding: 8px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-base);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .sidebar.sidebar--collapsed .route-summary {
+    margin-top: 6px;
+  }
+  .sidebar.sidebar--collapsed .sidebar__section,
+  .sidebar.sidebar--collapsed .ada-row,
+  .sidebar.sidebar--collapsed .nav-btn-wrap,
+  .sidebar.sidebar--collapsed .u-divider {
+    display: none;
+  }
+
+  .sidebar.sidebar--collapsed .planner-toggle-btn {
+    display: block;
+  }
+}
+
+
+/* Collapses the routing instructions for phones */
+@media (max-width: 768px) {
+  .route-summary {
+    max-height: 210px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .route-summary__header {
+    flex-shrink: 0;
+  }
+
+  .route-summary__body {
+    max-height: 100px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 4px;
+  }
+}
+
+/* Collapses for larger devices  */
+@media (min-width: 769px) and (max-width: 3000px) {
+  .route-summary {
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .route-summary__header {
+    flex-shrink: 0;
+  }
+
+  .route-summary__body {
+    max-height: 500px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 4px;
+  }
+}
+
+
+/* Three Breakpoint levels for different configurations based off max device widths   
+   May change later when testing with devices*/
+@media (max-width: 400px) {
+  .route-card {
+    padding: 6px;
+    margin-bottom: 2px;
+    border-radius: 4px;
+  }
+
+  .route-card__label {
+    gap: 3px;
+    font-size: 7px;
+    letter-spacing: 0.7px;
+    margin-bottom: 3px;
+  }
+
+  .route-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .select-row {
+    gap: 5px;
+  }
+
+  .select-group {
+    gap: 2px;
+  }
+
+  .select-group label {
+    font-size: 7px;
+    letter-spacing: 0.5px;
+  }
+
+  select {
+    padding: 5px 20px 5px 7px;
+    font-size: 11px;
+    min-height: 30px;
+    border-radius: 3px;
+    background-position: right 7px center;
+    background-size: 8px 5px;
+  }
+
+  .route-connector {
+    padding: 0;
+    margin: 0 8px;
+  }
+
+  .route-connector__line {
+    height: 6px;
+  }
+
+  .ada-row {
+    margin: 0 8px 6px;
+    padding: 6px 8px;
+    gap: 8px;
+    border-radius: 4px;
+  }
+
+  .ada-info {
+    gap: 1px;
+  }
+
+  .ada-title {
+    font-size: 9px;
+    gap: 4px;
+  }
+
+  .ada-badge {
+    font-size: 7px;
+    padding: 1px 4px;
+  }
+
+  .ada-subtitle {
+    font-size: 7px;
+    line-height: 1.15;
+  }
+
+  .toggle {
+    width: 30px;
+    height: 17px;
+    border-radius: 9px;
+  }
+
+  .toggle__thumb {
+    width: 11px;
+    height: 11px;
+    top: 3px;
+    left: 3px;
+  }
+
+  .toggle--active .toggle__thumb {
+    left: 16px;
+  }
+
+  .nav-btn-wrap {
+    padding: 0 8px 6px;
+  }
+
+  .nav-btn {
+    padding: 7px 10px;
+    font-size: 10px;
+    gap: 6px;
+    min-height: 32px;
+    border-radius: 4px;
+    letter-spacing: 0.7px;
+  }
+
+  .nav-btn svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .u-divider {
+    margin: 6px 8px;
+  }
+
+  .building-marker__label {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .building-marker__dot {
+    width: 7px;
+    height: 7px;
+  }
+}
+
+@media (min-width: 401px) and (max-width: 768px) {
+  .route-card {
+    padding: 8px;
+    margin-bottom: 3px;
+    border-radius: 4px;
+  }
+
+  .route-card__label {
+    gap: 3px;
+    font-size: 8px;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+  }
+
+  .route-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .select-row {
+    gap: 6px;
+  }
+
+  .select-group {
+    gap: 2px;
+  }
+
+  .select-group label {
+    font-size: 7px;
+    letter-spacing: 0.6px;
+  }
+
+  select {
+    padding: 6px 22px 6px 8px;
+    font-size: 12px;
+    min-height: 32px;
+    border-radius: 3px;
+    background-position: right 7px center;
+    background-size: 8px 5px;
+  }
+
+  .route-connector {
+    padding: 0;
+    margin: 0 8px;
+  }
+
+  .route-connector__line {
+    height: 7px;
+  }
+
+  .ada-row {
+    margin: 0 8px 6px;
+    padding: 6px 8px;
+    gap: 8px;
+    border-radius: 4px;
+  }
+
+  .ada-info {
+    gap: 1px;
+  }
+
+  .ada-title {
+    font-size: 10px;
+    gap: 4px;
+  }
+
+  .ada-badge {
+    font-size: 7px;
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+
+  .ada-subtitle {
+    font-size: 7px;
+    line-height: 1.2;
+  }
+
+  .toggle {
+    width: 32px;
+    height: 18px;
+    border-radius: 9px;
+  }
+
+  .toggle__thumb {
+    width: 12px;
+    height: 12px;
+    top: 3px;
+    left: 3px;
+  }
+
+  .toggle--active .toggle__thumb {
+    left: 17px;
+  }
+
+  .nav-btn-wrap {
+    padding: 0 8px 6px;
+  }
+
+  .nav-btn {
+    padding: 7px 10px;
+    font-size: 10px;
+    gap: 6px;
+    min-height: 34px;
+    border-radius: 4px;
+    letter-spacing: 0.8px;
+  }
+
+  .nav-btn svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .u-divider {
+    margin: 6px 8px;
+  }
+
+  .building-marker__label {
+    font-size: 10px;
+    padding: 2px 7px;
+  }
+
+  .building-marker__dot {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 3000px) {
+  .route-card {
+    padding: 10px;
+    margin-bottom: 6px;
+  }
+
+  .route-card__label {
+    font-size: 9px;
+    margin-bottom: 6px;
+  }
+
+  select {
+    font-size: 13px;
+    min-height: 36px;
+  }
+
+  .nav-btn {
+    font-size: 11px;
+    min-height: 38px;
+  }
+}

@@ -133,6 +133,11 @@
 
       <div class="u-divider" role="separator"></div>
 
+
+    <button class="planner-toggle-btn" id="plannerToggleBtn" aria-expanded="true" hidden>
+      Edit Route
+    </button>
+    
       <!-- Route Summary -->
       <div class="route-summary" id="routeSummary" role="region" aria-label="Route instructions" aria-live="polite">
         <div class="route-summary__header">
@@ -161,7 +166,11 @@
       </div>
 
       <!-- Map legend -->
-      <div class="map-legend" aria-label="Map legend" role="complementary">
+      <button class="legend-toggle" id="legendToggle" aria-expanded="false">
+        Legend
+      </button>
+
+      <div class="map-legend map-legend--collapsed" id="mapLegend" aria-label="Map legend" role="complementary">
         <div class="map-legend__title">Legend</div>
         <div class="legend-item">
           <div class="legend-line legend-line--floor" aria-hidden="true"></div>
