@@ -525,7 +525,7 @@ select option {
 
 /* Collapses the routing instructions for phones */
 @media (max-width: 768px) {
-  .route-summary {
+  .route-summary.route-summary--visible {
     max-height: 210px;
     display: flex;
     flex-direction: column;
@@ -545,7 +545,7 @@ select option {
 
 /* Collapses for larger devices  */
 @media (min-width: 769px) and (max-width: 3000px) {
-  .route-summary {
+  .route-summary.route-summary--visible {
     max-height: 500px;
     display: flex;
     flex-direction: column;
