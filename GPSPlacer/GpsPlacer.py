@@ -6,7 +6,12 @@ import tkintermapview
 import math
 from PIL import Image, ImageTk
 
-#TODO: - edited ada values not saving to json or between selections
+#TODO: - Option to start at a set node id number
+#TODO: - Option to start at a set egde id number
+
+#TODO: - Add a manual make edge button.
+# flow is click button > click node > type in node id to connect to
+
 
 
 # =========================
