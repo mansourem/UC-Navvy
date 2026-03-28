@@ -46,8 +46,43 @@ async function _onNavigate(req) {
     await planRoute(req);
     // Highlight both buildings on the map
     highlightBuilding(null);
+    collapsePlannerOnMobile();
   } catch (err) {
     // Error is already surfaced via navvy:route:error event → toast
     console.error('[Navvy] Route planning failed:', err);
   }
 }
+
+const legendToggle = document.getElementById('legendToggle');
+const mapLegend = document.getElementById('mapLegend');
+
+legendToggle.addEventListener('click', () => {
+  const isCollapsed = mapLegend.classList.contains('map-legend--collapsed');
+
+  if (isCollapsed) {
+    mapLegend.classList.remove('map-legend--collapsed');
+    legendToggle.setAttribute('aria-expanded', 'true');
+  } else {
+    mapLegend.classList.add('map-legend--collapsed');
+    legendToggle.setAttribute('aria-expanded', 'false');
+  }
+});
+
+const sidebar = document.querySelector('.sidebar');
+const navigateBtn = document.getElementById('navigateBtn');
+const plannerToggleBtn = document.getElementById('plannerToggleBtn');
+
+function collapsePlannerOnMobile() {
+  if (window.innerWidth <= 900) {
+    sidebar.classList.add('sidebar--collapsed');
+    plannerToggleBtn.hidden = false;
+    plannerToggleBtn.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function expandPlanner() {
+  sidebar.classList.remove('sidebar--collapsed');
+  plannerToggleBtn.setAttribute('aria-expanded', 'true');
+}
+
+plannerToggleBtn.addEventListener('click', expandPlanner);

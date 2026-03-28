@@ -497,15 +497,6 @@ export const BUILDINGS = {
     accessibleEntranceNodes: [],
     apiKey: 'tuc',
   },
-  tuc: {
-    name: 'Tangeman University Center',
-    center: [-84.5173820428954, 39.13178769533238],
-    floors: [1, 2, 3, 4, 5],
-    elevatorNodes: [],
-    entranceNodes: [],
-    accessibleEntranceNodes: [],
-    apiKey: 'tuc',
-  },
   turner: {
     name: 'Darwin Turner Hall',
     center: [-84.51158195616489, 39.13253556660143],
