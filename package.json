@@ -1,0 +1,10 @@
+{
+  "name": "uc-navvy",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "browser-sync start --server --files 'index.html, css/**/*.css, js/**/*.js' --no-notify"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.3"
+  }
+}

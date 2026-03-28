@@ -84,6 +84,12 @@ export const FEATURES = {
    * Not user-accessible; toggle here only.
    */
   FLOORPLAN_DISPLAY: false,
+
+  /**
+   * Render building footprint polygons on the map.
+   * Disable to show only markers (dots + labels) with no polygon overlays.
+   */
+  BUILDING_POLYGONS: false,
 };
 
 // ─── BUILDING REGISTRY ────────────────────────────────────────────────────────
@@ -99,7 +105,7 @@ export const FEATURES = {
  * @property {[number,number][]|null} [polygon]      - Building footprint as [[lat,lng],...] coordinate ring.
  *         Use [lat, lng] pairs (Leaflet order). Omitting falls back to a generated placeholder box.
  */
-// TODO: Replace with actual surveyed footprint coordinates for each building.
+// TODO: Replace with building polygons
 
 
 /** @type {Object.<string, Building>} */

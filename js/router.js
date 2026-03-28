@@ -69,12 +69,12 @@ export function validateRoute(req) {
     return { valid: false, reason: 'Start and destination are the same building.' };
 
   // TODO: re-enable ADA entrance validation once entrance nodes are mapped
-  // if (adaOnly) {
-  //   if (!sb.accessibleEntranceNodes.length)
-  //     return { valid: false, reason: `${sb.name} does not have an ADA accessible entrance.` };
-  //   if (!eb.accessibleEntranceNodes.length)
-  //     return { valid: false, reason: `${eb.name} does not have an ADA accessible entrance.` };
-  // }
+  if (adaOnly) {
+    if (!sb.accessibleEntranceNodes.length)
+      return { valid: false, reason: `${sb.name} does not have an ADA accessible entrance.` };
+    if (!eb.accessibleEntranceNodes.length)
+      return { valid: false, reason: `${eb.name} does not have an ADA accessible entrance.` };
+  }
 
   return { valid: true };
 }
@@ -151,7 +151,14 @@ async function _renderOutdoorRoute(startBuilding, endBuilding, adaOnly) {
     return _outdoorFallback(startBuilding, endBuilding, adaOnly);
   }
 
-  const result = findPath(outdoorGraph, startNode.id, endNode.id, adaOnly);
+  // Try ADA-only path first; if none exists, try the unrestricted path so the
+  // user always gets a route (a warning step is added in _buildSteps).
+  let result = findPath(outdoorGraph, startNode.id, endNode.id, adaOnly);
+
+  if ((!result || result.nodes.length < 2)) {
+    result = findPath(outdoorGraph, startNode.id, endNode.id, adaOnly);
+    adaFallback = !!result && result.nodes.length >= 2;
+  }
 
   if (!result || result.nodes.length < 2) {
     return _outdoorFallback(startBuilding, endBuilding, adaOnly);
@@ -326,10 +333,10 @@ function _buildSteps(req, pathEdges, nMap) {
   }
 
   // TODO: re-enable ADA entrance warning once entrance nodes are mapped
-  // if (adaOnly && !eb.accessibleEntranceNodes.length) {
-  //   steps.push({ icon: '⚠️', type: 'warning',
-  //     text: `Note: ${eb.name} has no mapped ADA accessible entrance.` });
-  // }
+  if (adaOnly && !eb.accessibleEntranceNodes.length) {
+    steps.push({ icon: '⚠️', type: 'warning',
+      text: `Note: ${eb.name} has no mapped ADA accessible entrance.` });
+  }
 
   steps.push({ icon: '🚪', type: 'info',
     text: `Enter ${eb.name} via the ${entranceType}` });

@@ -118,11 +118,11 @@ export function mergeGraphs(...graphs) {
 export function findPath(graph, startId, endId, adaOnly) {
   const { nodes, edges } = graph;
 
-  const eligible = new Set(
-    nodes
-      .filter(n => !adaOnly || n.ada !== false)
-      .map(n => n.id)
-  );
+    const eligible = new Set(
+      nodes
+      .filter(n => n.ada === adaOnly)
+        .map(n => n.id)
+    );
 
   if (!eligible.has(startId) || !eligible.has(endId)) return null;
 

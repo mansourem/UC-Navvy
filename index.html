@@ -30,8 +30,17 @@
     </div>
 
     <span class="header__meta" aria-hidden="true">
-      University of Cincinnati — Campus Navigation
+      University of Cincinnati - Campus Navigation
     </span>
+
+    <div class="switch-container">
+      <label for="switch" class="switch">
+        <input id="switch" type="checkbox" />
+        <span class="slider"></span>
+        <span class="decoration"></span>
+      </label>
+    </div>
+
 
     <div class="header__status" title="System online" aria-label="Navigation system online">
       <span class="header__status-dot"></span>
@@ -50,7 +59,7 @@
       <!-- Route Planner -->
       <div class="sidebar__section">
         <div class="section-label" aria-hidden="true">Route Planner</div>
-
+<!-- TODO: make selector better, allow for search -->
         <!-- START -->
         <div class="route-card" role="group" aria-labelledby="startCardLabel">
           <div class="route-card__label" id="startCardLabel">
@@ -138,6 +147,7 @@
       Edit Route
     </button>
     
+      <!-- TODO: Make instructions scrollable -->
       <!-- Route Summary -->
       <div class="route-summary" id="routeSummary" role="region" aria-label="Route instructions" aria-live="polite">
         <div class="route-summary__header">
@@ -172,10 +182,10 @@
 
       <div class="map-legend map-legend--collapsed" id="mapLegend" aria-label="Map legend" role="complementary">
         <div class="map-legend__title">Legend</div>
-        <div class="legend-item">
+        <!-- <div class="legend-item">
           <div class="legend-line legend-line--floor" aria-hidden="true"></div>
           Floor Plan
-        </div>
+        </div> -->
         <div class="legend-item">
           <div class="legend-line legend-line--start" aria-hidden="true"></div>
           Start Point

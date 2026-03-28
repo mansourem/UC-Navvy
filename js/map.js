@@ -6,7 +6,7 @@
 
 'use strict';
 
-import { MAP_CONFIG, BUILDINGS, STYLES } from './config.js';
+import { MAP_CONFIG, BUILDINGS, STYLES, FEATURES } from './config.js';
 
 // ─── INTERNAL STATE ───────────────────────────────────────────────────────────
 
@@ -44,13 +44,11 @@ export function initMap(containerId, onBuildingClick) {
     maxZoom: MAP_CONFIG.maxZoom,
   }).addTo(_map);
 
-
-
   // Zoom control placement
   L.control.zoom({ position: 'topright' }).addTo(_map);
 
   // Polygons rendered first so markers sit on top
-  _addBuildingPolygons();
+  if (FEATURES.BUILDING_POLYGONS) _addBuildingPolygons();
   _addBuildingMarkers();
 
   return _map;
@@ -108,7 +106,7 @@ export function highlightBuilding(selectedKey) {
 }
 
 // ─── PRIVATE HELPERS ─────────────────────────────────────────────────────────
-
+// TODO: edit polygon display so we dont have to copy past the polygons into the building config info
 function _addBuildingPolygons() {
   Object.entries(BUILDINGS).forEach(([key, bldg]) => {
     const coords = bldg.polygon ?? _placeholderPolygon(bldg.center);
