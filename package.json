@@ -1,10 +1,29 @@
 {
   "name": "uc-navvy",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "browser-sync start --server --files 'index.html, css/**/*.css, js/**/*.js' --no-notify"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "web": "npm run build && npx vite preview",
+    "android": "npm run build && npx cap sync android && npx cap open android",
+    "ios": "npm run build && npx cap sync ios && npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
+    "@capacitor/ios": "^8.3.0",
+    "maplibre-gl": "^4.7.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "browser-sync": "^3.0.3"
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
   }
 }

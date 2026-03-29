@@ -1,69 +1,105 @@
 # UC Navvy — Campus Navigation System
 
-A production-grade indoor/outdoor campus navigation system for the University of Cincinnati, built with vanilla HTML, CSS, and JavaScript. Uses Leaflet.js for mapping and pulls live GeoJSON floorplans from the UC Navvy REST API.
+A production-grade indoor/outdoor campus navigation system for the University of Cincinnati, built with React, TypeScript, and Vite. Uses MapLibre GL for mapping and supports both web and native mobile (iOS/Android) via Capacitor.
 
 ---
 
 ## Features
 
-- 🗺️ **Interactive Map** — Leaflet.js with dark CartoDB tiles
-- 🏢 **Multi-building Support** — Extensible building registry
-- 📐 **Floor Plan Rendering** — Live GeoJSON floorplans per floor, per building
-- 🔁 **Route Planning** — Inter- and intra-building routing with turn-by-turn steps
-- ♿ **ADA Accessible Routes** — Toggle to restrict to elevator/ramp paths only
-- 🔍 **Floor Comparison** — Side-by-side floor overlay mode
-- 💾 **Client-side Cache** — Floorplans cached in memory to minimize API calls
-- 📱 **Responsive** — Works on desktop and tablet
-- 🧩 **Modular JS** — Split into focused ES module-style files
+- **Interactive Map** — MapLibre GL with campus tile layers
+- **Multi-building Support** — Extensible building registry
+- **Floor Plan Rendering** — GeoJSON floorplans per floor, per building
+- **Route Planning** — Inter- and intra-building routing with turn-by-turn steps
+- **ADA Accessible Routes** — Toggle to restrict to elevator/ramp paths only
+- **Client-side Cache** — Floorplans cached in memory to minimize API calls
+- **Responsive** — Works on desktop, tablet, and mobile
+- **Native Mobile** — iOS and Android apps via Capacitor
 
 ---
 
 ## Project Structure
 
 ```
-uc-navvy/
-├── index.html          # App shell
-├── README.md
-├── css/
-│   ├── base.css        # Reset, variables, typography
-│   ├── layout.css      # Header, sidebar, map layout
-│   ├── components.css  # Cards, buttons, toggles, tabs
-│   └── map.css         # Leaflet overrides, legend, badges
-├── js/
-│   ├── config.js       # Building registry & API config
-│   ├── map.js          # Map initialization & tile layers
-│   ├── floorplan.js    # GeoJSON fetch, cache, render
-│   ├── router.js       # Route planning & step generation
-│   ├── ui.js           # Sidebar interactions, toasts, panels
-│   └── app.js          # Bootstrap & event binding
-└── data/
-    └── buildings.json  # Static building metadata fallback
+UC-Navvy/
+├── src/                    # Shared source (React + TypeScript)
+│   ├── main.tsx            # App entry point
+│   ├── App.tsx             # Root component
+│   ├── router.ts           # Route planning logic
+│   ├── graph.ts            # Graph traversal / pathfinding
+│   ├── config.ts           # Building registry & app config
+│   ├── components/
+│   │   ├── NavvyMap.tsx    # MapLibre GL map component
+│   │   └── Sidebar.tsx     # Route planner sidebar
+│   ├── css/
+│   │   ├── base.css        # Reset, variables, typography
+│   │   ├── layout.css      # Header, sidebar, map layout
+│   │   ├── components.css  # Cards, buttons, toggles
+│   │   └── map.css         # MapLibre overrides, legend, badges
+│   ├── data/
+│   │   └── graphs/         # GeoJSON graph files per building
+│   └── js/                 # Legacy JS utilities
+├── web/
+│   └── index.html          # Web entry point
+├── mobile/
+│   ├── android/            # Android native project
+│   └── ios/                # iOS native project
+├── capacitor.config.ts     # Capacitor configuration
+├── vite.config.ts          # Vite build configuration
+├── tsconfig.json
+└── package.json
 ```
 
 ---
 
-## API
+## Tech Stack
 
-Floorplans are served from:
+| Layer | Technology |
+|-------|-----------|
+| UI | React 18 + TypeScript |
+| Build | Vite |
+| Maps | MapLibre GL |
+| Mobile | Capacitor (iOS / Android) |
 
-```
-GET https://uc-navvy-api.onrender.com/api/floorplan/{building}/{floor}
+---
+
+## Running Locally
+
+```bash
+npm install
+npm run dev       # starts Vite dev server
 ```
 
-**Example:**
-```
-GET https://uc-navvy-api.onrender.com/api/floorplan/baldwin/4
+Then open `http://localhost:5173`.
+
+---
+
+## Building
+
+```bash
+npm run build     # TypeScript compile + Vite build → dist/
+npm run preview   # Preview the production build locally
 ```
 
-Returns a GeoJSON `FeatureCollection` with `LineString` and `Polygon` features representing architectural elements.
+---
+
+## Mobile
+
+Needs to be built first
+
+```bash
+npm run android   # Build and open in Android Studio
+npm run ios       # Build and open in Xcode
+```
+
+Requires Android Studio (Android) or Xcode (iOS) to be installed.
 
 ---
 
 ## Adding a Building
 
-1. Add an entry to `js/config.js` → `BUILDINGS`:
+1. Add an entry to [src/config.ts](src/config.ts):
 
-```js
+```ts
 your_building_key: {
   name: 'Your Building Name',
   coords: [-84.5XXX, 39.1XXX],   // [lng, lat]
@@ -72,26 +108,10 @@ your_building_key: {
   hasElevator: true,
   entranceFloor: 1,
   accessibleEntrance: true,
-  apiKey: 'your_building_key',   // matches API route param
 }
 ```
 
-2. Upload GeoJSON files to the API under the same key.
-
----
-
-## Running Locally
-
-No build step required — pure HTML/CSS/JS.
-
-```bash
-# Any static server works:
-npx serve .
-# or
-python3 -m http.server 8080
-```
-
-Then open `http://localhost:8080`.
+2. Add a GeoJSON graph file to [src/data/graphs/](src/data/graphs/).
 
 ---
 
