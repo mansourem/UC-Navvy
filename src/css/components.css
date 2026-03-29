@@ -28,11 +28,11 @@
   border-radius: var(--radius-md);
   padding: var(--space-md);
   margin-bottom: var(--space-sm);
-  transition: border-color var(--transition-base);
+  transition: border-color var(--transition-base), background var(--transition-base);
 }
 
 .route-card:hover {
-  border-color: var(--border-lit);
+  border-color: var(--border-dim);
 }
 
 .route-card__label {
@@ -97,7 +97,7 @@ select {
   border-radius: var(--radius-sm);
   width: 100%;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   cursor: pointer;
@@ -212,7 +212,8 @@ select option {
 
 .nav-btn {
   width: 100%;
-  background: var(--uc-red);
+  background: linear-gradient(160deg, var(--uc-red-glow) 0%, var(--uc-red) 55%, var(--uc-red-dim) 100%);
+  box-shadow: 0 2px 14px rgba(184,1,28,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
   color: white;
   border: none;
   padding: 13px var(--space-md);
@@ -230,8 +231,8 @@ select option {
 }
 
 .nav-btn:hover:not(:disabled) {
-  background: var(--uc-red-dim);
-  box-shadow: 0 0 20px var(--uc-red-glow);
+  background: linear-gradient(160deg, var(--uc-red) 0%, var(--uc-red-dim) 100%);
+  box-shadow: 0 0 28px rgba(224,1,34,0.5), 0 2px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
 .nav-btn:active:not(:disabled) {
@@ -317,7 +318,7 @@ select option {
 
 .route-summary__header {
   padding: 10px var(--space-md);
-  background: var(--bg-hover);
+  /* background: linear-gradient(to right, rgba(240,179,72,0.06), transparent); */
   border-bottom: 1px solid var(--border-dim);
   display: flex;
   align-items: center;
@@ -443,12 +444,12 @@ select option {
 }
 
 .building-marker__dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 0%;
   background: var(--uc-red);
   box-shadow: 0 0 8px var(--uc-red-glow);
-  flex-shrink: 0;
+  flex-shrink: 1;
   transition: box-shadow var(--transition-base);
 }
 
@@ -486,6 +487,29 @@ select option {
   .nav-btn:hover {
     box-shadow: none;
   }
+}
+
+/* ── Light Mode Overrides ────────────────────────────────────── */
+
+[data-theme="light"] .toast {
+  background: #ffffff;
+}
+
+[data-theme="light"] .toast--error {
+  background: #fff0f2;
+}
+
+[data-theme="light"] .toast--success {
+  background: #f0fff4;
+}
+
+[data-theme="light"] .nav-btn:disabled {
+  background: var(--border-lit);
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .route-summary__header {
+  background: linear-gradient(to right, rgba(39,174,96,0.07), transparent);
 }
 
 /* ── Dark Mode Toggle ──────────────────────────────── */

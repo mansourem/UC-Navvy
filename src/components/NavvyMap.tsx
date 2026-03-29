@@ -35,9 +35,10 @@ export interface NavvyMapHandle {
 }
 
 interface NavvyMapProps {
-  routeResult:      RouteResult | null;
-  selectedBuilding: string | null;
-  onBuildingClick:  (key: string) => void;
+  routeResult:     RouteResult | null;
+  start:           string;
+  end:             string;
+  onBuildingClick: (key: string) => void;
 }
 
 // ─── STATIC DATA ─────────────────────────────────────────────────────────────
@@ -45,7 +46,8 @@ interface NavvyMapProps {
 // Base buildings GeoJSON — computed once, never mutated.
 // Highlighting is done via the 'highlighted'/'dimmed' properties which are
 // refreshed by setData() whenever selectedBuilding changes.
-function buildBuildingsGeoJSON(selected: string | null): GeoJSON.FeatureCollection {
+function buildBuildingsGeoJSON(start: string, end: string): GeoJSON.FeatureCollection {
+  const hasSelection = !!(start || end);
   return {
     type: 'FeatureCollection',
     features: Object.entries(BUILDINGS).map(([key, b]) => ({
@@ -54,9 +56,10 @@ function buildBuildingsGeoJSON(selected: string | null): GeoJSON.FeatureCollecti
       geometry:   { type: 'Point' as const, coordinates: b.center },
       properties: {
         key,
-        name:        b.name,
-        highlighted: selected === key,
-        dimmed:      selected !== null && selected !== key,
+        name:    b.name,
+        isStart: start === key,
+        isEnd:   end === key,
+        dimmed:  hasSelection && start !== key && end !== key,
       },
     })),
   };
@@ -67,7 +70,7 @@ const EMPTY_FC: GeoJSON.FeatureCollection = { type: 'FeatureCollection', feature
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 const NavvyMap = forwardRef<NavvyMapHandle, NavvyMapProps>(
-  ({ routeResult, selectedBuilding, onBuildingClick }, ref) => {
+  ({ routeResult, start, end, onBuildingClick }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef       = useRef<maplibregl.Map | null>(null);
     // Keep callback in a ref so map event listeners never hold stale closures
@@ -104,7 +107,7 @@ const NavvyMap = forwardRef<NavvyMapHandle, NavvyMapProps>(
         // ── Buildings source + layers ──────────────────────────────────────
         map.addSource('buildings', {
           type: 'geojson',
-          data: buildBuildingsGeoJSON(null),
+          data: buildBuildingsGeoJSON('', ''),
         });
 
         // Dot — replaces L.divIcon circle
@@ -116,8 +119,9 @@ const NavvyMap = forwardRef<NavvyMapHandle, NavvyMapProps>(
             'circle-radius':       6,
             'circle-color': [
               'case',
-              ['get', 'highlighted'], '#E00122',
-              ['get', 'dimmed'],      '#888888',
+              ['get', 'isStart'], '#00C851',
+              ['get', 'isEnd'],   '#E00122',
+              ['get', 'dimmed'],  '#888888',
               '#4A9EFF',
             ],
             'circle-stroke-width': 1.5,
@@ -133,16 +137,19 @@ const NavvyMap = forwardRef<NavvyMapHandle, NavvyMapProps>(
           source: 'buildings',
           layout: {
             'text-field':     ['get', 'name'],
-            'text-size':      10,
+            'text-size':      ['interpolate', ['linear'], ['zoom'], 14, 10, 17, 13, 19, 17, 21, 22],
             'text-offset':    [0, 1.2],
             'text-anchor':    'top',
             'text-optional':  true,
             'text-max-width': 8,
           },
           paint: {
-            'text-color':       '#333333',
-            'text-halo-color':  '#ffffff',
-            'text-halo-width':  1,
+            'text-color': [
+              'case',
+              ['boolean', ['feature-state', 'labelHover'], false], '#e00122',
+              '#333333',
+            ],
+            'text-halo-width': 0,
             'text-opacity': ['case', ['get', 'dimmed'], 0.3, 1],
           },
         });
@@ -206,6 +213,28 @@ const NavvyMap = forwardRef<NavvyMapHandle, NavvyMapProps>(
           map.getCanvas().style.cursor = '';
         });
 
+        // ── Label hover highlight ──────────────────────────────────────────
+        let hoveredLabelId: string | number | null = null;
+
+        map.on('mouseenter', 'building-labels', e => {
+          const id = e.features?.[0]?.id;
+          if (id == null) return;
+          if (hoveredLabelId !== null) {
+            map.setFeatureState({ source: 'buildings', id: hoveredLabelId }, { labelHover: false });
+          }
+          hoveredLabelId = id;
+          map.setFeatureState({ source: 'buildings', id: hoveredLabelId }, { labelHover: true });
+          map.getCanvas().style.cursor = 'pointer';
+        });
+
+        map.on('mouseleave', 'building-labels', () => {
+          if (hoveredLabelId !== null) {
+            map.setFeatureState({ source: 'buildings', id: hoveredLabelId }, { labelHover: false });
+          }
+          hoveredLabelId = null;
+          map.getCanvas().style.cursor = '';
+        });
+
         mapRef.current = map;
       });
 
@@ -220,7 +249,6 @@ const NavvyMap = forwardRef<NavvyMapHandle, NavvyMapProps>(
 
       const routeSrc     = map.getSource('route')     as maplibregl.GeoJSONSource;
       const endpointsSrc = map.getSource('endpoints') as maplibregl.GeoJSONSource;
-
       if (!routeSrc || !endpointsSrc) return;
 
       if (!routeResult) {
@@ -229,29 +257,32 @@ const NavvyMap = forwardRef<NavvyMapHandle, NavvyMapProps>(
         return;
       }
 
+      // Push geometry first — paint updates are cosmetic and must not block data
+      routeSrc.setData(routeResult.routeGeoJSON);
+      endpointsSrc.setData(routeResult.endpointsGeoJSON);
+
       const isAda = routeResult.isAda;
       const color = isAda ? '#FFB300' : '#4A9EFF';
+      // null removes the dasharray (solid line); [] is invalid and throws in MapLibre
+      const dash  = isAda ? [3, 2] : null;
 
       map.setPaintProperty('route-glow', 'line-color', color);
       map.setPaintProperty('route-line', 'line-color', color);
-      map.setPaintProperty('route-line', 'line-dasharray', isAda ? [3, 2] : []);
-      map.setPaintProperty('route-glow', 'line-dasharray', isAda ? [3, 2] : []);
-
-      routeSrc.setData(routeResult.routeGeoJSON);
-      endpointsSrc.setData(routeResult.endpointsGeoJSON);
+      map.setPaintProperty('route-line', 'line-dasharray', dash);
+      map.setPaintProperty('route-glow', 'line-dasharray', dash);
 
       if (routeResult.bounds) {
         map.fitBounds(routeResult.bounds, { padding: APP.FIT_PADDING });
       }
     }, [routeResult]);
 
-    // ── Update building highlight when selectedBuilding changes ──────────────
+    // ── Update building highlight when start/end changes ─────────────────────
     useEffect(() => {
       const map = mapRef.current;
       if (!map || !map.isStyleLoaded()) return;
       const src = map.getSource('buildings') as maplibregl.GeoJSONSource | undefined;
-      src?.setData(buildBuildingsGeoJSON(selectedBuilding));
-    }, [selectedBuilding]);
+      src?.setData(buildBuildingsGeoJSON(start, end));
+    }, [start, end]);
 
     return <div ref={containerRef} id="map" style={{ width: '100%', height: '100%' }} />;
   },
