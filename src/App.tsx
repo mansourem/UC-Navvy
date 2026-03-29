@@ -3,7 +3,7 @@
  * Renders the header, sidebar, and map; wires all state together.
  */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import NavvyMap, { NavvyMapHandle } from './components/NavvyMap';
 import Sidebar from './components/Sidebar';
 import { BUILDINGS } from './config';
@@ -12,25 +12,44 @@ import { RouteResult } from './router';
 export default function App() {
   const mapRef = useRef<NavvyMapHandle>(null);
 
-  const [startBuilding,     setStartBuilding]     = useState('');
-  const [endBuilding,       setEndBuilding]        = useState('');
-  const [selectedBuilding,  setSelectedBuilding]   = useState<string | null>(null);
-  const [routeResult,       setRouteResult]        = useState<RouteResult | null>(null);
+  const [startBuilding, setStartBuilding] = useState('');
+  const [endBuilding,   setEndBuilding]   = useState('');
+  const [routeResult,   setRouteResult]   = useState<RouteResult | null>(null);
+
+  // ── Theme ─────────────────────────────────────────────────────────────────
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    return localStorage.getItem('theme') !== 'light';
+  });
+
+  useEffect(() => {
+    const theme = darkMode ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [darkMode]);
+
+  // Fit the map so both buildings are visible
+  const fitToBoth = useCallback((startKey: string, endKey: string) => {
+    const a = BUILDINGS[startKey].center;
+    const b = BUILDINGS[endKey].center;
+    mapRef.current?.fitBounds([
+      [Math.min(a[0], b[0]), Math.min(a[1], b[1])],
+      [Math.max(a[0], b[0]), Math.max(a[1], b[1])],
+    ]);
+  }, []);
 
   // Clicking a building marker auto-fills start first, then end
   const handleBuildingClick = useCallback((key: string) => {
     if (!startBuilding) {
       setStartBuilding(key);
-      setSelectedBuilding(key);
       mapRef.current?.flyTo(BUILDINGS[key].center, 18);
     } else {
       setEndBuilding(key);
+      fitToBoth(startBuilding, key);
     }
-  }, [startBuilding]);
+  }, [startBuilding, fitToBoth]);
 
   const handleRouteReady = useCallback((result: RouteResult) => {
     setRouteResult(result);
-    setSelectedBuilding(null);   // reset highlight once route is drawn
     if (result.bounds) {
       mapRef.current?.fitBounds(result.bounds);
     }
@@ -38,13 +57,13 @@ export default function App() {
 
   const handleStartChange = useCallback((key: string) => {
     setStartBuilding(key);
-    setSelectedBuilding(key || null);
     if (key) mapRef.current?.flyTo(BUILDINGS[key].center, 18);
   }, []);
 
   const handleEndChange = useCallback((key: string) => {
     setEndBuilding(key);
-  }, []);
+    if (key && startBuilding) fitToBoth(startBuilding, key);
+  }, [startBuilding, fitToBoth]);
 
   return (
     <div className="app">
@@ -58,6 +77,19 @@ export default function App() {
         <span className="header__meta" aria-hidden="true">
           University of Cincinnati — Campus Navigation
         </span>
+        <label
+          className="switch"
+          aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          <input
+            type="checkbox"
+            checked={!darkMode}
+            onChange={() => setDarkMode(v => !v)}
+          />
+          <span className="slider"></span>
+          <span className="decoration"></span>
+        </label>
         <div className="header__status" title="System online" aria-label="Navigation system online">
           <span className="header__status-dot"></span>
           <span>LIVE</span>
@@ -80,7 +112,8 @@ export default function App() {
           <NavvyMap
             ref={mapRef}
             routeResult={routeResult}
-            selectedBuilding={selectedBuilding}
+            start={startBuilding}
+            end={endBuilding}
             onBuildingClick={handleBuildingClick}
           />
         </main>

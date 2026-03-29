@@ -45,9 +45,16 @@
 }
 
 /* ── MapLibre Canvas ─────────────────────────────────────────── */
-/* Mirror the old Leaflet tile dim */
+
+/* Dark mode: invert the light Voyager tiles to get a dark map */
 .maplibregl-canvas {
-  filter: brightness(1) saturate(0.75);
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) saturate(0.65);
+  transition: filter 0.3s ease;
+}
+
+/* Light mode: natural Voyager map colors */
+[data-theme="light"] .maplibregl-canvas {
+  filter: none;
 }
 
 /* ── Loading Overlay ─────────────────────────────────────────── */
@@ -200,6 +207,33 @@
 
 .map-legend--collapsed {
   display: none;
+}
+
+/* ── Light Mode Overrides ────────────────────────────────────── */
+
+[data-theme="light"] .loading-overlay {
+  background: rgba(255,255,255,0.72);
+}
+
+[data-theme="light"] .floor-badge,
+[data-theme="light"] .map-legend,
+[data-theme="light"] .legend-toggle {
+  background: rgba(255,255,255,0.92);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .map-legend__title,
+[data-theme="light"] .legend-item {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .maplibregl-ctrl-attrib {
+  background: rgba(255,255,255,0.88) !important;
+  color: var(--text-muted) !important;
+}
+
+[data-theme="light"] .maplibregl-ctrl-attrib a {
+  color: var(--text-muted) !important;
 }
 
 @media (min-width: 769px) {
