@@ -6,11 +6,11 @@ import tkintermapview
 import math
 from PIL import Image, ImageTk
 
-#TODO: - Option to start at a set node id number
-#TODO: - Option to start at a set egde id number
+#TODO: - Option to start at a manually set node id number
+#TODO: - Option to start at a manually set egde id number
 
 #TODO: - Add a manual make edge button.
-# flow is click button > click node > type in node id to connect to
+# flow is click "manual add" button > click start node > type in node id to connect to (can be a node which does not exist in the currently loaded graph)
 
 
 
@@ -67,6 +67,8 @@ rotation_center_lng = -84.5165
 # updating UI widgets (e.g., when populating the editor from a node)
 ui_update_suppressed = False
 
+manual_edge_mode = False
+
 # When back button (on my mouse) is pressed, redraw icons
 def on_back_button(event):
     redraw()
@@ -95,6 +97,26 @@ tk.Label(panel, text="Node Editor", font=("Arial", 14)).pack(pady=10)
 
 status_label = tk.Label(panel, text="Mode: Add")
 status_label.pack()
+
+tk.Label(panel, text="Start Node ID").pack()
+start_node_id_var = tk.IntVar(value=1)
+tk.Entry(panel, textvariable=start_node_id_var).pack()
+
+def set_start_node_id():
+    global node_counter
+    node_counter = start_node_id_var.get()
+
+tk.Button(panel, text="Set Node Counter", command=set_start_node_id).pack(pady=2)
+
+tk.Label(panel, text="Start Edge ID").pack()
+start_edge_id_var = tk.IntVar(value=1)
+tk.Entry(panel, textvariable=start_edge_id_var).pack()
+
+def set_start_edge_id():
+    global edge_counter
+    edge_counter = start_edge_id_var.get()
+
+tk.Button(panel, text="Set Edge Counter", command=set_start_edge_id).pack(pady=2)
 
 redraw_btn = tk.Button(panel, text="Redraw", command=lambda: redraw())
 redraw_btn.pack()
@@ -199,6 +221,12 @@ auto_btn.pack(pady=2)
 select_btn = tk.Button(panel, command=lambda: None)
 select_btn.pack(pady=2)
 
+def toggle_manual_edge():
+    global manual_edge_mode
+    manual_edge_mode = True  #not manual_edge_mode
+    status_label.config(text="Mode: Manual Edge" if manual_edge_mode else "Mode: Add")
+
+tk.Button(panel, text="Manual Edge", command=toggle_manual_edge).pack(pady=2)
 
 # =========================
 # ROTATION MATH
@@ -238,8 +266,11 @@ def update_mode_labels():
         status_label.config(text="Mode: Select")
     elif auto_connect:
         status_label.config(text="Mode: Auto Path")
+    elif manual_edge_mode:
+        status_label.config(text="Mode: Manual Edge")
     else:
         status_label.config(text="Mode: Add")
+        
 
 # =========================
 # FIXED: POPULATE EDITOR (CORRECT TYPE LOGIC)
@@ -497,7 +528,7 @@ def distance(a_lat, a_lng, b_lat, b_lng):
     return math.sqrt((a_lat - b_lat)**2 + (a_lng - b_lng)**2)
 
 def select_nearest_node(coords):
-    global selected_node, pending_from, connect_mode
+    global selected_node, pending_from, connect_mode, manual_edge_mode
 
     if not nodes:
         return
@@ -508,6 +539,12 @@ def select_nearest_node(coords):
     closest = min(nodes, key=lambda n: distance(lat, lng, n.lat, n.lng))
 
     if distance(lat, lng, closest.lat, closest.lng) > 0.0005:
+        return
+    
+    if manual_edge_mode:
+        prompt_for_edge_target(closest)
+        manual_edge_mode = False
+        update_mode_labels()
         return
 
     if connect_mode:
@@ -547,6 +584,10 @@ def add_node(coords):
     redraw()
 
 def on_map_click(coords):
+    if manual_edge_mode:
+        select_nearest_node(coords)
+        return
+    
     if select_mode or connect_mode:
         select_nearest_node(coords)
     else:
@@ -714,6 +755,38 @@ def pixel_to_lat_offset(pixels, zoom):
     # convert meters to latitude degrees
     return (pixels * meters_per_pixel) / 110540
 
+def prompt_for_edge_target(start_node):
+    popup = tk.Toplevel(root)
+    popup.title("Enter Target Node ID")
+
+    tk.Label(popup, text=f"From Node {start_node.id} to:").pack()
+
+    target_var = tk.StringVar()
+    tk.Entry(popup, textvariable=target_var).pack()
+
+    def confirm():
+        target_id = target_var.get()
+
+        # Find existing node OR allow non-existent
+        target_node = next((n for n in nodes if n.id == target_id), None)
+
+        if target_node:
+            connect_nodes(start_node, target_node)
+        else:
+            # Create edge to non-existing node (allowed per your TODO)
+            edges.append(Edge(
+                edge_counter,
+                start_node.id,
+                target_id,
+                type="corridor",
+                ada=start_node.ada
+            ))
+            globals()['edge_counter'] += 1
+
+        popup.destroy()
+        redraw()
+
+    tk.Button(popup, text="Create Edge", command=confirm).pack()
 
 # =========================
 # INITIALIZE
