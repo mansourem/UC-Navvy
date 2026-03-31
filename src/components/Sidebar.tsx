@@ -85,13 +85,13 @@ export default function Sidebar({
 
           {/* START card */}
           <div className="route-card" role="group" aria-labelledby="startCardLabel">
-            <div className="route-card__label" id="startCardLabel">
+            <div className="route-card__label" id="startCardLabel" style={{ fontSize: '14px' }}>
               <span className="route-dot route-dot--start" aria-hidden="true"></span>
               Starting Point
             </div>
             <div className="select-row">
               <div className="select-group">
-                <label htmlFor="startBuilding">Building</label>
+                {/* <label htmlFor="startBuilding">Building</label> */}
                 <select
                   id="startBuilding"
                   aria-label="Starting building"
@@ -124,13 +124,13 @@ export default function Sidebar({
 
           {/* END card */}
           <div className="route-card" role="group" aria-labelledby="endCardLabel">
-            <div className="route-card__label" id="endCardLabel">
+            <div className="route-card__label" id="endCardLabel" style={{ fontSize: '14px' }}>
               <span className="route-dot route-dot--end" aria-hidden="true"></span>
               Destination
             </div>
             <div className="select-row">
               <div className="select-group">
-                <label htmlFor="endBuilding">Building</label>
+                {/* <label htmlFor="endBuilding">Building</label> */}
                 <select
                   id="endBuilding"
                   aria-label="Destination building"
@@ -174,7 +174,7 @@ export default function Sidebar({
               <span className="ada-badge" aria-hidden="true">♿ ADA</span>
               Accessible Route Only
             </div>
-            <div className="ada-subtitle">Elevators &amp; ramps — no stairs</div>
+            <div className="ada-subtitle">Elevators &amp; Ramps - no stairs</div>
           </div>
           <div className={`toggle${adaMode ? ' toggle--active' : ''}`} aria-hidden="true">
             <div className="toggle__thumb"></div>

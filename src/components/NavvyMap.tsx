@@ -71,8 +71,10 @@ const EMPTY_FC: GeoJSON.FeatureCollection = { type: 'FeatureCollection', feature
 
 const NavvyMap = forwardRef<NavvyMapHandle, NavvyMapProps>(
   ({ routeResult, start, end, onBuildingClick }, ref) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const mapRef       = useRef<maplibregl.Map | null>(null);
+    const containerRef    = useRef<HTMLDivElement>(null);
+    const mapRef          = useRef<maplibregl.Map | null>(null);
+    const startMarkerRef  = useRef<maplibregl.Marker | null>(null);
+    const endMarkerRef    = useRef<maplibregl.Marker | null>(null);
     // Keep callback in a ref so map event listeners never hold stale closures
     const clickCbRef   = useRef(onBuildingClick);
     useEffect(() => { clickCbRef.current = onBuildingClick; }, [onBuildingClick]);
@@ -184,22 +186,8 @@ const NavvyMap = forwardRef<NavvyMapHandle, NavvyMapProps>(
           },
         }, 'building-dots');
 
-        // ── Endpoints source + layer ───────────────────────────────────────
-        // Replaces L.circleMarker() for start / end markers
-        map.addSource('endpoints', { type: 'geojson', data: EMPTY_FC });
-
-        map.addLayer({
-          id:     'endpoint-circles',
-          type:   'circle',
-          source: 'endpoints',
-          paint: {
-            'circle-radius':       10,
-            'circle-color':        ['match', ['get', 'markerType'], 'start', '#00C851', '#E00122'],
-            'circle-stroke-width': 2,
-            'circle-stroke-color': ['match', ['get', 'markerType'], 'start', '#00ff66', '#ff3344'],
-            'circle-opacity':      0.95,
-          },
-        });
+        // Endpoint markers are HTML-based (maplibregl.Marker) so the CSS
+        // canvas filter (dark-mode invert) does not affect their colors.
 
         // ── Click / cursor for building markers ────────────────────────────
         map.on('click', 'building-dots', e => {
@@ -238,7 +226,12 @@ const NavvyMap = forwardRef<NavvyMapHandle, NavvyMapProps>(
         mapRef.current = map;
       });
 
-      return () => { map.remove(); mapRef.current = null; };
+      return () => {
+        startMarkerRef.current?.remove();
+        endMarkerRef.current?.remove();
+        map.remove();
+        mapRef.current = null;
+      };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -247,19 +240,34 @@ const NavvyMap = forwardRef<NavvyMapHandle, NavvyMapProps>(
       const map = mapRef.current;
       if (!map || !map.isStyleLoaded()) return;
 
-      const routeSrc     = map.getSource('route')     as maplibregl.GeoJSONSource;
-      const endpointsSrc = map.getSource('endpoints') as maplibregl.GeoJSONSource;
-      if (!routeSrc || !endpointsSrc) return;
+      const routeSrc = map.getSource('route') as maplibregl.GeoJSONSource;
+      if (!routeSrc) return;
+
+      // Remove previous HTML markers
+      startMarkerRef.current?.remove();
+      endMarkerRef.current?.remove();
+      startMarkerRef.current = null;
+      endMarkerRef.current   = null;
 
       if (!routeResult) {
         routeSrc.setData(EMPTY_FC);
-        endpointsSrc.setData(EMPTY_FC);
         return;
       }
 
       // Push geometry first — paint updates are cosmetic and must not block data
       routeSrc.setData(routeResult.routeGeoJSON);
-      endpointsSrc.setData(routeResult.endpointsGeoJSON);
+
+      // Place HTML markers (immune to the CSS canvas filter in dark mode)
+      const features = routeResult.endpointsGeoJSON.features;
+      for (const f of features) {
+        const [lng, lat] = (f.geometry as GeoJSON.Point).coordinates;
+        const isStart    = f.properties?.markerType === 'start';
+        const marker     = new maplibregl.Marker({ color: isStart ? '#00C851' : '#E00122' })
+          .setLngLat([lng, lat])
+          .addTo(map);
+        if (isStart) startMarkerRef.current = marker;
+        else         endMarkerRef.current   = marker;
+      }
 
       const isAda = routeResult.isAda;
       const color = isAda ? '#FFB300' : '#4A9EFF';
