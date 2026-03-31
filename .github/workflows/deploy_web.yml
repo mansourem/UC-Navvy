@@ -44,10 +44,12 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: dist
       
       - name: Deploy
         uses: actions/deploy-pages@v4
+        with:
+          folder: web
         id: deployment
 
   # deploy:
