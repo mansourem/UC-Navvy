@@ -77,6 +77,7 @@ export default function App() {
         <span className="header__meta" aria-hidden="true">
           University of Cincinnati — Campus Navigation
         </span>
+        <div align-items="center" style={{ display: 'flex', gap: '1rem' }}>
         <label
           className="switch"
           aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -93,6 +94,7 @@ export default function App() {
         <div className="header__status" title="System online" aria-label="Navigation system online">
           <span className="header__status-dot"></span>
           <span>LIVE</span>
+        </div>
         </div>
       </header>
 

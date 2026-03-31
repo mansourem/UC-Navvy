@@ -40,9 +40,10 @@
   align-items: center;
   gap: var(--space-xs);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 1.5px;
-  color: var(--text-muted);
+  /* FIXME: color of txt different light and dark */
+  color: var(--text-primary);
   text-transform: uppercase;
   margin-bottom: var(--space-sm);
 }
@@ -52,6 +53,7 @@
   height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
+  margin-right: 5px;
 }
 
 .route-dot--start {
@@ -78,7 +80,7 @@
 
 .select-group label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 1px;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -152,7 +154,7 @@ select option {
   align-items: center;
   gap: 7px;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -565,11 +567,11 @@ select option {
   border-radius: 50%;
   right: 20%;
   top: 15%;
-  background: #e5f041e6;
+  background: var(--amber);
   backdrop-filter: blur(10px);
   transition: all 0.5s;
-  box-shadow: -7px 10px 0 #e5f041e6, 8px 15px 0 #e5f041e6, -17px 1px 0 #e5f041e6,
-    -20px 10px 0 #e5f041e6, -7px 23px 0 #e5f041e6, -15px 25px 0 #e5f041e6;
+  box-shadow: -7px 10px 0 var(--amber), 8px 15px 0 var(--amber), -17px 1px 0 var(--amber),
+    -20px 10px 0 var(--amber), -7px 23px 0 var(--amber), -15px 25px 0 var(--amber);
 }
 
 input:checked ~ .decoration {
@@ -582,12 +584,12 @@ input:checked ~ .decoration {
 }
 
 input:checked + .slider {
-  background-color: #5494de;
+  background-color: #cccccc;
 }
 
 input:checked + .slider:before {
   transform: translateX(100%);
-  box-shadow: inset 15px -4px 0px 15px #efdf2b, 0 0 10px 0px #efdf2b;
+  box-shadow: inset 15px -4px 0px 15px var(--amber), 0 0 10px 0px var(--amber-glow);
 }
 
 

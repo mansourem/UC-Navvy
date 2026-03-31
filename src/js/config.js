@@ -156,7 +156,7 @@ export const BUILDINGS = {
     apiKey: 'baldwin',
   },
   blegen: {
-    name: 'Carl Blegen Library',
+    name: 'Blegen Library',
     center: [-84.51934098443131, 39.12958090288538],
     floors: [1],     //FIXME: NOT IN DB
     elevatorNodes: [],
@@ -296,7 +296,7 @@ export const BUILDINGS = {
     apiKey: 'geophys',
   },
   langsam: {
-    name: 'Walter C. Langsam Library',
+    name: 'Langsam Library',
     center: [-84.51570566739038, 39.13418909028243],
     floors: [4, 5, 6],
     elevatorNodes: [],
@@ -314,7 +314,7 @@ export const BUILDINGS = {
     apiKey: 'law',
   },
   lindhall: {
-    name: 'Carl H. Lindner Hall',
+    name: 'Lindner Hall',
     center: [-84.51447679629442, 39.13379067791746],
     floors: [0, 1, 2, 3, 4],
     elevatorNodes: [],
@@ -323,7 +323,7 @@ export const BUILDINGS = {
     apiKey: 'lindhall',
   },
   lndnrctr: {
-    name: 'Richard E. Lindner Center',
+    name: 'Lindner Center',
     center: [-84.51503579504217, 39.1311145018997],
     floors: [1, 2, 3, 4, 5, 6, 7, 8],
     elevatorNodes: [],
@@ -413,7 +413,7 @@ export const BUILDINGS = {
     apiKey: 'reccenter',
   },
   rhodes: {
-    name: 'James A. Rhodes Hall',
+    name: 'Rhodes Hall',
     center: [-84.5162434522422, 39.132945638406966],
     floors: [3, 4, 5, 6, 7, 8, 9],
     elevatorNodes: [],
@@ -422,7 +422,7 @@ export const BUILDINGS = {
     apiKey: 'rhodes',
   },
   rievschl: {
-    name: 'George R. Rieveschl Hall',
+    name: 'Rieveschl Hall',
     center: [-84.51693465876146, 39.1339700017044],
     floors: [4, 5, 6, 7, 8, 9],
     elevatorNodes: [],
@@ -431,7 +431,7 @@ export const BUILDINGS = {
     apiKey: 'rievschl',
   },
   schneidr: {
-    name: 'Herman Schneider Hall',
+    name: 'Schneider Hall',
     center: [-84.51219152169142, 39.13229575815134],
     floors: [1],
     elevatorNodes: [],
@@ -450,7 +450,7 @@ export const BUILDINGS = {
   },    
   
   shoe: {
-    name: 'Myrl H. Shoemaker Multipurpose Center',
+    name: 'Shoemaker Multipurpose Center',
     center: [-84.51406348593618, 39.131213349497244],
     floors: [1, 2, 3],
     elevatorNodes: [],
@@ -504,7 +504,7 @@ export const BUILDINGS = {
     apiKey: 'tuc',
   },
   turner: {
-    name: 'Darwin Turner Hall',
+    name: 'Turner Hall',
     center: [-84.51158195616489, 39.13253556660143],
     floors: [1],
     elevatorNodes: [],
@@ -513,7 +513,7 @@ export const BUILDINGS = {
     apiKey: 'turner',
   },
   univpav: {
-    name: '	University Pavilion',
+    name: 'University Pavilion',
     center: [-84.51856879595664, 39.13099149142258],
     floors: [0, 1, 2, 3, 4, 5, 6],
     elevatorNodes: [],
@@ -540,7 +540,7 @@ export const BUILDINGS = {
     apiKey: '60Wcharles',
   },
   wolfson: {
-    name: 'Erwin S. Wolfson Center for Environmental Design',
+    name: 'Wolfson Center',
     center: [-84.5181774462442, 39.1341524710393],
     floors: [4, 5, 6],
     elevatorNodes: [],

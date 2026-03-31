@@ -84,7 +84,7 @@
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 1.5px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-transform: uppercase;
 }
 
@@ -146,7 +146,7 @@
   align-items: center;
   gap: var(--space-sm);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 14px;
   letter-spacing: 2.5px;
   color: var(--uc-red);
   text-transform: uppercase;

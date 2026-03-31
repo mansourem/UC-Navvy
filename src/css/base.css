@@ -31,11 +31,11 @@
   --text-muted:    #888888;
 
   /* Accents */
-  --green:        #f0b348;
+  --green:        #27ae60;
   --green-glow:   rgba(240,179,72,0.25);
   --amber:        #d1b179;
   --amber-glow:   #eadbc1;
-  --blue:         #7c7184;
+  --blue:         #4a90e2;
   --blue-glow:    #503a59;
 
   /* Typography */
@@ -84,7 +84,7 @@
   --blue:           #4a90e2;
   --blue-glow:      rgba(74,144,226,0.2);
   --green:          #27ae60;
-  --green-glow:     rgba(39,174,96,0.2);
+  --green-glow:     rgba(39,174,96,0.5);
 }
 
 /* ── Reset ──────────────────────────────────────────────────── */
