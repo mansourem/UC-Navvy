@@ -14,4 +14,5 @@ export default defineConfig({
     outDir: '../dist',
     emptyOutDir: true,
   },
+  base: "/UC-Navvy/", // For GitHub Pages; adjust if deploying elsewhere
 });
