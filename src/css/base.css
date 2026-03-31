@@ -9,34 +9,34 @@
 
 :root {
   /* Brand */
-  --uc-red:       #b8011c;
-  --uc-red-dim:   #890519;
-  --uc-red-glow:  #E00122;
+  --uc-red:       #e00122;
+  --uc-red-dim:   #b8011c;
+  --uc-red-glow:  #ff1a35;
 
-  /* Backgrounds */
-  --bg-void:      #5c5c5c;
-  --bg-dark:      #0A0A0A;
-  --bg-panel:     #111111;
-  --bg-card:      #161616;
+  /* Backgrounds — Palette #1 "Modern UC Dark" */
+  --bg-void:      #121212;
+  --bg-dark:      #121212;
+  --bg-panel:     #1c1c1c;
+  --bg-card:      #2a2a2a;
   --bg-hover:     #333333;
 
   /* Borders */
-  --border-dim:   #1e1e1e;
-  --border-base:  #272727;
-  --border-lit:   #3a3a3a;
+  --border-dim:   #232323;
+  --border-base:  #2e2e2e;
+  --border-lit:   #3e3e3e;
 
   /* Text */
-  --text-primary:  #f3f3f3;
-  --text-secondary: #e0dfe3;
-  --text-muted:    #a7a5aa;
+  --text-primary:  #e5e5e5;
+  --text-secondary: #cccccc;
+  --text-muted:    #888888;
 
   /* Accents */
-  --green:        #f0b348;
-  --green-glow:   rgba(0,200,80,0.25);
+  --green:        #27ae60;
+  --green-glow:   rgba(240,179,72,0.25);
   --amber:        #d1b179;
   --amber-glow:   #eadbc1;
-  --blue:         #7C7184;
-  --blue-glow:    #503A59;
+  --blue:         #4a90e2;
+  --blue-glow:    #503a59;
 
   /* Typography */
   --font-sans:    'Syne', sans-serif;
@@ -62,6 +62,29 @@
   /* Sidebar */
   --sidebar-width: 360px;
   --header-height: 56px;
+}
+
+/* ── Light Mode — Palette #2 "Campus Light + Clean" ─────────────── */
+
+[data-theme="light"] {
+  --bg-void:        #f3f3f3;
+  --bg-dark:        #ffffff;
+  --bg-panel:       #ffffff;
+  --bg-card:        #f3f3f3;
+  --bg-hover:       #e8e8e8;
+
+  --border-dim:     #ebebeb;
+  --border-base:    #d8d8d8;
+  --border-lit:     #bbbbbb;
+
+  --text-primary:   #333333;
+  --text-secondary: #555555;
+  --text-muted:     #888888;
+
+  --blue:           #4a90e2;
+  --blue-glow:      rgba(74,144,226,0.2);
+  --green:          #27ae60;
+  --green-glow:     rgba(39,174,96,0.5);
 }
 
 /* ── Reset ──────────────────────────────────────────────────── */
