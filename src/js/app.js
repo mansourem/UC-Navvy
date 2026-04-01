@@ -11,12 +11,21 @@ import { BUILDINGS } from './config.js';
 import { initMap, highlightBuilding } from './map.js';
 import { planRoute } from './router.js';
 import { initUI, showToast, selectBuilding } from './ui.js';
+import { getMap } from './map.js';
 
 // ─── BOOTSTRAP ────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Init map
   const map = initMap('map', _onBuildingMarkerClick);
+
+  setTimeout(() => {
+    getMap()?.resize();
+  }, 100);
+
+  window.addEventListener('resize', () => {
+    getMap()?.resize();
+  });
 
   // 2. Init UI with handlers
   initUI({
@@ -75,6 +84,10 @@ const plannerToggleBtn = document.getElementById('plannerToggleBtn');
 function collapsePlannerOnMobile() {
   if (window.innerWidth <= 900) {
     sidebar.classList.add('sidebar--collapsed');
+    setTimeout(() => {
+    getMap()?.resize();
+    }, 300);
+    
     plannerToggleBtn.hidden = false;
     plannerToggleBtn.setAttribute('aria-expanded', 'false');
   }
