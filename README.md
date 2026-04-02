@@ -87,10 +87,6 @@ npm run preview   # Preview the production build locally
 Needs to be built first
 
 ```bash
-npm install @capacitor/core @capacitor/cli @capacitor/android # If using for
-npm run build                                                 # the first
-npx cap add android                                           # time
-npx cap sync android # Sync chnages after every change to web build 
 
 npm run android   # Build and open in Android Studio
 npm run ios       # Build and open in Xcode
