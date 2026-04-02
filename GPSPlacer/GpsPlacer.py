@@ -1,18 +1,13 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from tkinter import ttk
 import json
 import tkintermapview
 import math
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw
+from tkintermapview.utility_functions import decimal_to_osm
 
-#TODO: - Option to start at a manually set node id number
-#TODO: - Option to start at a manually set egde id number
-
-#TODO: - Add a manual make edge button.
-# flow is click "manual add" button > click start node > type in node id to connect to (can be a node which does not exist in the currently loaded graph)
-
-
+#TODO: - Add Option to export nodes and edges as seperate json files.  Either a new button or change existing functionality.
 
 # =========================
 # DATA MODELS
@@ -193,7 +188,7 @@ ada_cb.pack()
 # ROTATION CONTROLS
 # =========================
 
-tk.Label(panel, text="Rotation", font=("Arial", 12, "bold")).pack(pady=(20,5))
+tk.Label(panel, text="Rotation", font=("Arial", 12, "bold")).pack(pady=(5,5))
 
 rotation_label = tk.Label(panel, text=f"Angle: {rotation_angle:.1f}°")
 rotation_label.pack()
@@ -203,6 +198,7 @@ def rotate_map(angle_delta):
     rotation_angle += angle_delta
     rotation_angle %= 360
     rotation_label.config(text=f"Angle: {rotation_angle:.1f}°")
+    _create_floorplan_shapes()
     redraw()
 
 tk.Button(panel, text="↺ 90°", command=lambda: rotate_map(-90)).pack(pady=1)
@@ -331,7 +327,7 @@ def clear_selection():
 # =========================
 
 def load_json():
-    global nodes, edges, node_counter, edge_counter, selected_node, rotation_angle
+    global nodes, edges, node_counter, edge_counter, selected_node, rotation_angle, rotation_center_lat, rotation_center_lng
 
     path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
     if not path:
@@ -374,22 +370,261 @@ def load_json():
 # MAP CONTROLS
 # =========================
 
-def zoom_in():
-    map_widget.set_zoom(map_widget.zoom + 1)
+floorplan_geojson = None
+floorplan_shapes = []
+floorplan_visible = True
+floorplan_photo = None
 
-def zoom_out():
-    map_widget.set_zoom(map_widget.zoom - 1)
+# Simplification level (higher = more aggressive, fewer points)
+FLOORPLAN_SIMPLIFY_TOLERANCE = 0.00001  # degrees (~1m) - balanced performance/detail
+FLOORPLAN_STRONG_SIMPLIFY_TOLERANCE = 0.00005  # degrees (~5m) - stronger for very long paths
+FLOORPLAN_MAX_PATHS = 1000  # reduced for performance while keeping most walls
+FLOORPLAN_MAX_POINTS_PER_PATH = 100  # reduced for smoother interaction
+
+
+def _rdp_reduce(coords, epsilon):
+    if len(coords) < 3:
+        return coords
+
+    # point format: (lat, lng)
+    start = coords[0]
+    end = coords[-1]
+
+    max_dist = 0.0
+    index = 0
+
+    x1, y1 = start
+    x2, y2 = end
+
+    for i in range(1, len(coords) - 1):
+        x0, y0 = coords[i]
+        # line-point distance (perpendicular)
+        if x1 == x2 and y1 == y2:
+            dist = math.hypot(x0 - x1, y0 - y1)
+        else:
+            num = abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2 * y1 - y2 * x1)
+            den = math.hypot(y2 - y1, x2 - x1)
+            dist = num / den
+
+        if dist > max_dist:
+            max_dist = dist
+            index = i
+
+    if max_dist > epsilon:
+        left = _rdp_reduce(coords[:index + 1], epsilon)
+        right = _rdp_reduce(coords[index:], epsilon)
+        return left[:-1] + right
+    else:
+        return [start, end]
+
+
+def simplify_coords(coords, epsilon=FLOORPLAN_SIMPLIFY_TOLERANCE):
+    if len(coords) < 3:
+        return coords
+    return _rdp_reduce(coords, epsilon)
+
+
+def clear_floorplan():
+    global floorplan_shapes, floorplan_photo
+    for shape in floorplan_shapes:
+        try:
+            map_widget.canvas.delete(shape)
+        except Exception:
+            pass
+    floorplan_shapes = []
+    floorplan_photo = None
+
+
+def load_floorplan():
+    global floorplan_geojson
+    path = filedialog.askopenfilename(filetypes=[("GeoJSON files", "*.geojson;*.json")])
+    if not path:
+        return
+
+    with open(path, "r") as f:
+        data = json.load(f)
+
+    if not isinstance(data, dict) or "features" not in data:
+        messagebox.showerror("Load Floorplan", "Selected file is not valid GeoJSON.")
+        return
+
+    floorplan_geojson = data
+    center = _create_floorplan_shapes()
+    if center:
+        map_widget.set_position(*center)
+        _create_floorplan_shapes()  # Recreate at new position
+    redraw()
+
+
+def _create_floorplan_shapes():
+    global floorplan_shapes, floorplan_photo
+    clear_floorplan()
+    if not floorplan_geojson or not floorplan_visible:
+        return
+
+    raw_paths = []
+
+    def append_path(raw_path):
+        if len(raw_path) < 2:
+            return
+        raw_paths.append(raw_path)
+
+    for feature in floorplan_geojson.get("features", []):
+        geom = feature.get("geometry")
+        if not geom:
+            continue
+        gtype = geom.get("type")
+        coords = geom.get("coordinates")
+
+        if gtype == "LineString":
+            p = [(lat, lng) for lng, lat in (c[:2] for c in coords)]
+            append_path(p)
+        elif gtype == "MultiLineString":
+            for line in coords:
+                p = [(lat, lng) for lng, lat in (c[:2] for c in line)]
+                append_path(p)
+        elif gtype == "Polygon":
+            for ring in coords:
+                p = [(lat, lng) for lng, lat in (c[:2] for c in ring)]
+                if p and p[0] != p[-1]:
+                    p.append(p[0])
+                append_path(p)
+        elif gtype == "MultiPolygon":
+            for poly in coords:
+                for ring in poly:
+                    p = [(lat, lng) for lng, lat in (c[:2] for c in ring)]
+                    if p and p[0] != p[-1]:
+                        p.append(p[0])
+                    append_path(p)
+        else:
+            continue
+
+    if not raw_paths:
+        return None
+
+    # Calculate bounds
+    all_points = [pt for p in raw_paths for pt in p]
+    lats = [pt[0] for pt in all_points]
+    lngs = [pt[1] for pt in all_points]
+    min_lat, max_lat = min(lats), max(lats)
+    min_lng, max_lng = min(lngs), max(lngs)
+
+    # Use current zoom for tile calculations
+    tile_zoom = round(map_widget.zoom)
+
+    # Get canvas positions
+    try:
+        tile_position_min = decimal_to_osm(min_lat, min_lng, tile_zoom)
+        tile_position_max = decimal_to_osm(max_lat, max_lng, tile_zoom)
+    except Exception as e:
+        return None
+    
+    widget_tile_width = map_widget.lower_right_tile_pos[0] - map_widget.upper_left_tile_pos[0]
+    widget_tile_height = map_widget.lower_right_tile_pos[1] - map_widget.upper_left_tile_pos[1]
+    
+    if widget_tile_width <= 0 or widget_tile_height <= 0:
+        return None
+    
+    canvas_min_x = ((tile_position_min[0] - map_widget.upper_left_tile_pos[0]) / widget_tile_width) * map_widget.width
+    canvas_min_y = ((tile_position_min[1] - map_widget.upper_left_tile_pos[1]) / widget_tile_height) * map_widget.height
+    canvas_max_x = ((tile_position_max[0] - map_widget.upper_left_tile_pos[0]) / widget_tile_width) * map_widget.width
+    canvas_max_y = ((tile_position_max[1] - map_widget.upper_left_tile_pos[1]) / widget_tile_height) * map_widget.height
+
+    canvas_left = min(canvas_min_x, canvas_max_x)
+    canvas_right = max(canvas_min_x, canvas_max_x)
+    canvas_top = min(canvas_min_y, canvas_max_y)
+    canvas_bottom = max(canvas_min_y, canvas_max_y)
+
+    # Image size based on canvas bounds
+    image_width = int(canvas_right - canvas_left)
+    image_height = int(canvas_bottom - canvas_top)
+
+    if image_width <= 0 or image_height <= 0:
+        return None
+
+    # Create image with scaled size
+    image = Image.new('RGBA', (image_width, image_height), (0,0,0,0))
+    draw = ImageDraw.Draw(image)
+
+    # Draw paths using current zoom level
+    for path in raw_paths:
+        if len(path) < 2:
+            continue
+        # Convert to image coordinates
+        image_points = []
+        for lat, lng in path:
+            tile_position = decimal_to_osm(lat, lng, tile_zoom)
+            cx = ((tile_position[0] - map_widget.upper_left_tile_pos[0]) / widget_tile_width) * map_widget.width
+            cy = ((tile_position[1] - map_widget.upper_left_tile_pos[1]) / widget_tile_height) * map_widget.height
+            ix = cx - canvas_left
+            iy = cy - canvas_top
+            image_points.extend([ix, iy])
+        if len(image_points) >= 4:
+            draw.line(image_points, fill='blue', width=1)
+
+    # Create photo
+    photo = ImageTk.PhotoImage(image)
+
+    # Calculate center
+    center_lat = (min_lat + max_lat) / 2
+    center_lng = (min_lng + max_lng) / 2
+
+    # Get canvas position of center using current zoom
+    tile_position_center = decimal_to_osm(center_lat, center_lng, tile_zoom)
+    canvas_center_x = ((tile_position_center[0] - map_widget.upper_left_tile_pos[0]) / widget_tile_width) * map_widget.width
+    canvas_center_y = ((tile_position_center[1] - map_widget.upper_left_tile_pos[1]) / widget_tile_height) * map_widget.height
+
+    # Place image centered on center
+    place_x = canvas_center_x - image_width / 2
+    place_y = canvas_center_y - image_height / 2
+
+    # Add to canvas
+    floorplan_image_id = map_widget.canvas.create_image(place_x, place_y, image=photo, anchor='nw')
+    floorplan_shapes = [floorplan_image_id]
+
+    # Store photo to prevent garbage collection
+    floorplan_photo = photo
+
+    # Ensure proper z-order
+    map_widget.manage_z_order()
+
+    return ((min_lat + max_lat) / 2, (min_lng + max_lng) / 2)
+
+# Zoom button control functions removed as unneeded
+# def zoom_in():
+#     new_zoom = map_widget.zoom + 2
+#     map_widget.set_zoom(new_zoom)
+#     _create_floorplan_shapes()
+
+# def zoom_out():
+#     new_zoom = max(map_widget.zoom - 2, 0)
+#     map_widget.set_zoom(new_zoom)
+#     _create_floorplan_shapes()
 
 def move(dx, dy):
     global rotation_center_lat, rotation_center_lng
     rotation_center_lat += dx
     rotation_center_lng += dy
+    _create_floorplan_shapes()
+    redraw()
+
+
+def toggle_floorplan_visibility():
+    global floorplan_visible
+    floorplan_visible = not floorplan_visible
+    if not floorplan_visible:
+        clear_floorplan()
+    else:
+        _create_floorplan_shapes()
     redraw()
 
 # Assign commands
 tk.Button(panel, text="Load JSON", command=load_json).pack(pady=2)
-tk.Button(panel, text="Zoom +", command=zoom_in).pack()
-tk.Button(panel, text="Zoom -", command=zoom_out).pack()
+tk.Button(panel, text="Load Floorplan", command=load_floorplan).pack(pady=2)
+tk.Button(panel, text="Toggle Floorplan", command=toggle_floorplan_visibility).pack(pady=2)
+# Zoom Buttons disabled.  Map provides enough control without additional buttons
+#tk.Button(panel, text="Zoom +", command=zoom_in).pack()
+#tk.Button(panel, text="Zoom -", command=zoom_out).pack()
 
 # =========================
 # NODE CREATION WITH PERSISTENT SETTINGS
@@ -748,6 +983,8 @@ def redraw():
             #marker_color_circle="#2ef24d" if n == selected_node else "white"
         ))
 
+    _create_floorplan_shapes()
+
 def pixel_to_lat_offset(pixels, zoom):
     # meters per pixel (approx)
     meters_per_pixel = 156543.03392 * math.cos(math.radians(map_widget.get_position()[0])) / (2 ** zoom)
@@ -789,11 +1026,37 @@ def prompt_for_edge_target(start_node):
     tk.Button(popup, text="Create Edge", command=confirm).pack()
 
 # =========================
+# MAP STATE TRACKING
+# =========================
+
+last_map_position = None
+last_map_zoom = None
+
+def check_map_changed():
+    """Periodically check if map position/zoom changed and redraw floorplan"""
+    global last_map_position, last_map_zoom
+    
+    current_position = map_widget.get_position()
+    current_zoom = map_widget.zoom
+    
+    # Redraw if position or zoom changed
+    if (last_map_position != current_position or last_map_zoom != current_zoom):
+        last_map_position = current_position
+        last_map_zoom = current_zoom
+        _create_floorplan_shapes()
+    
+    # Check again in 500ms
+    root.after(500, check_map_changed)
+
+# =========================
 # INITIALIZE
 # =========================
 
 update_mode_labels()
 redraw()
+
+# Start monitoring map changes
+check_map_changed()
 
 # =========================
 # RUN
