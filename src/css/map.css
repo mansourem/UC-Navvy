@@ -191,7 +191,7 @@
 
 .legend-toggle {
   position: absolute;
-  bottom: 30px;
+  bottom: 40px;
   right: 5px;
   z-index: 1100;
   background: rgba(5,5,5,0.88);
