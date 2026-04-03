@@ -228,10 +228,18 @@ def rotate_map(angle_delta):
     _create_floorplan_shapes()
     redraw()
 
-tk.Button(inner_frame, text="↺ 90°", command=lambda: rotate_map(-90)).pack(pady=1)
-tk.Button(inner_frame, text="↻ 90°", command=lambda: rotate_map(90)).pack(pady=1)
-tk.Button(inner_frame, text="↺ 10°", command=lambda: rotate_map(-10)).pack(pady=1)
-tk.Button(inner_frame, text="↻ 10°", command=lambda: rotate_map(10)).pack(pady=1)
+# 90 degree frame
+frame90 = tk.Frame(inner_frame)
+frame90.pack(pady=1)
+tk.Button(frame90, text="↻ 90°", command=lambda: rotate_map(-90)).pack(side=tk.LEFT)
+tk.Button(frame90, text="↺ 90°", command=lambda: rotate_map(90)).pack(side=tk.LEFT)
+
+# 10 degree frame
+frame10 = tk.Frame(inner_frame)
+frame10.pack(pady=1)
+tk.Button(frame10, text="↻ 10°", command=lambda: rotate_map(-10)).pack(side=tk.LEFT)
+tk.Button(frame10, text="↺ 10°", command=lambda: rotate_map(10)).pack(side=tk.LEFT)
+
 tk.Button(inner_frame, text="Reset", command=lambda: rotate_map(-rotation_angle)).pack(pady=(5,10))
 
 # Mode buttons
