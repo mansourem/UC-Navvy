@@ -86,35 +86,61 @@ map_widget.pack(side="left", fill="both", expand=True)
 map_widget.set_position(39.1338, -84.5165)
 map_widget.set_zoom(16)
 
-panel = tk.Frame(main_frame, width=300)
+panel = tk.Frame(main_frame, width=150)
 panel.pack(side="right", fill="y")
 
-tk.Label(panel, text="Node Editor", font=("Arial", 14)).pack(pady=10)
+# Create scrollable canvas for the panel
+canvas = tk.Canvas(panel, width=150)
+scrollbar = tk.Scrollbar(panel, orient="vertical", command=canvas.yview)
+canvas.configure(yscrollcommand=scrollbar.set)
 
-status_label = tk.Label(panel, text="Mode: Add")
+# Pack scrollbar and canvas
+scrollbar.pack(side="right", fill="y")
+canvas.pack(side="left", fill="both", expand=True)
+
+# Inner frame to hold all controls
+inner_frame = tk.Frame(canvas)
+canvas.create_window((0, 0), window=inner_frame, anchor="nw")
+
+# Function to update scroll region
+def on_frame_configure(event):
+    canvas.configure(scrollregion=canvas.bbox("all"))
+
+inner_frame.bind("<Configure>", on_frame_configure)
+
+# Bind mouse wheel to canvas for scrolling
+def on_mouse_wheel(event):
+    canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+canvas.bind("<MouseWheel>", on_mouse_wheel)
+inner_frame.bind("<MouseWheel>", on_mouse_wheel)
+
+tk.Label(inner_frame, text="Node Editor", font=("Arial", 14)).pack(pady=10)
+
+status_label = tk.Label(inner_frame, text="Mode: Add")
 status_label.pack()
 
-tk.Label(panel, text="Start Node ID").pack()
+tk.Label(inner_frame, text="Start Node ID").pack()
 start_node_id_var = tk.IntVar(value=1)
-tk.Entry(panel, textvariable=start_node_id_var).pack()
+tk.Entry(inner_frame, textvariable=start_node_id_var).pack()
 
 def set_start_node_id():
     global node_counter
     node_counter = start_node_id_var.get()
 
-tk.Button(panel, text="Set Node Counter", command=set_start_node_id).pack(pady=2)
+tk.Button(inner_frame, text="Set Node Counter", command=set_start_node_id).pack(pady=2)
 
-tk.Label(panel, text="Start Edge ID").pack()
+tk.Label(inner_frame, text="Start Edge ID").pack()
 start_edge_id_var = tk.IntVar(value=1)
-tk.Entry(panel, textvariable=start_edge_id_var).pack()
+tk.Entry(inner_frame, textvariable=start_edge_id_var).pack()
 
 def set_start_edge_id():
     global edge_counter
     edge_counter = start_edge_id_var.get()
 
-tk.Button(panel, text="Set Edge Counter", command=set_start_edge_id).pack(pady=2)
+tk.Button(inner_frame, text="Set Edge Counter", command=set_start_edge_id).pack(pady=2)
 
-redraw_btn = tk.Button(panel, text="Redraw", command=lambda: redraw())
+redraw_btn = tk.Button(inner_frame, text="Redraw", command=lambda: redraw())
 redraw_btn.pack()
 
 # =========================
@@ -163,35 +189,35 @@ elevator_var = tk.BooleanVar(value=False)
 stair_var = tk.BooleanVar(value=False)
 ada_var = tk.BooleanVar(value=True)
 
-tk.Label(panel, text="Building").pack()
-building_menu = ttk.Combobox(panel, state="readonly", textvariable=building_var, values=buildings)
+tk.Label(inner_frame, text="Building").pack()
+building_menu = ttk.Combobox(inner_frame, state="readonly", textvariable=building_var, values=buildings)
 building_menu.current(0)
 building_menu.pack()
 
-tk.Label(panel, text="Floor").pack()
-floor_menu = ttk.Combobox(panel, state="readonly", textvariable=floor_var, values=floors)
+tk.Label(inner_frame, text="Floor").pack()
+floor_menu = ttk.Combobox(inner_frame, state="readonly", textvariable=floor_var, values=floors)
 floor_menu.current(1)
 floor_menu.pack()
 
-entrance_cb = tk.Checkbutton(panel, text="Entrance", variable=entrance_var)
+entrance_cb = tk.Checkbutton(inner_frame, text="Entrance", variable=entrance_var)
 entrance_cb.pack()
 
-elevator_cb = tk.Checkbutton(panel, text="Elevator", variable=elevator_var)
+elevator_cb = tk.Checkbutton(inner_frame, text="Elevator", variable=elevator_var)
 elevator_cb.pack()
 
-stair_cb = tk.Checkbutton(panel, text="Staircase", variable=stair_var)
+stair_cb = tk.Checkbutton(inner_frame, text="Staircase", variable=stair_var)
 stair_cb.pack()
 
-ada_cb = tk.Checkbutton(panel, text="ADA", variable=ada_var)
+ada_cb = tk.Checkbutton(inner_frame, text="ADA", variable=ada_var)
 ada_cb.pack()
 
 # =========================
 # ROTATION CONTROLS
 # =========================
 
-tk.Label(panel, text="Rotation", font=("Arial", 12, "bold")).pack(pady=(5,5))
+tk.Label(inner_frame, text="Rotation", font=("Arial", 12, "bold")).pack(pady=(5,5))
 
-rotation_label = tk.Label(panel, text=f"Angle: {rotation_angle:.1f}°")
+rotation_label = tk.Label(inner_frame, text=f"Angle: {rotation_angle:.1f}°")
 rotation_label.pack()
 
 def rotate_map(angle_delta):
@@ -202,20 +228,20 @@ def rotate_map(angle_delta):
     _create_floorplan_shapes()
     redraw()
 
-tk.Button(panel, text="↺ 90°", command=lambda: rotate_map(-90)).pack(pady=1)
-tk.Button(panel, text="↻ 90°", command=lambda: rotate_map(90)).pack(pady=1)
-tk.Button(panel, text="↺ 10°", command=lambda: rotate_map(-10)).pack(pady=1)
-tk.Button(panel, text="↻ 10°", command=lambda: rotate_map(10)).pack(pady=1)
-tk.Button(panel, text="Reset", command=lambda: rotate_map(-rotation_angle)).pack(pady=(5,10))
+tk.Button(inner_frame, text="↺ 90°", command=lambda: rotate_map(-90)).pack(pady=1)
+tk.Button(inner_frame, text="↻ 90°", command=lambda: rotate_map(90)).pack(pady=1)
+tk.Button(inner_frame, text="↺ 10°", command=lambda: rotate_map(-10)).pack(pady=1)
+tk.Button(inner_frame, text="↻ 10°", command=lambda: rotate_map(10)).pack(pady=1)
+tk.Button(inner_frame, text="Reset", command=lambda: rotate_map(-rotation_angle)).pack(pady=(5,10))
 
 # Mode buttons
-connect_btn = tk.Button(panel, command=lambda: None)
+connect_btn = tk.Button(inner_frame, command=lambda: None)
 connect_btn.pack(pady=2)
 
-auto_btn = tk.Button(panel, command=lambda: None)
+auto_btn = tk.Button(inner_frame, command=lambda: None)
 auto_btn.pack(pady=2)
 
-select_btn = tk.Button(panel, command=lambda: None)
+select_btn = tk.Button(inner_frame, command=lambda: None)
 select_btn.pack(pady=2)
 
 def toggle_manual_edge():
@@ -223,7 +249,7 @@ def toggle_manual_edge():
     manual_edge_mode = True  #not manual_edge_mode
     status_label.config(text="Mode: Manual Edge" if manual_edge_mode else "Mode: Add")
 
-tk.Button(panel, text="Manual Edge", command=toggle_manual_edge).pack(pady=2)
+tk.Button(inner_frame, text="Manual Edge", command=toggle_manual_edge).pack(pady=2)
 
 # =========================
 # ROTATION MATH
@@ -630,9 +656,9 @@ def toggle_floorplan_visibility():
     redraw()
 
 # Assign commands
-tk.Button(panel, text="Load JSON", command=load_json).pack(pady=2)
-tk.Button(panel, text="Load Floorplan", command=load_floorplan).pack(pady=2)
-tk.Button(panel, text="Toggle Floorplan", command=toggle_floorplan_visibility).pack(pady=2)
+tk.Button(inner_frame, text="Load JSON", command=load_json).pack(pady=2)
+tk.Button(inner_frame, text="Load Floorplan", command=load_floorplan).pack(pady=2)
+tk.Button(inner_frame, text="Toggle Floorplan", command=toggle_floorplan_visibility).pack(pady=2)
 # Zoom Buttons disabled.  Map provides enough control without additional buttons
 #tk.Button(panel, text="Zoom +", command=zoom_in).pack()
 #tk.Button(panel, text="Zoom -", command=zoom_out).pack()
@@ -923,7 +949,7 @@ def delete_selected_node():
     selected_node = None
     redraw()
 
-tk.Button(panel, text="Delete Node", command=delete_selected_node).pack(pady=2)
+tk.Button(inner_frame, text="Delete Node", command=delete_selected_node).pack(pady=2)
 
 # =========================
 # EXPORT JSON
@@ -969,7 +995,341 @@ def export_json():
     messagebox.showinfo("Export JSON", f"Also wrote combined file to {combined_path}.")
 
 
-tk.Button(panel, text="Export JSON", command=export_json).pack(pady=2)
+tk.Button(inner_frame, text="Export JSON", command=export_json).pack(pady=2)
+
+# =========================
+# NODE CREATION WITH PERSISTENT SETTINGS
+# =========================
+
+def create_node_from_settings(lat, lng):
+    node = Node(
+        node_counter, lat, lng,
+        building=building_var.get(),
+        floor=None if building_var.get() == "Outside" else floor_var.get(),
+        entrance=entrance_var.get(),
+        ada=ada_var.get()
+    )
+    
+    if entrance_var.get():
+        node.type = "entrance"
+    elif stair_var.get():
+        node.type = "stair"
+    elif elevator_var.get():
+        node.type = "elevator"
+    elif node.building == "Outside":
+        node.type = "outdoor"
+    else:
+        node.type = "corridor"
+    
+    return node
+
+# =========================
+# NODE LOGIC (SELECTION ONLY)
+# =========================
+
+def update_selected_node_from_ui():
+    global selected_node
+    if not selected_node:
+        return
+
+    selected_node.building = building_var.get()
+    selected_node.floor = None if building_var.get() == "Outside" else floor_var.get()
+
+    selected_node.entrance = entrance_var.get()
+    selected_node.ada = ada_var.get()
+
+    if entrance_var.get():
+        selected_node.type = "entrance"
+    elif stair_var.get():
+        selected_node.type = "stair"
+    elif elevator_var.get():
+        selected_node.type = "elevator"
+    elif selected_node.building == "Outside":
+        selected_node.type = "outdoor"
+    else:
+        selected_node.type = "corridor"
+
+    redraw()
+
+    # After changing the node's type or ADA, update connected edges to keep types/ADA accurate
+    def _update_connected_edges(node):
+        for e in edges:
+            if e.from_id == node.id or e.to_id == node.id:
+                other_id = e.to_id if e.from_id == node.id else e.from_id
+                other = next((n for n in nodes if n.id == other_id), None)
+                if not other:
+                    continue
+                # Recompute edge type using same rules as connect_nodes
+                ta = (str(node.type) if node.type is not None else "").lower()
+                tb = (str(other.type) if other.type is not None else "").lower()
+                if ta == tb and ta in ("stair", "elevator", "entrance"):
+                    e.type = ta
+                elif node.building == "Outside" or other.building == "Outside":
+                    e.type = "outdoor"
+                else:
+                    e.type = "corridor"
+
+                e.ada = (node.ada and other.ada)
+
+    _update_connected_edges(selected_node)
+    redraw()
+
+def enforce_rules(from_user=False):
+    if ui_update_suppressed:
+        return
+
+    if entrance_var.get():
+        elevator_cb.config(state="disabled")
+        stair_cb.config(state="disabled")
+        elevator_var.set(False)
+        stair_var.set(False)
+    else:
+        elevator_cb.config(state="normal")
+        stair_cb.config(state="normal")
+
+    if stair_var.get():
+        ada_cb.config(state="disabled")
+        if from_user:
+            ada_var.set(False)
+    else:
+        ada_cb.config(state="normal")
+        if from_user and not entrance_var.get():
+            ada_var.set(True)
+
+# Event bindings
+def _on_entrance_change(*a):
+    if ui_update_suppressed:
+        return
+    enforce_rules(from_user=True)
+    update_selected_node_from_ui()
+
+def _on_stair_change(*a):
+    if ui_update_suppressed:
+        return
+    enforce_rules(from_user=True)
+    update_selected_node_from_ui()
+
+def _on_elevator_change(*a):
+    if ui_update_suppressed:
+        return
+    update_selected_node_from_ui()
+
+def _on_ada_change(*a):
+    if ui_update_suppressed:
+        return
+    update_selected_node_from_ui()
+
+entrance_var.trace_add("write", _on_entrance_change)
+stair_var.trace_add("write", _on_stair_change)
+elevator_var.trace_add("write", _on_elevator_change)
+ada_var.trace_add("write", _on_ada_change)
+building_menu.bind("<<ComboboxSelected>>", lambda e: update_selected_node_from_ui())
+floor_menu.bind("<<ComboboxSelected>>", lambda e: update_selected_node_from_ui())
+
+# =========================
+# SELECTION & CONNECT
+# =========================
+
+def distance(a_lat, a_lng, b_lat, b_lng):
+    return math.sqrt((a_lat - b_lat)**2 + (a_lng - b_lng)**2)
+
+def select_nearest_node(coords):
+    global selected_node, pending_from, connect_mode, manual_edge_mode
+
+    if not nodes:
+        return
+
+    orig_coords = rotate_point(coords[0], coords[1], rotation_center_lat, rotation_center_lng, -rotation_angle)
+    lat, lng = orig_coords
+
+    closest = min(nodes, key=lambda n: distance(lat, lng, n.lat, n.lng))
+
+    if distance(lat, lng, closest.lat, closest.lng) > 0.0005:
+        return
+    
+    if manual_edge_mode:
+        prompt_for_edge_target(closest)
+        manual_edge_mode = False
+        update_mode_labels()
+        return
+
+    if connect_mode:
+        if pending_from is None:
+            pending_from = closest
+        else:
+            connect_nodes(pending_from, closest)
+            pending_from = None
+            connect_mode = False
+    else:
+        selected_node = closest
+        populate_editor(closest)
+
+    redraw()
+
+# =========================
+# MAP CLICK
+# =========================
+
+def add_node(coords):
+    global node_counter, last_node
+
+    orig_coords = rotate_point(coords[0], coords[1], rotation_center_lat, rotation_center_lng, -rotation_angle)
+    lat, lng = orig_coords
+
+    node = create_node_from_settings(lat, lng)
+    nodes.append(node)
+    node_counter += 1
+
+    if auto_connect and last_node:
+        connect_nodes(last_node, node)
+
+    last_node = node
+    selected_node = node
+    populate_editor(node)
+
+    redraw()
+
+def on_map_click(coords):
+    if manual_edge_mode:
+        select_nearest_node(coords)
+        return
+    
+    if select_mode or connect_mode:
+        select_nearest_node(coords)
+    else:
+        add_node(coords)
+
+map_widget.add_left_click_map_command(on_map_click)
+
+# =========================
+# EDGE CONNECTION
+# =========================
+
+def connect_nodes(n1, n2):
+    global edge_counter
+
+    for e in edges:
+        if (e.from_id == n1.id and e.to_id == n2.id) or \
+           (e.from_id == n2.id and e.to_id == n1.id) or \
+           (n1.id == n2.id):
+            return
+
+    # Determine edge type based on node properties
+    def _compute_edge_type(a, b):
+        ta = (str(a.type) if a.type is not None else "").lower()
+        tb = (str(b.type) if b.type is not None else "").lower()
+        specials = ("stair", "elevator", "entrance")
+        # If both ends share the same special type, use that (take precedence)
+        if ta == tb and ta in specials:
+            return ta
+        # Otherwise, if either node is outside, it's an outdoor edge
+        if a.building == "Outside" or b.building == "Outside":
+            return "outdoor"
+        # Fallback to corridor
+        return "corridor"
+
+    edges.append(Edge(
+        edge_counter,
+        n1.id,
+        n2.id,
+        type=_compute_edge_type(n1, n2),
+        ada=(n1.ada and n2.ada)
+    ))
+
+    edge_counter += 1
+
+# =========================
+# MODE TOGGLES
+# =========================
+
+def toggle_connect():
+    global connect_mode, pending_from
+    connect_mode = not connect_mode
+    pending_from = None
+    update_mode_labels()
+
+def toggle_auto():
+    global auto_connect, last_node
+    auto_connect = not auto_connect
+    last_node = None
+    update_mode_labels()
+
+def toggle_select():
+    global select_mode
+    select_mode = not select_mode
+    # If select mode was turned OFF, clear the current selection
+    if not select_mode:
+        clear_selection()
+    update_mode_labels()
+
+connect_btn.config(command=toggle_connect)
+auto_btn.config(command=toggle_auto)
+select_btn.config(command=toggle_select)
+
+# =========================
+# DELETE
+# =========================
+
+def delete_selected_node():
+    global selected_node
+
+    if not selected_node:
+        return
+
+    nid = selected_node.id
+    edges[:] = [e for e in edges if e.from_id != nid and e.to_id != nid]
+    nodes.remove(selected_node)
+
+    selected_node = None
+    redraw()
+
+#tk.Button(panel, text="Delete Node", command=delete_selected_node).pack(pady=2)
+
+# =========================
+# EXPORT JSON
+# =========================
+
+def export_json():
+    # Export nodes and edges to separate files in one folder; includes rotation in nodes file
+    dir_path = filedialog.askdirectory(title="Select folder to save nodes.json and edges.json")
+    if not dir_path:
+        return
+
+    nodes_path = os.path.join(dir_path, "nodes.json")
+    edges_path = os.path.join(dir_path, "edges.json")
+
+    with open(nodes_path, "w") as f:
+        json.dump({
+            "nodes": [vars(n) for n in nodes]
+        }, f, indent=4)
+
+    with open(edges_path, "w") as f:
+        json.dump({
+            "edges": [
+                {"id": e.id, "from": e.from_id, "to": e.to_id,
+                 "type": e.type, "ada": e.ada}
+                for e in edges
+            ]
+        }, f, indent=4)
+
+    messagebox.showinfo("Export JSON", f"Exported {len(nodes)} nodes to {nodes_path} and {len(edges)} edges to {edges_path}.")
+
+    # For backwards compatibility, also allow single-file export if user wants
+    combined_path = os.path.join(dir_path, "combined_graph.json")
+    with open(combined_path, "w") as f:
+        json.dump({
+            "nodes": [vars(n) for n in nodes],
+            "edges": [
+                {"id": e.id, "from": e.from_id, "to": e.to_id,
+                 "type": e.type, "ada": e.ada}
+                for e in edges
+            ]
+        }, f, indent=4)
+
+    messagebox.showinfo("Export JSON", f"Also wrote combined file to {combined_path}.")
+
+
+#tk.Button(panel, text="Export JSON", command=export_json).pack(pady=2)
 
 # =========================
 # DRAW (ROTATED)
