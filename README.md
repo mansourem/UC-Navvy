@@ -43,6 +43,8 @@ UC-Navvy/
 ├── mobile/
 │   ├── android/            # Android native project
 │   └── ios/                # iOS native project
+├── docs/
+│   └── APK_Guide.md/       # Documentation on creating apks
 ├── capacitor.config.ts     # Capacitor configuration
 ├── vite.config.ts          # Vite build configuration
 ├── tsconfig.json
