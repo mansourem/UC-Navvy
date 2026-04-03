@@ -6,11 +6,16 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import NavvyMap, { NavvyMapHandle } from './components/NavvyMap';
 import Sidebar from './components/Sidebar';
+import FloorPlanPage from './components/FloorPlanPage';
 import { BUILDINGS } from './config';
 import { RouteResult } from './router';
 
+type Page = 'navigate' | 'floorplans';
+
 export default function App() {
   const mapRef = useRef<NavvyMapHandle>(null);
+
+  const [page, setPage] = useState<Page>('navigate');
 
   const [startBuilding, setStartBuilding] = useState('');
   const [endBuilding,   setEndBuilding]   = useState('');
@@ -74,9 +79,20 @@ export default function App() {
           <div className="header__logomark" aria-hidden="true">UC</div>
           <span className="header__wordmark">Nav<em>vy</em></span>
         </div>
-        <span className="header__meta" aria-hidden="true">
-          University of Cincinnati — Campus Navigation
-        </span>
+        <nav className="header__nav" aria-label="Page navigation">
+          <button
+            className={`header__nav-tab${page === 'navigate' ? ' header__nav-tab--active' : ''}`}
+            onClick={() => setPage('navigate')}
+          >
+            Navigate
+          </button>
+          <button
+            className={`header__nav-tab${page === 'floorplans' ? ' header__nav-tab--active' : ''}`}
+            onClick={() => setPage('floorplans')}
+          >
+            Floor Plans
+          </button>
+        </nav>
         <div align-items="center" style={{ display: 'flex', gap: '1rem' }}>
         <label
           className="switch"
@@ -101,24 +117,30 @@ export default function App() {
       {/* ── APP BODY ────────────────────────────────────────────────────── */}
       <div className="app-body">
 
-        <Sidebar
-          startBuilding={startBuilding}
-          endBuilding={endBuilding}
-          onStartChange={handleStartChange}
-          onEndChange={handleEndChange}
-          onRouteReady={handleRouteReady}
-        />
+        {page === 'navigate' ? (
+          <>
+            <Sidebar
+              startBuilding={startBuilding}
+              endBuilding={endBuilding}
+              onStartChange={handleStartChange}
+              onEndChange={handleEndChange}
+              onRouteReady={handleRouteReady}
+            />
 
-        {/* ── MAP AREA ──────────────────────────────────────────────────── */}
-        <main className="map-wrap" role="main" aria-label="Campus map">
-          <NavvyMap
-            ref={mapRef}
-            routeResult={routeResult}
-            start={startBuilding}
-            end={endBuilding}
-            onBuildingClick={handleBuildingClick}
-          />
-        </main>
+            {/* ── MAP AREA ────────────────────────────────────────────── */}
+            <main className="map-wrap" role="main" aria-label="Campus map">
+              <NavvyMap
+                ref={mapRef}
+                routeResult={routeResult}
+                start={startBuilding}
+                end={endBuilding}
+                onBuildingClick={handleBuildingClick}
+              />
+            </main>
+          </>
+        ) : (
+          <FloorPlanPage />
+        )}
 
       </div>
     </div>

@@ -32,11 +32,11 @@
 
   /* Accents */
   --green:        #27ae60;
-  --green-glow:   rgba(240,179,72,0.25);
+  --green-glow:   #78d29e;
   --amber:        #d1b179;
   --amber-glow:   #eadbc1;
   --blue:         #4a90e2;
-  --blue-glow:    #503a59;
+  --blue-glow:    #a0ccff;
 
   /* Typography */
   --font-sans:    'Syne', sans-serif;
@@ -82,9 +82,9 @@
   --text-muted:     #888888;
 
   --blue:           #4a90e2;
-  --blue-glow:      rgba(74,144,226,0.2);
+  --blue-glow:      #a0ccff;
   --green:          #27ae60;
-  --green-glow:     rgba(39,174,96,0.5);
+  --green-glow:     #78d29e;
 }
 
 /* ── Reset ──────────────────────────────────────────────────── */
