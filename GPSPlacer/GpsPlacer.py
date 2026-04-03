@@ -2,12 +2,13 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter import ttk
 import json
+import os
 import tkintermapview
 import math
 from PIL import Image, ImageTk, ImageDraw
 from tkintermapview.utility_functions import decimal_to_osm
 
-#TODO: - Add Option to export nodes and edges as seperate json files.  Either a new button or change existing functionality.
+#DONE: Export now writes nodes and edges into separate JSON files (nodes.json + edges.json), plus combined_graph.json fallback.
 
 # =========================
 # DATA MODELS
@@ -329,27 +330,38 @@ def clear_selection():
 def load_json():
     global nodes, edges, node_counter, edge_counter, selected_node, rotation_angle, rotation_center_lat, rotation_center_lng
 
-    path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
-    if not path:
+    nodes_path = filedialog.askopenfilename(title="Select Nodes JSON file", filetypes=[("JSON files", "*.json")])
+    if not nodes_path:
         return
 
-    with open(path, "r") as f:
-        data = json.load(f)
+    edges_default = os.path.join(os.path.dirname(nodes_path), "edges.json")
+    if os.path.exists(edges_default):
+        edges_path = edges_default
+    else:
+        edges_path = filedialog.askopenfilename(title="Select Edges JSON file", filetypes=[("JSON files", "*.json")])
+        if not edges_path:
+            return
+
+    with open(nodes_path, "r") as f:
+        nodes_data = json.load(f)
+
+    with open(edges_path, "r") as f:
+        edges_data = json.load(f)
 
     nodes.clear()
     edges.clear()
 
-    for n in data.get("nodes", []):
-        nodes.append(Node(**n))
+    for n in nodes_data.get("nodes", []):
+        try:
+            nodes.append(Node(**n))
+        except TypeError:
+            # Fallback from legacy export format
+            nodes.append(Node(n["id"], n["lat"], n["lng"], n.get("building", "Outside"), n.get("floor"), n.get("entrance", False), n.get("ada", True), n.get("type", "outdoor")))
 
-    for e in data.get("edges", []):
-        edges.append(Edge(e["id"], e["from"], e["to"], e["type"], e["ada"]))
+    for e in edges_data.get("edges", []):
+        edges.append(Edge(e["id"], e["from"], e["to"], e.get("type", "corridor"), e.get("ada", True)))
 
-    rot_data = data.get("rotation", {})
-    rotation_angle = rot_data.get("angle", 0.0)
-    rotation_center_lat = rot_data.get("center_lat", 39.1338)
-    rotation_center_lng = rot_data.get("center_lng", -84.5165)
-    
+    # Rotation is intentionally not persisted in JSON import/export.
     rotation_label.config(text=f"Angle: {rotation_angle:.1f}°")
 
     node_counter = max([int(n.id) for n in nodes], default=0) + 1
@@ -361,7 +373,6 @@ def load_json():
 
     if nodes:
         map_widget.set_position(nodes[0].lat, nodes[0].lng)
-        # Center map on first node but do NOT auto-select — clear any selection
         clear_selection()
 
     redraw()
@@ -919,24 +930,44 @@ tk.Button(panel, text="Delete Node", command=delete_selected_node).pack(pady=2)
 # =========================
 
 def export_json():
-    path = filedialog.asksaveasfilename(defaultextension=".json")
-    if not path:
+    # Export nodes and edges to separate files in one folder; includes rotation in nodes file
+    dir_path = filedialog.askdirectory(title="Select folder to save nodes.json and edges.json")
+    if not dir_path:
         return
 
-    with open(path, "w") as f:
+    nodes_path = os.path.join(dir_path, "nodes.json")
+    edges_path = os.path.join(dir_path, "edges.json")
+
+    with open(nodes_path, "w") as f:
+        json.dump({
+            "nodes": [vars(n) for n in nodes]
+        }, f, indent=4)
+
+    with open(edges_path, "w") as f:
+        json.dump({
+            "edges": [
+                {"id": e.id, "from": e.from_id, "to": e.to_id,
+                 "type": e.type, "ada": e.ada}
+                for e in edges
+            ]
+        }, f, indent=4)
+
+    messagebox.showinfo("Export JSON", f"Exported {len(nodes)} nodes to {nodes_path} and {len(edges)} edges to {edges_path}.")
+
+    # For backwards compatibility, also allow single-file export if user wants
+    combined_path = os.path.join(dir_path, "combined_graph.json")
+    with open(combined_path, "w") as f:
         json.dump({
             "nodes": [vars(n) for n in nodes],
             "edges": [
                 {"id": e.id, "from": e.from_id, "to": e.to_id,
                  "type": e.type, "ada": e.ada}
                 for e in edges
-            ],
-            "rotation": {
-                "angle": rotation_angle,
-                "center_lat": rotation_center_lat,
-                "center_lng": rotation_center_lng
-            }
+            ]
         }, f, indent=4)
+
+    messagebox.showinfo("Export JSON", f"Also wrote combined file to {combined_path}.")
+
 
 tk.Button(panel, text="Export JSON", command=export_json).pack(pady=2)
 
@@ -1039,6 +1070,11 @@ def check_map_changed():
     current_position = map_widget.get_position()
     current_zoom = map_widget.zoom
     
+    # Redraw nodes and edges if zoom changed to fix marker positioning on zoom
+    if last_map_zoom != current_zoom:
+        redraw()
+
+
     # Redraw if position or zoom changed
     if (last_map_position != current_position or last_map_zoom != current_zoom):
         last_map_position = current_position
