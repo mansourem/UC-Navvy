@@ -21,10 +21,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
       # Install dependencies
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       
       # Build your project
       - name: Build
@@ -36,5 +42,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        #   command: pages deploy dist --project-name=ucnavvy
-          command: pages deploy build --project-name=ucnavvy
+          command: pages deploy dist --project-name=ucnavvy
+        #   command: pages deploy build --project-name=ucnavvy

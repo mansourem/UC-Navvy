@@ -8,7 +8,9 @@
     "preview": "vite preview",
     "web": "npm run build && npx vite preview",
     "android": "npm run build && npx cap sync android && npx cap open android",
-    "ios": "npm run build && npx cap sync ios && npx cap open ios"
+    "ios": "npm run build && npx cap sync ios && npx cap open ios",
+    "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist",
+    "deploy:pages": "npm run build && wrangler pages deploy dist"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.0",
@@ -25,6 +27,7 @@
     "@vitejs/plugin-react": "^4.3.3",
     "netlify-cli": "^24.9.0",
     "typescript": "^5.6.3",
-    "vite": "^5.4.10"
+    "vite": "^5.4.10",
+    "wrangler": "^3.0.0"
   }
 }
