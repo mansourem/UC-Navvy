@@ -4,7 +4,7 @@ require("dotenv").config();
 const { Client } = require("pg");
 
 // ===== EDIT THIS =====
-const ROOT_DIR = "/home/jlin/UC-Navvy/Buildings"; 
+const ROOT_DIR = "/home/jlin/UC-Navvy/v2_layers/"; 
 // Example expected structure:
 // ROOT_DIR/
 //   Rhodes/Layer_01.geojson
@@ -47,7 +47,7 @@ async function importFloor(client, buildingId, floorNum, geojsonPath) {
     insert into floor_layers (building_id, floor, geojson)
     values ($1, $2, $3::jsonb)
     on conflict (building_id, floor)
-    do update set geojson = excluded.geojson, updated_at = now()
+    do update set geojson = excluded.geojson
     `,
     [buildingId, floorNum, JSON.stringify(geo)]
   );
