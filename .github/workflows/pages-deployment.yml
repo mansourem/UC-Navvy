@@ -3,9 +3,11 @@ name: Deploy to Cloudflare Pages
 on:
   push:
     branches:
+      - update_deploy_actions
       - main
   pull_request:
     branches:
+      - update_deploy_actions
       - main
 
 jobs:
