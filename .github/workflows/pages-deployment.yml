@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages
+name: Deploy Website
 
 on:
   push:
@@ -16,23 +16,27 @@ jobs:
     permissions:
       contents: read
       deployments: write
-    name: Deploy to Cloudflare Pages
-    
+
+    name: setup  
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
+    
+      - name: Clean npm
+        run: |
+            rm -rf node_modules package-lock.json
 
-      # Install dependencies
-      - name: Install dependencies
+      - name: Install npm
+        run: npm install
+
+      - name: Package Install
         run: npm ci
-      
-      # Build your project
+
       - name: Build
         run: npm run build
 
