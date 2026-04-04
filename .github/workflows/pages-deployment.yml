@@ -19,23 +19,24 @@ jobs:
 
     name: setup  
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout code
+        uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
+    #   - name: Setup Node.js
+    #     uses: actions/setup-node@v4
+    #     with:
+    #       node-version: 22
+    #       cache: npm
     
-      - name: Clean npm
-        run: |
-            rm -rf node_modules package-lock.json
+    #   - name: Clean npm
+    #     run: |
+    #         rm -rf node_modules package-lock.json
 
       - name: Install npm
         run: npm install
 
-      - name: Package Install
-        run: npm ci
+    #   - name: Package Install
+    #     run: npm ci
 
       - name: Build
         run: npm run build
@@ -47,4 +48,9 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=ucnavvy
-        #   command: pages deploy build --project-name=ucnavvy
+
+    #   - name: Upload Artifacts
+    #     uses: actions/upload-artifact@v3
+    #     with:
+    #       name: build-artifacts
+    #       path: 'dist/**'
