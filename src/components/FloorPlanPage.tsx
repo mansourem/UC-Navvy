@@ -9,8 +9,17 @@ import FloorPlanMap from './FloorPlanMap';
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
 
+const no_floorplans = ['calhoun', 'daniels', 'dabney', 'marketpt', 'morgens', 'mspencer', 'scioto', 'siddall', 'turner', 'schneidr', "crosley", 'tennis'];
+
+
+const FILTERED_BUILDINGS = {...BUILDINGS};
+
+for (const id of no_floorplans) {
+  delete FILTERED_BUILDINGS[id];
+}
+
 // Sort buildings alphabetically by display name
-const SORTED_BUILDINGS = Object.entries(BUILDINGS).sort(([, a], [, b]) =>
+const SORTED_BUILDINGS = Object.entries(FILTERED_BUILDINGS).sort(([, a], [, b]) =>
   a.name.localeCompare(b.name)
 );
 

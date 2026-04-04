@@ -1,7 +1,9 @@
 .vscode/*
-/dist/*
-/node_modules/*
+dist/*
+node_modules/*
 .claude/*
 .venv/*
 docs/*
 tokens.txt
+.idea/*
+.netlify/*
