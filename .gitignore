@@ -4,4 +4,12 @@
 .claude/*
 .venv/*
 docs/*
+<<<<<<< Updated upstream
 tokens.txt
+=======
+tokens.txt
+.idea/* 
+.env
+# Local Netlify folder
+.netlify
+>>>>>>> Stashed changes
