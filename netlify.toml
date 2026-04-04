@@ -1,4 +1,5 @@
 [build]
+  branch = "main"
   command = "npm run build"
   publish = "dist"
 
