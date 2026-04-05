@@ -6,7 +6,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
-import { MAP_CONFIG } from '../config';
+import { MAP_CONFIG } from '../data/config';
 
 interface FloorPlanMapProps {
   geojson:  GeoJSON.FeatureCollection;

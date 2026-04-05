@@ -15,7 +15,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import { SHUTTLE_ROUTES, TRANSIT_ROW } from '../data/shuttleRoutes';
-import { MAP_CONFIG } from '../config';
+import { MAP_CONFIG } from '../data/config';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

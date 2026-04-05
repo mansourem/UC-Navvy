@@ -9,7 +9,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import { SHUTTLE_ROUTES, TRANSIT_ROW } from '../data/shuttleRoutes';
-import { MAP_CONFIG } from '../config';
+import { MAP_CONFIG } from '../data/config';
+import RouteEditor from './RouteEditor';
 
 // ─── Pre-build GeoJSON feature arrays (computed once at module load) ─────────
 
@@ -44,6 +45,7 @@ function filteredFC<T extends GeoJSON.Geometry>(
 const ALL_IDS = new Set(SHUTTLE_ROUTES.map(r => r.id));
 
 export default function ShuttleRoutesPage() {
+  const [mode, setMode] = useState<'view' | 'edit'>('view');
   const [selected, setSelected] = useState<Set<string>>(new Set(ALL_IDS));
   const [mapLoaded, setMapLoaded]  = useState(false);
 
