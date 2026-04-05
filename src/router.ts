@@ -54,11 +54,12 @@ export async function planRoute(req: RouteRequest): Promise<RouteResult> {
   if (!check.valid) throw new Error(check.reason);
 
   try {
-    const graph = await loadGraph('campusquad');
+    const graph = await loadGraph();
     const nMap  = nodeMap(graph);
     const sb    = BUILDINGS[req.startBuilding];
     const eb    = BUILDINGS[req.endBuilding];
 
+    
     // center is [lng, lat]; _nearestNode expects (lat, lng)
     const startNode = _nearestNode(graph.nodes, sb.center[1], sb.center[0]);
     const endNode   = _nearestNode(graph.nodes, eb.center[1], eb.center[0]);
@@ -102,7 +103,8 @@ export async function planRoute(req: RouteRequest): Promise<RouteResult> {
       isAda:            req.adaOnly,
       isFallback:       false,
     };
-  } catch {
+  } catch (err) {
+    console.error('[planRoute] error, falling back to straight line:', err);
     return _fallback(req);
   }
 }
