@@ -5,3 +5,4 @@
 .venv/*
 docs/*
 tokens.txt
+GPSPlacer/gps_placer_venv/*
