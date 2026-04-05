@@ -1,7 +1,13 @@
 .vscode/*
-/dist/*
-/node_modules/*
+dist/*
+node_modules/*
 .claude/*
 .venv/*
 docs/*
 tokens.txt
+.vite/*
+.idea/*
+.netlify/*
+.wrangler/*
+database_utils/node_modules/*
+database_utils/.env
