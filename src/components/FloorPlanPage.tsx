@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { BUILDINGS, API } from '../config';
+import { BUILDINGS, API } from '../data/config';
 import FloorPlanMap from './FloorPlanMap';
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error';

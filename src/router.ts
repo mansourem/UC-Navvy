@@ -4,7 +4,7 @@
  * Returns a RouteResult containing GeoJSON for MapLibre and RouteSteps for the UI.
  */
 
-import { BUILDINGS } from './config';
+import { BUILDINGS } from './data/config';
 import { loadGraph, findPath, nodeMap, GraphEdge, GraphNode } from './graph';
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────

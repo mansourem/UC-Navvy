@@ -24,7 +24,7 @@ import React, {
 } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { BUILDINGS, MAP_CONFIG, APP } from '../config';
+import { BUILDINGS, MAP_CONFIG, APP } from '../data/config';
 import { RouteResult } from '../router';
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────

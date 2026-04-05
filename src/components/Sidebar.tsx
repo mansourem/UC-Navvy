@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { BUILDINGS, APP, FEATURES } from '../config';
+import { BUILDINGS, APP, FEATURES } from '../data/config';
 import { planRoute, RouteResult, RouteStep } from '../router';
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
