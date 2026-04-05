@@ -4,7 +4,7 @@
  * No DOM or map library dependencies.
  */
 
-import { API } from './config';
+import { API } from './data/config';
 
 export interface GraphNode {
   id:        number;

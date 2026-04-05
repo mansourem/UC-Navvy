@@ -7,7 +7,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import NavvyMap, { NavvyMapHandle } from './components/NavvyMap';
 import Sidebar from './components/Sidebar';
 import FloorPlanPage from './components/FloorPlanPage';
-import { BUILDINGS } from './config';
+import { BUILDINGS } from './data/config';
 import { RouteResult } from './router';
 
 type Page = 'navigate' | 'floorplans';

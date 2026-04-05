@@ -488,7 +488,7 @@ export const BUILDINGS = {
   tennis: {
     name: 'Tennis Court',
     center: [-84.51568358381813, 39.12994625124256],
-    floors: [1],
+    floors: [0],
     elevatorNodes: [],
     entranceNodes: [],
     accessibleEntranceNodes: [],
