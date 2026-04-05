@@ -3,15 +3,22 @@ const path = require("path");
 require("dotenv").config();
 const { Client } = require("pg");
 
-const DATA_FILE = path.join(__dirname, "data", "outside_edges.json");
+const DATA_FILE = path.join(__dirname, "data/Baldwin");
 const BATCH_SIZE = 100;
 
-async function importEdges(client) {
-  const raw = fs.readFileSync(DATA_FILE, "utf8");
+function isJsonFile(name) {
+  return name.toLowerCase().endsWith(".json");
+}
+function isEdgeFile(name) {
+  return name.toLowerCase().includes("edge");
+}
+
+async function importEdges(client, filePath) {
+  const raw = fs.readFileSync(filePath, "utf8");
   const { edges } = JSON.parse(raw);
 
   if (!Array.isArray(edges) || edges.length === 0) {
-    console.error("No edges found in", DATA_FILE);
+    console.error("No edges found in", filePath);
     process.exit(1);
   }
 
@@ -74,13 +81,37 @@ async function main() {
 
   await client.connect();
   console.log("Connected to database.");
-  await importEdges(client);
 
-  await client.end();
-  console.log("Finished importing all edges.");
+  console.log(`Importing nodes from ${DATA_FILE}...`);
+  const floorDirs = fs.readdirSync(DATA_FILE, { withFileTypes: true }); 
+  console.log(`Found ${floorDirs.length} sets of edges in ${DATA_FILE}.`);
+
+  for (const dir of floorDirs) {
+    const floorID = dir.name;
+    const floorPath = path.join(DATA_FILE, floorID);
+    
+    const files = fs.readdirSync(floorPath, { withFileTypes: true });
+    console.log(`Found ${files.length} files in ${floorPath}.`); 
+
+    for (const file of files) {
+      if (!file.isFile()) continue;
+      if (!isJsonFile(file.name)) continue;
+      if (!isEdgeFile(file.name)) continue;
+
+      console.log(`Processing file ${dir.name}/${file.name}...`);
+      try {
+        await importEdges(client, path.join(floorPath, file.name));
+      } catch (err) {
+        console.error(`❌ Failed on ${floorPath}/${file.name}: ${err.message}`);
+      }
+    }
+  }
+
+   await client.end();
+  console.log("🎉 Finished importing all building floors.");
 }
 
 main().catch((e) => {
-  console.error("Import failed:", e.message || e);
+  console.error("❌ Import failed:", e.message);
   process.exit(1);
 });
