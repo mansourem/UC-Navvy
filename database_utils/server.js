@@ -53,22 +53,50 @@ app.get("/api/floorplan/:building/:floor", async (req, res) => {
   }
 });
 
-// 2) Get campus-wide routing graph
-app.get("/api/campus/graph", async (req, res) => {
-  try {
-    const r = await pool.query(
-      "select nodes, edges from campus_graph where id = 1"
-    );
+// // 2) Get campus-wide routing graph
+// app.get("/api/campus/graph", async (req, res) => {
+//   try {
+//     const r = await pool.query(
+//       "select nodes, edges from campus_graph where id = 1"
+//     );
 
-    if (r.rowCount === 0) return res.status(404).json({ error: "campus_graph missing (id=1)" });
+//     if (r.rowCount === 0) return res.status(404).json({ error: "campus_graph missing (id=1)" });
 
+//     res.set("Cache-Control", "public, max-age=3600");
+//     res.json({ nodes: r.rows[0].nodes, edges: r.rows[0].edges });
+//   } catch (e) {
+//     res.status(500).json({ error: String(e.message || e) });
+//   }
+// });
+
+
+// 2) Get all routing nodes
+app.get("/api/nodes", async (_req, res) => {
+  getNodes().then(nodes => {
     res.set("Cache-Control", "public, max-age=3600");
-    res.json({ nodes: r.rows[0].nodes, edges: r.rows[0].edges });
-  } catch (e) {
+    res.json(nodes);
+  }).catch(e => {
     res.status(500).json({ error: String(e.message || e) });
-  }
+  });
 });
+async function getNodes() {
+  const r = await pool.query("SELECT * FROM nodes");
+  return r.rows;
+}
 
+// 3) Get all routing edges
+app.get("/api/edges", async (_req, res) => {
+  getEdges().then(edges => {
+    res.set("Cache-Control", "public, max-age=3600");
+    res.json(edges);
+  }).catch(e => {
+    res.status(500).json({ error: String(e.message || e) });
+  });
+});
+async function getEdges() {
+  const r = await pool.query("SELECT * FROM edges");
+  return r.rows;
+}
 // Optional: list buildings available
 app.get("/api/buildings", async (req, res) => {
   try {
