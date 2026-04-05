@@ -85,7 +85,7 @@ map_widget.pack(side="left", fill="both", expand=True)
 
 # Use CARTO Voyager raster tiles (aligns with the main UC-Navvy MapLibre style,
 # and supports zoom levels up to 22 vs OSM's 19)
-map_widget.set_tile_server("https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png", max_zoom=22)
+map_widget.set_tile_server("https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png", max_zoom=21)
 
 map_widget.set_position(39.1338, -84.5165)
 map_widget.set_zoom(16)
