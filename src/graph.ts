@@ -39,28 +39,26 @@ export interface PathResult {
 
 // ─── CACHE ────────────────────────────────────────────────────────────────────
 
-const _cache = new Map<string, Graph>();
+let _cached: Graph | null = null;
 
 // ─── PUBLIC API ───────────────────────────────────────────────────────────────
 
-export async function loadGraph(key: string): Promise<Graph> {
-  if (_cache.has(key)) return _cache.get(key)!;
+export async function loadGraph(): Promise<Graph> {
+  if (_cached) return _cached;
 
-  let graph: Graph;
-
-  if (key === 'campusquad') {
-    // Local JSON bundled by Vite — replaces the bare fetch() in the original
-    const mod = await import('./data/graphs/campusquad.json');
-    graph = mod.default as unknown as Graph;
-  } else {
-    const url = API.graphUrl(key);
-    const resp = await fetch(url);
-    if (!resp.ok) throw new Error(`Graph API ${resp.status} — ${url}`);
-    graph = await resp.json();
-  }
-
+  const [nodesResp, edgesResp] = await Promise.all([
+    fetch(API.NODES_URL),
+    fetch(API.EDGES_URL),
+  ]);
+  if (!nodesResp.ok) throw new Error(`Nodes API ${nodesResp.status}`);
+  if (!edgesResp.ok) throw new Error(`Edges API ${edgesResp.status}`);
+  
+  const graph: Graph = {
+    nodes: await nodesResp.json(),
+    edges: await edgesResp.json(),
+  };
   _normalise(graph);
-  _cache.set(key, graph);
+  _cached = graph;
   return graph;
 }
 
@@ -140,6 +138,18 @@ export function nodeMap(graph: Graph): Map<number, GraphNode> {
 // ─── PRIVATE ─────────────────────────────────────────────────────────────────
 
 function _normalise(graph: Graph): void {
+  // Coerce all IDs to numbers — the DB/API may return them as strings
+  for (const n of graph.nodes) {
+    n.id  = Number(n.id);
+    n.lat = Number(n.lat);
+    n.lng = Number(n.lng);
+  }
+  for (const e of graph.edges) {
+    e.id   = Number(e.id);
+    e.from = Number(e.from);
+    e.to   = Number(e.to);
+  }
+
   const map = new Map<number, GraphNode>(graph.nodes.map(n => [n.id, n]));
   for (const e of graph.edges) {
     if (e.weight == null) {

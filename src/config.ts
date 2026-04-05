@@ -4,13 +4,11 @@
  */
 
 export const API = {
-  BASE_URL:       'https://uc-navvy-api.onrender.com/api/floorplan',
-  GRAPH_BASE_URL: 'https://uc-navvy-api.onrender.com/api/graph',
+  BASE_URL:  'https://uc-navvy-api.onrender.com/api/floorplan',
+  NODES_URL: 'https://uc-navvy-api.onrender.com/api/nodes',
+  EDGES_URL: 'https://uc-navvy-api.onrender.com/api/edges',
   floorplanUrl(buildingKey: string, floor: number) {
     return `${this.BASE_URL}/${buildingKey}/${floor}`;
-  },
-  graphUrl(key: string) {
-    return `${this.GRAPH_BASE_URL}/${key}`;
   },
 };
 
