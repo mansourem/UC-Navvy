@@ -6,3 +6,6 @@
 docs/*
 tokens.txt
 GPSPlacer/gps_placer_venv/*
+.idea/*
+.vite*
+.netlify/*
