@@ -44,22 +44,46 @@ let _cached: Graph | null = null;
 // ─── PUBLIC API ───────────────────────────────────────────────────────────────
 
 export async function loadGraph(): Promise<Graph> {
-  if (_cached) return _cached;
+  if (
+    _cached &&
+    Array.isArray(_cached.nodes) &&
+    Array.isArray(_cached.edges)
+  ) {
+  return _cached;
+  }
 
-  const [nodesResp, edgesResp] = await Promise.all([
-    fetch(API.NODES_URL),
-    fetch(API.EDGES_URL),
-  ]);
+  console.log("Fetching nodes from:", API.NODES_URL);
+  const nodesResp = await fetch(API.NODES_URL);
+  console.log("Nodes response status:", nodesResp.status);
+  console.log("Fetching edges from:", API.EDGES_URL);
+  const edgesResp = await fetch(API.EDGES_URL);
+  console.log("Edges response status:", edgesResp.status);
+  
   if (!nodesResp.ok) throw new Error(`Nodes API ${nodesResp.status}`);
   if (!edgesResp.ok) throw new Error(`Edges API ${edgesResp.status}`);
   
+  const nodesData = await nodesResp.json();
+  const edgesData = await edgesResp.json();
+  console.log("Nodes data length:", nodesData.length);
+  console.log("Edges data length:", edgesData.length);
+  
   const graph: Graph = {
-    nodes: await nodesResp.json(),
-    edges: await edgesResp.json(),
+    nodes: nodesData,
+    edges: edgesData,
   };
+  if (!graph.nodes || !graph.edges) throw new Error('Invalid graph data');
   _normalise(graph);
-  _cached = graph;
+  // _cached = graph;
   return graph;
+}
+
+function isJSON(str: string): boolean {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
 /**
@@ -73,10 +97,14 @@ export function findPath(
   endId:   number,
   adaOnly: boolean,
 ): PathResult | null {
-  const { nodes, edges } = graph;
+  
+  if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
+    throw new Error("Invalid graph passed to findPath");
+  }
+  // const { nodes, edges } = graph;
 
   const eligible = new Set<number>(
-    nodes
+    graph.nodes
       .filter(n => !adaOnly || n.ada !== false)
       .map(n => n.id),
   );
@@ -86,7 +114,8 @@ export function findPath(
   const adj = new Map<number, Array<{ id: number; w: number; edge: GraphEdge }>>();
   eligible.forEach(id => adj.set(id, []));
 
-  for (const e of edges) {
+  for (const e of graph.edges) {
+    // console.log("Processing edge:", e);
     if (!eligible.has(e.from) || !eligible.has(e.to)) continue;
     if (adaOnly && e.ada === false) continue;
     const w = e.weight ?? 1;
@@ -96,6 +125,7 @@ export function findPath(
 
   const dist = new Map<number, number>();
   const prev = new Map<number, { fromId: number; edge: GraphEdge }>();
+
   eligible.forEach(id => dist.set(id, Infinity));
   dist.set(startId, 0);
 
@@ -106,7 +136,10 @@ export function findPath(
     for (const id of unvisited) {
       if (u === null || dist.get(id)! < dist.get(u)!) u = id;
     }
-    if (u === null || dist.get(u) === Infinity || u === endId) break;
+    console.log("Selected u:", u, "dist:", dist.get(u));
+    if (u === null || dist.get(u) === Infinity || u === endId) {
+      break;
+    }
     unvisited.delete(u);
 
     for (const { id: v, w, edge } of adj.get(u)!) {
@@ -146,8 +179,8 @@ function _normalise(graph: Graph): void {
   }
   for (const e of graph.edges) {
     e.id   = Number(e.id);
-    e.from = Number(e.from);
-    e.to   = Number(e.to);
+    e.from = Number((e as any).from_node || e.from);
+    e.to   = Number((e as any).to_node || e.to);
   }
 
   const map = new Map<number, GraphNode>(graph.nodes.map(n => [n.id, n]));
