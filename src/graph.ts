@@ -136,7 +136,6 @@ export function findPath(
     for (const id of unvisited) {
       if (u === null || dist.get(id)! < dist.get(u)!) u = id;
     }
-    console.log("Selected u:", u, "dist:", dist.get(u));
     if (u === null || dist.get(u) === Infinity || u === endId) {
       break;
     }
