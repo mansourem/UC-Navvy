@@ -4,7 +4,7 @@
  * Returns a RouteResult containing GeoJSON for MapLibre and RouteSteps for the UI.
  */
 
-import { BUILDINGS } from './config';
+import { BUILDINGS } from './data/config';
 import { loadGraph, findPath, nodeMap, GraphEdge, GraphNode } from './graph';
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
@@ -54,11 +54,12 @@ export async function planRoute(req: RouteRequest): Promise<RouteResult> {
   if (!check.valid) throw new Error(check.reason);
 
   try {
-    const graph = await loadGraph('campusquad');
+    const graph = await loadGraph();
     const nMap  = nodeMap(graph);
     const sb    = BUILDINGS[req.startBuilding];
     const eb    = BUILDINGS[req.endBuilding];
 
+    
     // center is [lng, lat]; _nearestNode expects (lat, lng)
     const startNode = _nearestNode(graph.nodes, sb.center[1], sb.center[0]);
     const endNode   = _nearestNode(graph.nodes, eb.center[1], eb.center[0]);
@@ -67,9 +68,9 @@ export async function planRoute(req: RouteRequest): Promise<RouteResult> {
       return _fallback(req);
     }
 
-    let result = findPath(graph, startNode.id, endNode.id, req.adaOnly);
+    let result = await findPath(graph, startNode.id, endNode.id, req.adaOnly);
     const adaFallback = !result && req.adaOnly;
-    if (!result) result = findPath(graph, startNode.id, endNode.id, false);
+    if (!result) result = await findPath(graph, startNode.id, endNode.id, false);
     if (!result || result.nodes.length < 2) return _fallback(req);
 
     const allCoords: LngLat[] = [];
@@ -102,7 +103,8 @@ export async function planRoute(req: RouteRequest): Promise<RouteResult> {
       isAda:            req.adaOnly,
       isFallback:       false,
     };
-  } catch {
+  } catch (err) {
+    console.error('[planRoute] error, falling back to straight line:', err);
     return _fallback(req);
   }
 }

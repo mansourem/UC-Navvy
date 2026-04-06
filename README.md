@@ -43,6 +43,8 @@ UC-Navvy/
 ├── mobile/
 │   ├── android/            # Android native project
 │   └── ios/                # iOS native project
+├── docs/
+│   └── APK_Guide.md/       # Documentation on creating apks
 ├── capacitor.config.ts     # Capacitor configuration
 ├── vite.config.ts          # Vite build configuration
 ├── tsconfig.json
@@ -87,6 +89,7 @@ npm run preview   # Preview the production build locally
 Needs to be built first
 
 ```bash
+
 npm run android   # Build and open in Android Studio
 npm run ios       # Build and open in Xcode
 ```
