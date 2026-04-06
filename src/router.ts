@@ -68,9 +68,9 @@ export async function planRoute(req: RouteRequest): Promise<RouteResult> {
       return _fallback(req);
     }
 
-    let result = findPath(graph, startNode.id, endNode.id, req.adaOnly);
+    let result = await findPath(graph, startNode.id, endNode.id, req.adaOnly);
     const adaFallback = !result && req.adaOnly;
-    if (!result) result = findPath(graph, startNode.id, endNode.id, false);
+    if (!result) result = await findPath(graph, startNode.id, endNode.id, false);
     if (!result || result.nodes.length < 2) return _fallback(req);
 
     const allCoords: LngLat[] = [];
