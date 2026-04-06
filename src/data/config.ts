@@ -4,9 +4,9 @@
  */
 
 export const API = {
-  BASE_URL:  '/api/floorplan',
-  NODES_URL: '/api/nodes',
-  EDGES_URL: '/api/edges',
+  BASE_URL:  'https://uc-navvy-api.onrender.com/api/floorplan',
+  NODES_URL: 'https://uc-navvy-api.onrender.com/api/nodes',
+  EDGES_URL: 'https://uc-navvy-api.onrender.com/api/edges',
   floorplanUrl(buildingKey: string, floor: number) {
     return `${this.BASE_URL}/${buildingKey}/${floor}`;
   },
