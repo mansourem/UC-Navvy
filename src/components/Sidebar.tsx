@@ -106,7 +106,6 @@ export default function Sidebar({
               </div>
               {FEATURES.INDOOR_ROUTING && (
                 <div className="select-group indoor-routing-field">
-                  <label htmlFor="startFloor">Floor</label>
                   <select id="startFloor" aria-label="Starting floor">
                     <option value="">Floor…</option>
                     {startBuilding && BUILDINGS[startBuilding]?.floors.map(f => (
@@ -145,7 +144,6 @@ export default function Sidebar({
               </div>
               {FEATURES.INDOOR_ROUTING && (
                 <div className="select-group indoor-routing-field">
-                  <label htmlFor="endFloor">Floor</label>
                   <select id="endFloor" aria-label="Destination floor">
                     <option value="">Floor…</option>
                     {endBuilding && BUILDINGS[endBuilding]?.floors.map(f => (

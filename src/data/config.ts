@@ -29,7 +29,7 @@ export const STYLES = {
 };
 
 export const FEATURES = {
-  INDOOR_ROUTING:    false,
+  INDOOR_ROUTING:    true,
   FLOORPLAN_DISPLAY: false,
   BUILDING_POLYGONS: false,
 };

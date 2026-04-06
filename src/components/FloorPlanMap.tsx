@@ -9,13 +9,14 @@ import maplibregl from 'maplibre-gl';
 import { MAP_CONFIG } from '../data/config';
 
 interface FloorPlanMapProps {
-  geojson:  GeoJSON.FeatureCollection;
-  center:   [number, number];
+  geojson:      GeoJSON.FeatureCollection;
+  center:       [number, number];
+  routeGeoJSON?: GeoJSON.FeatureCollection;
 }
 
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
 
-export default function FloorPlanMap({ geojson, center }: FloorPlanMapProps) {
+export default function FloorPlanMap({ geojson, center, routeGeoJSON }: FloorPlanMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef       = useRef<maplibregl.Map | null>(null);
 
@@ -94,6 +95,22 @@ export default function FloorPlanMap({ geojson, center }: FloorPlanMapProps) {
         },
       });
 
+      map.addSource('indoor-route', {
+        type: 'geojson',
+        data: EMPTY_FC,
+      });
+
+      map.addLayer({
+        id:     'indoor-route-line',
+        type:   'line',
+        source: 'indoor-route',
+        paint: {
+          'line-color': '#4A9EFF',
+          'line-width': 3.5,
+          'line-opacity': 0.9,
+        },
+      });
+
       mapRef.current = map;
     });
 
@@ -147,6 +164,19 @@ export default function FloorPlanMap({ geojson, center }: FloorPlanMapProps) {
       map.once('load', update);
     }
   }, [geojson]);
+
+  // Update indoor route overlay when routeGeoJSON changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const data = routeGeoJSON ?? EMPTY_FC;
+    const update = () => {
+      const src = map.getSource('indoor-route') as maplibregl.GeoJSONSource | undefined;
+      src?.setData(data);
+    };
+    if (map.isStyleLoaded()) update();
+    else map.once('load', update);
+  }, [routeGeoJSON]);
 
   return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
 }

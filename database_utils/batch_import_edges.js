@@ -3,7 +3,7 @@ const path = require("path");
 require("dotenv").config();
 const { Client } = require("pg");
 
-const DATA_FILE = path.join(__dirname, "data/Baldwin");
+const DATA_FILE = path.join(__dirname, "Rhodes/", );
 const BATCH_SIZE = 100;
 
 function isJsonFile(name) {
