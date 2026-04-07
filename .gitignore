@@ -9,4 +9,6 @@ tokens.txt
 .idea*
 .netlify*
 .wrangler*
-database_utils*
+database_utils/node_modules*
+database_utils/.env
+database_utils/data*

@@ -86,6 +86,15 @@ export async function loadGraph(): Promise<Graph> {
   return graph;
 }
 
+function isJSON(str: string): boolean {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 /**
  * Dijkstra shortest-path between two node IDs.
  *
@@ -101,13 +110,17 @@ export function findPath(
   endId:   number,
   adaOnly: boolean,
 ): PathResult | null {
-  const { nodes, edges } = graph;
+  
+  if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
+    throw new Error("Invalid graph passed to findPath");
+  }
+  // const { nodes, edges } = graph;
 
   // ── 1. Build the eligible node set ─────────────────────────────────────────
   // When adaOnly is true, filter out non-accessible nodes so Dijkstra never
   // routes through them. Non-accessible edges are also skipped below.
   const eligible = new Set<number>(
-    nodes
+    graph.nodes
       .filter(n => !adaOnly || n.ada !== false)
       .map(n => n.id),
   );
@@ -141,6 +154,7 @@ export function findPath(
   // prev[id] = { fromId, edge } used to reconstruct the path once endId is reached.
   const dist = new Map<number, number>();
   const prev = new Map<number, { fromId: number; edge: GraphEdge }>();
+
   eligible.forEach(id => dist.set(id, Infinity));
   dist.set(startId, 0);
   console.log('[Graph] Initialized Dijkstra data structures');
