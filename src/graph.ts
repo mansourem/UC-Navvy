@@ -4,14 +4,11 @@
  * No DOM or map library dependencies.
  *
  * High-level flow:
- *   1. loadGraph        — fetch nodes + edges from the API, normalise, and cache
- *   2. nodeMap          — build an id → GraphNode lookup for O(1) access
- *   3. stitchEntrances  — create synthetic edges linking entrance nodes to the
- *                         outdoor graph so Dijkstra can traverse indoor+outdoor
- *                         as one connected network
- *   4. findPath         — Dijkstra shortest-path over the adjacency list
- *   5. _normalise       — coerce API strings to numbers, compute missing weights
- *   6. _haversine       — great-circle distance used as the default edge weight
+ *   1. loadGraph   — fetch nodes + edges from the API, normalise, and cache
+ *   2. nodeMap     — build an id → GraphNode lookup for O(1) access
+ *   3. findPath    — Dijkstra shortest-path over the adjacency list
+ *   4. _normalise  — coerce API strings to numbers, compute missing weights
+ *   5. _haversine  — great-circle distance used as the default edge weight
  */
 
 import { API } from './data/config';
@@ -37,7 +34,7 @@ export interface GraphEdge {
   from:      number; // source node id
   to:        number; // destination node id
   weight:    number; // traversal cost (metres by default)
-  type:      string; // e.g. 'walkway', 'elevator', 'stairs', 'entrance_link'
+  type:      string; // e.g. 'walkway', 'elevator', 'stairs'
   ada:       boolean;
   /** When true, edge is one-way (from → to only). Default: bidirectional. */
   directed?: boolean;
@@ -56,7 +53,7 @@ export interface PathResult {
 
 // ─── CACHE ────────────────────────────────────────────────────────────────────
 // The graph is fetched once and reused for all subsequent planRoute calls.
-// Set _cached = null to force a fresh fetch (e.g. after a data update).
+// Assign null to force a fresh fetch (e.g. after a data update).
 
 let _cached: Graph | null = null;
 
@@ -87,91 +84,6 @@ export async function loadGraph(): Promise<Graph> {
   _cached = graph;
   console.log('[Graph] Loaded with', graph.nodes.length, 'nodes and', graph.edges.length, 'edges');
   return graph;
-}
-
-/**
- * Returns a Map<id, GraphNode> for O(1) node lookups by ID.
- * Call once per graph load and pass the result into functions that need it.
- */
-export function nodeMap(graph: Graph): Map<number, GraphNode> {
-  return new Map(graph.nodes.map(n => [n.id, n]));
-}
-
-/**
- * Creates synthetic bidirectional edges that bridge each entrance node to its
- * nearest outdoor node, producing a single connected indoor+outdoor graph for
- * Dijkstra to traverse end-to-end.
- *
- * Entrance candidates are collected from two sources and merged:
- *   - nodes where n.entrance === true (live API field)
- *   - extraEntranceIds (building-config entrance node IDs from caller)
- *
- * Synthetic edges use negative IDs (–entranceNodeId) to guarantee no collision
- * with real database IDs. They are NOT added to the cache — the caller merges
- * them into a local graph copy and passes that to findPath.
- *
- * Edges are skipped when the entrance node already connects to an outdoor node
- * in the base graph (no duplicate stitching).
- */
-export function stitchEntrances(
-  graph: Graph,
-  nMap: Map<number, GraphNode>,
-  extraEntranceIds: number[] = [],
-): GraphEdge[] {
-  const outdoorNodes = graph.nodes.filter(n => n.floor === null);
-  if (outdoorNodes.length === 0) return [];
-
-  // Union of entrance candidates: API-flagged entrances + config-supplied IDs.
-  const entranceIds = new Set<number>([
-    ...graph.nodes.filter(n => n.entrance === true && n.floor !== null).map(n => n.id),
-    ...extraEntranceIds.filter(id => {
-      const n = nMap.get(id);
-      return n !== undefined && n.floor !== null; // must be an indoor node
-    }),
-  ]);
-
-  // Pre-compute which nodes are already directly connected to an outdoor node
-  // so we can skip re-stitching entrances that are already linked.
-  const linkedToOutdoor = new Set<number>();
-  for (const e of graph.edges) {
-    const a = nMap.get(e.from);
-    const b = nMap.get(e.to);
-    if (!a || !b) continue;
-    if (a.floor !== null && b.floor === null) linkedToOutdoor.add(a.id);
-    if (b.floor !== null && a.floor === null) linkedToOutdoor.add(b.id);
-  }
-
-  const synthetic: GraphEdge[] = [];
-
-  for (const entranceId of entranceIds) {
-    // Skip if an outdoor connection already exists in the base graph.
-    if (linkedToOutdoor.has(entranceId)) continue;
-
-    const entrance = nMap.get(entranceId)!;
-
-    // Find the nearest outdoor node by haversine distance.
-    let bestNode: GraphNode | null = null;
-    let bestDist = Infinity;
-    for (const outdoor of outdoorNodes) {
-      const d = _haversine(entrance.lat, entrance.lng, outdoor.lat, outdoor.lng);
-      if (d < bestDist) { bestDist = d; bestNode = outdoor; }
-    }
-    if (!bestNode) continue;
-
-    synthetic.push({
-      id:       -entranceId,      // negative to avoid collision with real edge IDs
-      from:     entranceId,
-      to:       bestNode.id,
-      weight:   bestDist,
-      type:     'entrance_link',  // sentinel used by router to skip GeoJSON drawing
-      ada:      entrance.ada,     // inherit accessibility from the entrance node
-      directed: false,
-    });
-    console.log(`[Graph] Stitched entrance ${entranceId} → outdoor ${bestNode.id} (${bestDist.toFixed(1)} m)`);
-  }
-
-  console.log(`[Graph] stitchEntrances produced ${synthetic.length} synthetic edge(s)`);
-  return synthetic;
 }
 
 /**
@@ -222,6 +134,7 @@ export function findPath(
     if (!e.directed) adj.get(e.to)!.push({ id: e.from, w, edge: e });
   }
   console.log('[Graph] Built adjacency list');
+  console.log('[Graph] Adjaceny list:', adj.entries());
 
   // ── 3. Initialise Dijkstra data structures ──────────────────────────────────
   // dist[id] = shortest known distance from startId to id.
@@ -258,6 +171,7 @@ export function findPath(
         dist.set(v, alt);
         prev.set(v, { fromId: u, edge });
       }
+      console.log(`[Graph] Relaxed edge ${u} -> ${v} with weight ${w}, alt=${alt}, dist[${v}]=${dist.get(v)}`); // Debug log
     }
   }
   console.log('[Graph] Dijkstra completed with distance', dist.get(endId));
@@ -276,6 +190,67 @@ export function findPath(
   }
   console.log('[Graph] Path reconstructed with', pathNodes.length, 'nodes and', pathEdges.length, 'edges');
   return { nodes: pathNodes, edges: pathEdges };
+}
+
+/**
+ * Returns a Map<id, GraphNode> for O(1) node lookups by ID.
+ * Call once per graph load and pass the result into functions that need it.
+ */
+export function nodeMap(graph: Graph): Map<number, GraphNode> {
+  return new Map(graph.nodes.map(n => [n.id, n]));
+}
+
+/**
+ * Runs Dijkstra from startId and returns the shortest distance to every
+ * reachable node. Unlike findPath, this does not reconstruct the path and does
+ * not stop early at a specific target — useful for scoring many candidate nodes
+ * (e.g. all entrance anchors) in a single pass.
+ *
+ * Returns a Map of nodeId → distance. Unreachable nodes are omitted.
+ */
+export function computeDistances(
+  graph:   Graph,
+  startId: number,
+  adaOnly: boolean,
+): Map<number, number> {
+  const { nodes, edges } = graph;
+
+  const eligible = new Set<number>(
+    nodes.filter(n => !adaOnly || n.ada !== false).map(n => n.id),
+  );
+  if (!eligible.has(startId)) return new Map();
+
+  const adj = new Map<number, Array<{ id: number; w: number }>>();
+  eligible.forEach(id => adj.set(id, []));
+  for (const e of edges) {
+    if (!eligible.has(e.from) || !eligible.has(e.to)) continue;
+    if (adaOnly && e.ada === false) continue;
+    const w = Number(e.weight ?? 1) || 1;
+    adj.get(e.from)!.push({ id: e.to, w });
+    if (!e.directed) adj.get(e.to)!.push({ id: e.from, w });
+  }
+
+  const dist = new Map<number, number>();
+  eligible.forEach(id => dist.set(id, Infinity));
+  dist.set(startId, 0);
+  const unvisited = new Set<number>(eligible);
+
+  while (unvisited.size > 0) {
+    let u: number | null = null;
+    for (const id of unvisited) {
+      if (u === null || dist.get(id)! < dist.get(u)!) u = id;
+    }
+    if (u === null || dist.get(u) === Infinity) break;
+    unvisited.delete(u);
+    for (const { id: v, w } of adj.get(u)!) {
+      const alt = dist.get(u)! + w;
+      if (alt < dist.get(v)!) dist.set(v, alt);
+    }
+  }
+
+  const result = new Map<number, number>();
+  for (const [id, d] of dist) if (d < Infinity) result.set(id, d);
+  return result;
 }
 
 // ─── PRIVATE ─────────────────────────────────────────────────────────────────

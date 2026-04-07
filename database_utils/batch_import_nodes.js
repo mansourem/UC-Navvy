@@ -3,7 +3,7 @@ const path = require("path");
 require("dotenv").config();
 const { Client } = require("pg");
 
-const DATA_FILE = path.join(__dirname, "Rhodes/", );
+const DATA_FILE = path.join(__dirname, "points/", );
 const BATCH_SIZE = 100;
 
 function isJsonFile(name) {
@@ -87,29 +87,35 @@ async function main() {
 
   console.log(`Importing nodes from ${DATA_FILE}...`);
   const floorDirs = fs.readdirSync(DATA_FILE, { withFileTypes: true }); 
-  console.log(`Found ${floorDirs.length} sets of nodes in ${DATA_FILE}.`);
+  console.log(`1. Found ${floorDirs.length} directories in ${DATA_FILE}`);
 
   for (const dir of floorDirs) {
     const floorID = dir.name;
     const floorPath = path.join(DATA_FILE, floorID);
     
-    const files = fs.readdirSync(floorPath, { withFileTypes: true });
-    console.log(`Found ${files.length} files in ${floorPath}.`); 
+    const buildingDirs = fs.readdirSync(floorPath, { withFileTypes: true }); 
+    console.log(`2. Found ${buildingDirs.length} directories in ${floorPath}.`);
 
-    for (const file of files) {
-      if (!file.isFile()) continue;
-      if (!isJsonFile(file.name)) continue;
-      if (!isNodeFile(file.name)) continue;
+    for (const buildingDir of buildingDirs) {
+      const buildingPath = path.join(floorPath, buildingDir.name);
+      const files = fs.readdirSync(buildingPath, { withFileTypes: true });
+      console.log(`Found ${files.length} files in ${buildingPath}.`); 
 
-      console.log(`Processing file ${dir.name}/${file.name}...`);
+      for (const file of files) {
+        if (!file.isFile()) continue;
+        if (!isJsonFile(file.name)) continue;
+        if (!isNodeFile(file.name)) continue;
+
+        console.log(`Processing file ${dir.name}/${file.name}...`);
       // const importFloor = path.join(file, "nodes.json");
       // console.log(`Importing nodes from ${importFloor}...`);
     // await importNodes(client, importFloor);
 
-      try {
-        await importNodes(client, path.join(floorPath, file.name));
-      } catch (err) {
-        console.error(`❌ Failed on ${floorPath}/${file.name}: ${err.message}`);
+        try {
+          await importNodes(client, path.join(buildingPath, file.name));
+        } catch (err) {
+          console.error(`❌ Failed on ${buildingPath}/${file.name}: ${err.message}`);
+        }
       }
     }
   }
