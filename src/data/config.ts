@@ -13,7 +13,7 @@ export const API = {
 };
 
 export const MAP_CONFIG = {
-  center:   [-84.5176, 39.1316] as [number, number],  // [lng, lat]
+  center:   [-84.51574775941579, 39.13194517045321] as [number, number],  // [lng, lat]
   zoom:     16,
   minZoom:  14,
   maxZoom:  22,
@@ -88,7 +88,7 @@ export const BUILDINGS: Record<string, Building> = {
   rievschl:    { name: 'Rieveschl Hall',                              center: [-84.51693465876146, 39.1339700017044],     floors: [4,5,6,7,8,9],           elevatorNodes: [], entranceNodes: [], accessibleEntranceNodes: [], apiKey: 'rievschl' },
   schneidr:    { name: 'Schneider Hall',                              center: [-84.51219152169142, 39.13229575815134],    floors: [1],                     elevatorNodes: [], entranceNodes: [], accessibleEntranceNodes: [], apiKey: 'schneidr' },
   scioto:      { name: 'Scioto Hall',                                 center: [-84.51200272222876, 39.134294086602466],   floors: [1],                     elevatorNodes: [], entranceNodes: [1055], accessibleEntranceNodes: [1055], apiKey: 'scioto' },
-  shoe:        { name: 'Shoemaker Multipurpose Center',               center: [-84.51406348593618, 39.131213349497244],   floors: [1,2,3],                 elevatorNodes: [10509,10558,10573,10574,10582,10586,10587,10600,10601,10602,10603,10604,10654,10655,10656,10657,10658,10692,10693], entranceNodes: [544,545,546,547,558,559,560], accessibleEntranceNodes: [544,545,546,547,558], apiKey: 'shoe' },
+  shoe:        { name: 'Shoemaker Multipurpose Center',               center: [-84.51406348593618, 39.131213349497244],   floors: [1,2,3,4,5,6,7],                 elevatorNodes: [10509,10558,10573,10574,10582,10586,10587,10600,10601,10602,10603,10604,10654,10655,10656,10657,10658,10692,10693], entranceNodes: [544,545,546,547,558,559,560], accessibleEntranceNodes: [544,545,546,547,558], apiKey: 'shoe' },
   siddall:     { name: 'Siddall Hall',                                center: [-84.51768426507854, 39.129002143014304],   floors: [1],                     elevatorNodes: [], entranceNodes: [], accessibleEntranceNodes: [], apiKey: 'siddall' },
   steger:      { name: 'Steger Student Life Center',                  center: [-84.5164941231769,  39.13231313776353],    floors: [3,4,5,6,7,8],           elevatorNodes: [], entranceNodes: [], accessibleEntranceNodes: [], apiKey: 'steger' },
   swift:       { name: 'Swift Hall',                                  center: [-84.51741254563956, 39.13245979765452],    floors: [5,6,7,8],               elevatorNodes: [], entranceNodes: [34,236,237,244,245,293,299], accessibleEntranceNodes: [245,293,299], apiKey: 'swift' },
