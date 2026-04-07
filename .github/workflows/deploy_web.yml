@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - final_expo_branch
   workflow_dispatch:
 
 jobs:
