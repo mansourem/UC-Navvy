@@ -11,4 +11,4 @@ tokens.txt
 .wrangler*
 database_utils/node_modules*
 database_utils/.env
-database_utils/data*
+database_utils/points*
