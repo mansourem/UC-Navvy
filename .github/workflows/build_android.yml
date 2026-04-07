@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches:
-      - main
+      - debug
   workflow_dispatch:
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
 
       - name: Clean reset
         run: rm -rf node_modules package-lock.json
-        
+
       - name: Install dependencies
         run: npm install
 
