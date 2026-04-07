@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - final_expo_branch
   workflow_dispatch:
 
 jobs:
@@ -18,7 +19,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          
+
       - name: Clean reset
         run: rm -rf node_modules package-lock.json
 
