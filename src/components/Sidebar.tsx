@@ -39,9 +39,15 @@ export default function Sidebar({
   const [collapsed,  setCollapsed]  = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
   const [toast,      setToast]      = useState<{ msg: string; type: string } | null>(null);
+  const [startFloor, setStartFloor] = useState<number | undefined>(undefined);
+  const [endFloor,   setEndFloor]   = useState<number | undefined>(undefined);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const canNavigate = !!(startBuilding && endBuilding);
+
+  // Reset floor selection whenever the building changes.
+  useEffect(() => { setStartFloor(undefined); }, [startBuilding]);
+  useEffect(() => { setEndFloor(undefined);   }, [endBuilding]);
 
   // ── Toast helper ─────────────────────────────────────────────────────────
   const showToast = useCallback((msg: string, type = 'info') => {
@@ -56,7 +62,7 @@ export default function Sidebar({
     setLoading(true);
     setSteps(null);
     try {
-      const result = await planRoute({ startBuilding, endBuilding, adaOnly: adaMode });
+      const result = await planRoute({ startBuilding, endBuilding, adaOnly: adaMode, startFloor, endFloor });
       setSteps(result.steps);
       onRouteReady(result);
       // Collapse sidebar on mobile after navigating
@@ -67,7 +73,7 @@ export default function Sidebar({
     } finally {
       setLoading(false);
     }
-  }, [startBuilding, endBuilding, adaMode, canNavigate, onRouteReady, showToast]);
+  }, [startBuilding, endBuilding, adaMode, startFloor, endFloor, canNavigate, onRouteReady, showToast]);
 
   // ── ADA toggle keyboard handler ───────────────────────────────────────────
   const handleAdaKeyDown = (e: React.KeyboardEvent) => {
@@ -106,8 +112,12 @@ export default function Sidebar({
               </div>
               {FEATURES.INDOOR_ROUTING && (
                 <div className="select-group indoor-routing-field">
-                  <label htmlFor="startFloor">Floor</label>
-                  <select id="startFloor" aria-label="Starting floor">
+                  <select
+                    id="startFloor"
+                    aria-label="Starting floor"
+                    value={startFloor ?? ''}
+                    onChange={e => setStartFloor(e.target.value !== '' ? Number(e.target.value) : undefined)}
+                  >
                     <option value="">Floor…</option>
                     {startBuilding && BUILDINGS[startBuilding]?.floors.map(f => (
                       <option key={f} value={f}>Floor {f}</option>
@@ -145,8 +155,12 @@ export default function Sidebar({
               </div>
               {FEATURES.INDOOR_ROUTING && (
                 <div className="select-group indoor-routing-field">
-                  <label htmlFor="endFloor">Floor</label>
-                  <select id="endFloor" aria-label="Destination floor">
+                  <select
+                    id="endFloor"
+                    aria-label="Destination floor"
+                    value={endFloor ?? ''}
+                    onChange={e => setEndFloor(e.target.value !== '' ? Number(e.target.value) : undefined)}
+                  >
                     <option value="">Floor…</option>
                     {endBuilding && BUILDINGS[endBuilding]?.floors.map(f => (
                       <option key={f} value={f}>Floor {f}</option>

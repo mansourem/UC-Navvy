@@ -3,7 +3,7 @@ const path = require("path");
 require("dotenv").config();
 const { Client } = require("pg");
 
-const DATA_FILE = path.join(__dirname, "data/Baldwin");
+const DATA_FILE = path.join(__dirname, "points/", );
 const BATCH_SIZE = 100;
 
 function isJsonFile(name) {
@@ -84,27 +84,34 @@ async function main() {
 
   console.log(`Importing nodes from ${DATA_FILE}...`);
   const floorDirs = fs.readdirSync(DATA_FILE, { withFileTypes: true }); 
-  console.log(`Found ${floorDirs.length} sets of edges in ${DATA_FILE}.`);
+  console.log(`1. Found ${floorDirs.length} directories in ${DATA_FILE}`);
 
   for (const dir of floorDirs) {
     const floorID = dir.name;
     const floorPath = path.join(DATA_FILE, floorID);
     
-    const files = fs.readdirSync(floorPath, { withFileTypes: true });
-    console.log(`Found ${files.length} files in ${floorPath}.`); 
-
-    for (const file of files) {
-      if (!file.isFile()) continue;
-      if (!isJsonFile(file.name)) continue;
-      if (!isEdgeFile(file.name)) continue;
-
-      console.log(`Processing file ${dir.name}/${file.name}...`);
-      try {
-        await importEdges(client, path.join(floorPath, file.name));
-      } catch (err) {
-        console.error(`❌ Failed on ${floorPath}/${file.name}: ${err.message}`);
-      }
-    }
+    const buildingDirs = fs.readdirSync(floorPath, { withFileTypes: true }); 
+        console.log(`2. Found ${buildingDirs.length} directories in ${floorPath}.`);
+    
+        for (const buildingDir of buildingDirs) {
+          const buildingPath = path.join(floorPath, buildingDir.name);
+          const files = fs.readdirSync(buildingPath, { withFileTypes: true });
+          console.log(`Found ${files.length} files in ${buildingPath}.`); 
+    
+          for (const file of files) {
+            if (!file.isFile()) continue;
+            if (!isJsonFile(file.name)) continue;
+            if (!isEdgeFile(file.name)) continue;
+    
+            console.log(`Processing file ${dir.name}/${file.name}...`);
+    
+            try {
+              await importEdges(client, path.join(buildingPath, file.name));
+            } catch (err) {
+              console.error(`❌ Failed on ${buildingPath}/${file.name}: ${err.message}`);
+            }
+          }
+        }
   }
 
    await client.end();

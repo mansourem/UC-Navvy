@@ -4,12 +4,6 @@ node_modules*
 .claude*
 .venv*
 docs*
-.vscode*
-dist*
-node_modules*
-.claude*
-.venv*
-docs*
 tokens.txt
 .vite*
 .idea*
