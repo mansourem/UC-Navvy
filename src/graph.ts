@@ -105,23 +105,27 @@ function isJSON(str: string): boolean {
  * Returns null when no path exists (e.g. disconnected subgraph, ADA constraint).
  */
 export function findPath(
-  graph:   Graph,
-  startId: number,
-  endId:   number,
-  adaOnly: boolean,
+  graph:       Graph,
+  startId:     number,
+  endId:       number,
+  adaOnly:     boolean,
+  outdoorOnly = false,
 ): PathResult | null {
-  
+
   if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
     throw new Error("Invalid graph passed to findPath");
   }
-  // const { nodes, edges } = graph;
+  const { nodes, edges } = graph;
 
   // ── 1. Build the eligible node set ─────────────────────────────────────────
   // When adaOnly is true, filter out non-accessible nodes so Dijkstra never
   // routes through them. Non-accessible edges are also skipped below.
+  // When outdoorOnly is true, restrict to outdoor nodes (floor === null) so the
+  // outdoor Dijkstra cannot shortcut through indoor building subgraphs.
   const eligible = new Set<number>(
     graph.nodes
-      .filter(n => !adaOnly || n.ada !== false)
+      .filter(n => !adaOnly     || n.ada   !== false)
+      .filter(n => !outdoorOnly || n.floor === null)
       .map(n => n.id),
   );
 
@@ -223,14 +227,18 @@ export function nodeMap(graph: Graph): Map<number, GraphNode> {
  * Returns a Map of nodeId → distance. Unreachable nodes are omitted.
  */
 export function computeDistances(
-  graph:   Graph,
-  startId: number,
-  adaOnly: boolean,
+  graph:       Graph,
+  startId:     number,
+  adaOnly:     boolean,
+  outdoorOnly = false,
 ): Map<number, number> {
   const { nodes, edges } = graph;
 
   const eligible = new Set<number>(
-    nodes.filter(n => !adaOnly || n.ada !== false).map(n => n.id),
+    nodes
+      .filter(n => !adaOnly     || n.ada   !== false)
+      .filter(n => !outdoorOnly || n.floor === null)
+      .map(n => n.id),
   );
   if (!eligible.has(startId)) return new Map();
 

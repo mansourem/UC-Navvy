@@ -106,7 +106,7 @@ export async function planRoute(req: RouteRequest): Promise<RouteResult> {
     // are mapped does _bestEntranceByDist fall back to regular entranceNodes.
     const startGeoAnchor = _nearestNode(anchorPool, sb, req.adaOnly);
     const distFromStart  = startGeoAnchor
-      ? computeDistances(graph, startGeoAnchor.id, req.adaOnly)
+      ? computeDistances(graph, startGeoAnchor.id, req.adaOnly, true)
       : new Map<number, number>();
     const bestEnd    = _bestEntranceByDist(eb, nMap, anchorPool, distFromStart, req.adaOnly);
     const endNode    = bestEnd?.anchor   ?? _nearestNode(anchorPool, eb, req.adaOnly);
@@ -116,7 +116,7 @@ export async function planRoute(req: RouteRequest): Promise<RouteResult> {
     // Pass 2: run Dijkstra from the chosen end anchor to score start-building
     // entrances by actual graph distance back toward the start side.
     const distFromEnd = endNode
-      ? computeDistances(graph, endNode.id, req.adaOnly)
+      ? computeDistances(graph, endNode.id, req.adaOnly, true)
       : new Map<number, number>();
     const bestStart    = _bestEntranceByDist(sb, nMap, anchorPool, distFromEnd, req.adaOnly);
     const startNode    = bestStart?.anchor   ?? startGeoAnchor;
@@ -151,9 +151,11 @@ export async function planRoute(req: RouteRequest): Promise<RouteResult> {
     }
 
     // ── 3. Run Dijkstra; retry without ADA constraint if no path found ────────
-    let result = findPath(graph, startNode.id, endNode.id, req.adaOnly);
+    // outdoorOnly=true prevents the outdoor path from shortcutting through
+    // building interiors — indoor sub-paths are handled separately below.
+    let result = findPath(graph, startNode.id, endNode.id, req.adaOnly, true);
     const adaFallback = !result && req.adaOnly;
-    if (!result) result = findPath(graph, startNode.id, endNode.id, false);
+    if (!result) result = findPath(graph, startNode.id, endNode.id, false, true);
     if (!result || result.nodes.length < 2)
       return _fallback(req, startPinCoord, endPinCoord, startEntrFloor, endEntrFloor);
     console.log('[Router] Path found with', result.nodes.length, 'nodes and', result.edges.length, 'edges');
